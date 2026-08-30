@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Học mà chơi | Tin học Tiểu học</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --primary: #1a73e8;
+      --primary-dark: #0d47a1;
+      --orange: #ff9800;
+      --green: #4caf50;
+      --purple: #9c27b0;
+      --pink: #e91e63;
+      --blue-light: #e3f2fd;
+      --gray-100: #f5f7fa;
+      --gray-200: #e8eef5;
+      --gray-600: #546e7a;
+      --gray-800: #263238;
+      --shadow: 0 4px 15px rgba(0,0,0,0.08);
+      --shadow-hover: 0 8px 25px rgba(0,0,0,0.12);
+      --radius: 12px;
+      --transition: all 0.3s ease;
+    }
+    body {
+      font-family: 'Nunito', 'Segoe UI', sans-serif;
+      background: var(--gray-100);
+      color: var(--gray-800);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+    a { text-decoration: none; color: inherit; transition: var(--transition); }
+    ul { list-style: none; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 10px 20px; border-radius: 25px; font-weight: 700;
+      font-size: 14px; border: none; cursor: pointer;
+      transition: var(--transition); font-family: inherit;
+    }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-dark); transform: translateY(-2px); }
+    .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
+    .btn-outline:hover { background: var(--primary); color: white; }
+    .btn-play {
+      background: rgba(255,255,255,0.95); color: var(--gray-800);
+      padding: 9px 18px; font-size: 13px; border-radius: 20px; font-weight: 700;
+    }
+    .btn-play:hover { background: white; transform: scale(1.05); }
+    .header {
+      background: white;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      position: sticky; top: 0; z-index: 1000;
+    }
+    .header-top {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 0; gap: 16px;
+    }
+    .logo { display: flex; align-items: center; gap: 12px; }
+    .logo-icon {
+      width: 44px; height: 44px;
+      background: linear-gradient(135deg, #1a73e8, #42a5f5);
+      border-radius: 11px; display: flex; align-items: center; justify-content: center;
+      color: white; font-size: 20px;
+      box-shadow: 0 4px 12px rgba(26,115,232,0.3);
+    }
+    .logo-text h1 { font-size: 18px; font-weight: 800; color: var(--primary); letter-spacing: 0.3px; }
+    .logo-text p { font-size: 11px; color: var(--gray-600); font-weight: 600; }
+    .header-actions { display: flex; align-items: center; gap: 10px; }
+    .search-box {
+      display: flex; align-items: center; background: var(--gray-100);
+      border-radius: 22px; padding: 5px 5px 5px 14px;
+      border: 1px solid transparent; transition: var(--transition);
+    }
+    .search-box:focus-within {
+      border-color: var(--primary); background: white;
+      box-shadow: 0 0 0 3px rgba(26,115,232,0.12);
+    }
+    .search-box input {
+      border: none; background: transparent; outline: none;
+      width: 160px; font-size: 13px; font-family: inherit; color: var(--gray-800);
+    }
+    .search-box button {
+      width: 34px; height: 34px; border-radius: 50%; border: none;
+      background: var(--primary); color: white; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .search-box button:hover { background: var(--primary-dark); }
+    .mobile-menu-btn {
+      display: none; width: 40px; height: 40px; border: none;
+      background: var(--gray-100); border-radius: 10px; font-size: 18px;
+      color: var(--primary); cursor: pointer;
+    }
+    .nav {
+      background: linear-gradient(90deg, #1565c0, #1a73e8);
+    }
+    .nav-list {
+      display: flex; align-items: center; justify-content: center;
+      gap: 2px; padding: 0 8px;
+      overflow-x: auto; scrollbar-width: none;
+    }
+    .nav-list::-webkit-scrollbar { display: none; }
+    .nav-item a {
+      display: flex; align-items: center; gap: 7px;
+      padding: 12px 18px; color: rgba(255,255,255,0.92);
+      font-weight: 700; font-size: 13.5px; border-radius: 10px 10px 0 0;
+      white-space: nowrap; transition: var(--transition);
+    }
+    .nav-item a:hover { background: rgba(255,255,255,0.15); color: white; }
+    .nav-item.active a {
+      background: white; color: var(--primary);
+      position: relative;
+    }
+    .nav-item.active a::after {
+      content: ''; position: absolute; bottom: 0; left: 12px; right: 12px;
+      height: 3px; background: var(--orange); border-radius: 3px 3px 0 0;
+    }
+    .page-hero {
+      background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 50%, #ce93d8 100%);
+      padding: 40px 0 48px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .page-hero::before {
+      content: '';
+      position: absolute;
+      top: -30%;
+      left: -10%;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(255,255,255,0.4) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .page-hero h2 {
+      font-size: 34px; font-weight: 800; color: #6a1b9a; margin-bottom: 10px;
+      position: relative;
+    }
+    .page-hero p { font-size: 17px; color: #4a148c; opacity: 0.9; position: relative; }
+    .breadcrumb {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      font-size: 13px; color: #6a1b9a; margin-bottom: 14px; position: relative;
+    }
+    .breadcrumb a { color: #6a1b9a; font-weight: 700; }
+    .main { padding: 36px 0 52px; }
+    .section-title {
+      font-size: 22px; font-weight: 800; color: var(--gray-800);
+      margin-bottom: 22px; display: flex; align-items: center; gap: 10px;
+    }
+    .section-title i { color: var(--purple); }
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+    .game-card {
+      border-radius: var(--radius);
+      overflow: hidden;
+      color: white;
+      transition: var(--transition);
+      position: relative;
+      min-height: 220px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 22px;
+    }
+    .game-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 60%);
+      z-index: 1;
+    }
+    .game-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 14px 30px rgba(0,0,0,0.2);
+    }
+    .game-card .icon {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      width: 56px;
+      height: 56px;
+      background: rgba(255,255,255,0.25);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      z-index: 2;
+      backdrop-filter: blur(4px);
+    }
+    .game-card .content {
+      position: relative;
+      z-index: 2;
+    }
+    .game-card h3 {
+      font-size: 18px;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+    .game-card p {
+      font-size: 13px;
+      opacity: 0.95;
+      margin-bottom: 14px;
+      line-height: 1.4;
+    }
+    .game-card.purple { background: linear-gradient(135deg, #7b1fa2, #ab47bc); }
+    .game-card.green { background: linear-gradient(135deg, #2e7d32, #66bb6a); }
+    .game-card.orange { background: linear-gradient(135deg, #ef6c00, #ffb74d); }
+    .game-card.blue { background: linear-gradient(135deg, #1565c0, #42a5f5); }
+    .game-card.pink { background: linear-gradient(135deg, #c2185b, #f48fb1); }
+    .game-card.teal { background: linear-gradient(135deg, #00695c, #4db6ac); }
+    .level-badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.25);
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .info-box {
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 24px 28px;
+      margin-bottom: 28px;
+    }
+    .info-box h3 {
+      font-size: 18px;
+      font-weight: 800;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .info-box h3 i { color: var(--orange); }
+    .info-box ul {
+      padding-left: 20px;
+    }
+    .info-box li {
+      list-style: disc;
+      margin-bottom: 8px;
+      font-size: 14.5px;
+      color: var(--gray-600);
+    }
+    .tips-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+    .tip-card {
+      background: var(--gray-100);
+      border-radius: 12px;
+      padding: 18px;
+      text-align: center;
+      transition: var(--transition);
+    }
+    .tip-card:hover { background: var(--blue-light); }
+    .tip-card i {
+      font-size: 28px;
+      color: var(--primary);
+      margin-bottom: 10px;
+    }
+    .tip-card h4 {
+      font-size: 14px;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+    .tip-card p {
+      font-size: 12.5px;
+      color: var(--gray-600);
+    }
+    .footer {
+      background: linear-gradient(90deg, #0d47a1, #1565c0); color: white; padding: 18px 0;
+    }
+    .footer-content {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 14px; flex-wrap: wrap;
+    }
+    .copyright { font-size: 12.5px; opacity: 0.9; }
+    .footer-links { display: flex; align-items: center; gap: 8px; font-size: 12.5px; }
+    .footer-links a:hover { text-decoration: underline; }
+    .social-links { display: flex; gap: 8px; }
+    .social {
+      width: 34px; height: 34px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(255,255,255,0.15); font-size: 13px; transition: var(--transition);
+    }
+    .social:hover { background: white; color: var(--primary); transform: scale(1.08); }
+    .social.zalo { font-size: 11px; font-weight: 800; width: auto; padding: 0 11px; border-radius: 17px; }
+    @media (max-width: 768px) {
+      .header-actions .btn { display: none; }
+      .search-box { display: none; }
+      .mobile-menu-btn { display: flex; align-items: center; justify-content: center; }
+      .nav { display: none; }
+      .nav.active { display: block; }
+      .nav-list { flex-direction: column; padding: 8px; align-items: stretch; }
+      .nav-item a { border-radius: 8px; width: 100%; justify-content: flex-start; }
+      .nav-item.active a::after { display: none; }
+      .page-hero h2 { font-size: 26px; }
+      .games-grid { grid-template-columns: 1fr; }
+      .footer-content { flex-direction: column; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="container header-top">
+      <div class="logo">
+        <div class="logo-icon"><i class="fas fa-book-open"></i></div>
+        <div class="logo-text">
+          <h1>TIN HỌC TIỂU HỌC</h1>
+          <p>Học để hiểu – Hiểu để sáng tạo</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <div class="search-box">
+          <input type="text" placeholder="Tìm kiếm...">
+          <button type="button"><i class="fas fa-search"></i></button>
+        </div>
+        <a href="404.html" class="btn btn-outline">Đăng nhập</a>
+        <a href="404.html" class="btn btn-primary">Đăng ký</a>
+      </div>
+      <button class="mobile-menu-btn" id="mobileMenuBtn"><i class="fas fa-bars"></i></button>
+    </div>
+    <nav class="nav" id="mainNav">
+      <div class="container">
+        <ul class="nav-list">
+          <li class="nav-item"><a href="index.html"><i class="fas fa-home"></i> Trang chủ</a></li>
+          <li class="nav-item active"><a href="hoc-ma-choi.html"><i class="fas fa-gamepad"></i> Học mà chơi</a></li>
+          <li class="nav-item"><a href="phong-may.html"><i class="fas fa-desktop"></i> Phòng máy</a></li>
+          <li class="nav-item"><a href="tai-lieu.html"><i class="fas fa-book"></i> Tài liệu</a></li>
+          <li class="nav-item"><a href="https://script.google.com/macros/s/YOUR_APPSCRIPT_ID/exec" target="_blank" rel="noopener"><i class="fas fa-tasks"></i> Bài tập</a></li>
+          <li class="nav-item"><a href="goc-hoc-sinh.html"><i class="fas fa-trophy"></i> Góc học sinh</a></li>
+          <li class="nav-item"><a href="goc-giao-vien.html"><i class="fas fa-chalkboard-teacher"></i> Góc giáo viên</a></li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+
+  <section class="page-hero">
+    <div class="container">
+      <div class="breadcrumb">
+        <a href="index.html">Trang chủ</a> <i class="fas fa-chevron-right" style="font-size:10px"></i>
+        <span>Học mà chơi</span>
+      </div>
+      <h2><i class="fas fa-gamepad"></i> Học mà chơi</h2>
+      <p>Vừa học vừa chơi – Kiến thức tin học thật vui và dễ nhớ!</p>
+    </div>
+  </section>
+
+  <main class="main">
+    <div class="container">
+      <div class="info-box">
+        <h3><i class="fas fa-lightbulb"></i> Vì sao nên học mà chơi?</h3>
+        <ul>
+          <li>Giúp các em nhớ kiến thức lâu hơn nhờ trải nghiệm vui vẻ.</li>
+          <li>Rèn luyện tư duy logic, phản xạ nhanh và khả năng giải quyết vấn đề.</li>
+          <li>Tạo hứng thú với môn Tin học ngay từ những năm đầu cấp.</li>
+          <li>Phù hợp với mọi trình độ – từ lớp 1 đến lớp 5.</li>
+        </ul>
+      </div>
+
+      <h3 class="section-title"><i class="fas fa-star"></i> Trò chơi nổi bật</h3>
+      <div class="games-grid">
+        <div class="game-card purple">
+          <div class="icon"><i class="fas fa-keyboard"></i></div>
+          <div class="content">
+            <span class="level-badge">Lớp 1 – 5</span>
+            <h3>Luyện gõ phím</h3>
+            <p>5 cửa nhìn hình gõ chữ + gợi ý. Có đồng hồ đếm ngược!</p>
+            <a href="game-go-phim.html" class="btn btn-play">Chơi ngay <i class="fas fa-play"></i></a>
+          </div>
+        </div>
+
+        <div class="game-card green">
+          <div class="icon"><i class="fas fa-puzzle-piece"></i></div>
+          <div class="content">
+            <span class="level-badge">Lớp 2 – 5</span>
+            <h3>Ghép hình Tin học</h3>
+            <p>Ghép hình đồ vật máy tính: 4 · 8 · 16 · 32 mảnh. Độ khó tăng dần!</p>
+            <a href="game-ghep-hinh.html" class="btn btn-play">Chơi ngay <i class="fas fa-play"></i></a>
+          </div>
+        </div>
+
+        <div class="game-card pink">
+          <div class="icon"><i class="fas fa-mouse"></i></div>
+          <div class="content">
+            <span class="level-badge">Lớp 1 – 3</span>
+            <h3>Bắt chuột thông minh</h3>
+            <p>Luyện sử dụng chuột: click, kéo thả, double-click qua các màn chơi thú vị.</p>
+            <a href="game-bat-chuot.html" class="btn btn-play">Chơi ngay <i class="fas fa-play"></i></a>
+          </div>
+        </div>
+
+        <div class="game-card teal">
+          <div class="icon"><i class="fas fa-memory"></i></div>
+          <div class="content">
+            <span class="level-badge">Lớp 2 – 5</span>
+            <h3>Trí nhớ siêu phàm</h3>
+            <p>Lật thẻ tìm cặp hình ảnh về máy tính, biểu tượng phần mềm và thiết bị.</p>
+            <a href="game-tri-nho.html" class="btn btn-play">Chơi ngay <i class="fas fa-play"></i></a>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-box">
+        <h3><i class="fas fa-trophy"></i> Mẹo chơi hay – học giỏi</h3>
+        <div class="tips-grid">
+          <div class="tip-card">
+            <i class="fas fa-clock"></i>
+            <h4>Chơi đều đặn</h4>
+            <p>Mỗi ngày 10–15 phút giúp kỹ năng tiến bộ nhanh.</p>
+          </div>
+          <div class="tip-card">
+            <i class="fas fa-users"></i>
+            <h4>Thi đua cùng bạn</h4>
+            <p>Cùng bạn bè so điểm để tăng thêm hứng thú.</p>
+          </div>
+          <div class="tip-card">
+            <i class="fas fa-redo"></i>
+            <h4>Chơi lại khi sai</h4>
+            <p>Mỗi lần chơi lại là một lần học thêm kiến thức mới.</p>
+          </div>
+          <div class="tip-card">
+            <i class="fas fa-star"></i>
+            <h4>Sưu tầm sao</h4>
+            <p>Càng nhiều sao, thứ hạng trên bảng xếp hạng càng cao!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-content">
+      <p class="copyright">© 2024 Tin học Tiểu học. Tất cả quyền được bảo lưu.</p>
+      <div class="footer-links">
+        <a href="#">Giới thiệu</a><span>|</span>
+        <a href="#">Điều khoản sử dụng</a><span>|</span>
+        <a href="#">Chính sách bảo mật</a><span>|</span>
+        <a href="#">Liên hệ</a>
+      </div>
+      <div class="social-links">
+        <a href="#" class="social fb" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+        <a href="#" class="social yt" title="YouTube"><i class="fab fa-youtube"></i></a>
+        <a href="#" class="social zalo" title="Zalo">Zalo</a>
+      </div>
+    </div>
+  </footer>
+  <script>
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const mainNav = document.getElementById('mainNav');
+    if (mobileMenuBtn && mainNav) {
+      mobileMenuBtn.addEventListener('click', () => {
+        mainNav.classList.toggle('active');
+        const icon = mobileMenuBtn.querySelector('i');
+        if (mainNav.classList.contains('active')) {
+          icon.classList.remove('fa-bars');
+          icon.classList.add('fa-times');
+        } else {
+          icon.classList.remove('fa-times');
+          icon.classList.add('fa-bars');
+        }
+      });
+      mainNav.querySelectorAll('.nav-item a').forEach(link => {
+        link.addEventListener('click', () => {
+          if (window.innerWidth <= 768) {
+            mainNav.classList.remove('active');
+            const icon = mobileMenuBtn.querySelector('i');
+            icon.classList.remove('fa-times');
+            icon.classList.add('fa-bars');
+          }
+        });
+      });
+    }
+  </script>
+</body>
+</html>

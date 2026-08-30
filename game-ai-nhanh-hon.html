@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ai nhanh hơn | Góc giáo viên</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: linear-gradient(160deg, #e0f7fa 0%, #e8f5e9 50%, #e3f2fd 100%);
+      min-height: 100vh; color: #263238;
+    }
+    .topbar {
+      background: white; box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      padding: 12px 20px; display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 50;
+    }
+    .topbar a { color: #00897b; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+    .topbar h1 { font-size: 18px; font-weight: 800; color: #00897b; }
+    .wrap { max-width: 800px; margin: 0 auto; padding: 20px 16px 48px; }
+    .card {
+      background: white; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      padding: 22px; margin-bottom: 18px;
+    }
+    .card h2 { font-size: 18px; font-weight: 800; margin-bottom: 12px; color: #00897b; }
+    label { font-weight: 700; font-size: 13px; display: block; margin-bottom: 4px; }
+    input[type=text], input[type=number] {
+      width: 100%; padding: 10px 12px; border: 2px solid #e0e0e0; border-radius: 10px;
+      font-family: inherit; font-size: 14px; outline: none; margin-bottom: 10px;
+    }
+    input:focus { border-color: #00897b; }
+    .q-block { background: #e0f2f1; border-radius: 12px; padding: 14px; margin-bottom: 12px; }
+    .ans-row { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
+    .ans-row input[type=text] { flex: 1; margin-bottom: 0; }
+    .ans-row input[type=radio] { width: 18px; height: 18px; accent-color: #00897b; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border-radius: 999px;
+      font-weight: 800; font-size: 14px; border: none; cursor: pointer; font-family: inherit; transition: 0.2s;
+    }
+    .btn-primary { background: linear-gradient(135deg, #00897b, #4db6ac); color: white; box-shadow: 0 6px 18px rgba(0,137,123,0.3); }
+    .btn-outline { background: white; border: 2px solid #00897b; color: #00897b; }
+    .timer {
+      font-size: 48px; font-weight: 800; color: #00897b; text-align: center; margin: 12px 0;
+    }
+    .timer.danger { color: #e53935; animation: pulse 0.5s infinite; }
+    @keyframes pulse { 50% { transform: scale(1.08); } }
+    .options { display: grid; gap: 10px; margin-top: 16px; }
+    .opt-btn {
+      padding: 14px 18px; border-radius: 12px; border: 2px solid #e0e0e0; background: white;
+      font-weight: 700; font-size: 15px; cursor: pointer; text-align: left; transition: 0.2s; font-family: inherit;
+    }
+    .opt-btn:hover { border-color: #00897b; background: #e0f2f1; }
+    .opt-btn.correct { border-color: #4caf50; background: #e8f5e9; color: #2e7d32; }
+    .opt-btn.wrong { border-color: #e53935; background: #ffebee; color: #c62828; }
+    .feedback { font-size: 20px; font-weight: 800; margin-top: 16px; min-height: 30px; text-align: center; }
+    .q-img { max-width: 100%; max-height: 180px; border-radius: 12px; margin: 12px auto; display: block; object-fit: contain; }
+    .confetti { position: fixed; inset: 0; pointer-events: none; z-index: 100; overflow: hidden; }
+    .confetti span { position: absolute; width: 12px; height: 12px; border-radius: 2px; animation: fall 2.5s ease-out forwards; }
+    @keyframes fall {
+      0% { transform: translateY(-20px) rotate(0); opacity: 1; }
+      100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+    }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <a href="goc-giao-vien.html"><i class="fas fa-arrow-left"></i> Quay lại</a>
+    <h1><i class="fas fa-bolt"></i> Ai nhanh hơn</h1>
+    <span style="width:80px"></span>
+  </div>
+  <div class="wrap">
+    <div id="setupScreen">
+      <div class="card">
+        <h2>⚙️ Cài đặt câu hỏi (1–5 câu) + thời gian</h2>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+          <div>
+            <label>Thứ tự câu hỏi</label>
+            <select id="orderQ" style="width:100%;padding:10px 12px;border:2px solid #e0e0e0;border-radius:10px;font-family:inherit;font-size:14px">
+              <option value="default">Mặc định (theo thứ tự nhập)</option>
+              <option value="random">Random câu hỏi</option>
+            </select>
+          </div>
+          <div>
+            <label>Thứ tự đáp án</label>
+            <select id="orderA" style="width:100%;padding:10px 12px;border:2px solid #e0e0e0;border-radius:10px;font-family:inherit;font-size:14px">
+              <option value="default">Mặc định (theo thứ tự nhập)</option>
+              <option value="random">Random đáp án</option>
+            </select>
+          </div>
+        </div>
+
+        <label>Thời gian mỗi câu (giây)</label>
+        <input type="number" id="timePerQ" value="20" min="5" max="120" style="max-width:120px">
+        <div id="questionsBox"></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">
+          <button class="btn btn-outline" id="btnAddQ"><i class="fas fa-plus"></i> Thêm câu hỏi</button>
+          <button class="btn btn-primary" id="btnStart"><i class="fas fa-play"></i> Bắt đầu</button>
+        </div>
+      </div>
+    </div>
+    <div id="playScreen" class="hidden">
+      <div class="card">
+        <div class="timer" id="timer">20</div>
+        <h2 id="qText" style="font-size:17px;text-align:center;margin-bottom:8px"></h2>
+        <img id="qImg" class="q-img hidden" alt="Ảnh minh họa">
+        <div class="options" id="options"></div>
+        <div class="feedback" id="feedback"></div>
+        <div style="margin-top:16px;text-align:center">
+          <button class="btn btn-primary hidden" id="btnNext"><i class="fas fa-arrow-right"></i> Câu tiếp</button>
+          <button class="btn btn-outline hidden" id="btnFinish"><i class="fas fa-flag-checkered"></i> Kết thúc</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="confetti" id="confetti"></div>
+  <script>
+    let remaining = [], answered = false, timeLeft = 20, timerId = null, timePerQ = 20;
+    const $ = id => document.getElementById(id);
+
+    function makeQBlock(idx) {
+      const div = document.createElement('div');
+      div.className = 'q-block';
+      div.innerHTML = `
+        <label>Câu ${idx + 1}</label>
+        <input type="text" class="q-text" placeholder="Nhập câu hỏi...">
+        <label>Ảnh minh họa (URL – tùy chọn)</label>
+        <input type="text" class="q-img-url" placeholder="https://... hoặc để trống">
+        <label>Đáp án (chọn 1 đúng)</label>
+        <div>
+          ${[0,1,2,3].map(i => `
+            <div class="ans-row">
+              <input type="radio" name="correct${idx}" value="${i}" ${i===0?'checked':''}>
+              <input type="text" class="ans-text" placeholder="Đáp án ${i+1}">
+            </div>
+          `).join('')}
+        </div>
+      `;
+      return div;
+    }
+    function rebuild(n) {
+      const box = $('questionsBox'); box.innerHTML = '';
+      for (let i=0;i<n;i++) box.appendChild(makeQBlock(i));
+    }
+    rebuild(1);
+    $('btnAddQ').addEventListener('click', () => {
+      if ($('questionsBox').children.length >= 5) return alert('Tối đa 5 câu');
+      $('questionsBox').appendChild(makeQBlock($('questionsBox').children.length));
+    });
+
+    function collect() {
+      const list = [];
+      document.querySelectorAll('.q-block').forEach(block => {
+        const text = block.querySelector('.q-text').value.trim();
+        const img = block.querySelector('.q-img-url').value.trim();
+        const ans = [...block.querySelectorAll('.ans-text')].map(i => i.value.trim()).filter(Boolean);
+        const correctIdx = parseInt(block.querySelector('input[type=radio]:checked')?.value || 0, 10);
+        if (text && ans.length >= 2) list.push({ text, img, answers: ans.slice(0,4), correct: Math.min(correctIdx, ans.length-1) });
+      });
+      return list;
+    }
+
+    function shuffle(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    $('btnStart').addEventListener('click', () => {
+      const qs = collect();
+      timePerQ = parseInt($('timePerQ').value, 10) || 20;
+      if (!qs.length) return alert('Cần ít nhất 1 câu hỏi hợp lệ');
+      const orderQ = $('orderQ').value;
+      remaining = orderQ === 'random' ? shuffle(qs) : [...qs];
+      window._orderA = $('orderA').value;
+      answered = false;
+      $('setupScreen').classList.add('hidden');
+      $('playScreen').classList.remove('hidden');
+      loadQ();
+    });
+
+    function loadQ() {
+      answered = false;
+      clearInterval(timerId);
+      timeLeft = timePerQ;
+      $('timer').textContent = timeLeft;
+      $('timer').classList.remove('danger');
+      const q = remaining[0];
+      $('qText').textContent = q.text;
+      const imgEl = $('qImg');
+      if (q.img) {
+        imgEl.src = q.img;
+        imgEl.classList.remove('hidden');
+      } else {
+        imgEl.classList.add('hidden');
+        imgEl.removeAttribute('src');
+      }
+      const opts = $('options'); opts.innerHTML = '';
+      let idxs = q.answers.map((_, i) => i);
+      if (window._orderA === 'random') idxs = shuffle(idxs);
+      idxs.forEach(i => {
+        const b = document.createElement('button');
+        b.className = 'opt-btn'; b.textContent = q.answers[i];
+        b.dataset.idx = i;
+        b.addEventListener('click', () => select(i,b));
+        opts.appendChild(b);
+      });
+      $('feedback').textContent = '';
+      $('btnNext').classList.add('hidden');
+      $('btnFinish').classList.add('hidden');
+      timerId = setInterval(tick, 1000);
+    }
+
+    function tick() {
+      timeLeft--;
+      $('timer').textContent = timeLeft;
+      if (timeLeft <= 5) $('timer').classList.add('danger');
+      if (timeLeft <= 0) {
+        clearInterval(timerId);
+        if (!answered) {
+          answered = true;
+          const q = remaining[0];
+          $('options').querySelectorAll('.opt-btn').forEach(b => {
+            b.disabled = true;
+            if (parseInt(b.dataset.idx, 10) === q.correct) b.classList.add('correct');
+          });
+          $('feedback').innerHTML = '⏰ Hết giờ! Đáp án đúng đã tô xanh.';
+          $('feedback').style.color = '#e53935';
+          remaining.shift();
+          if (remaining.length) $('btnNext').classList.remove('hidden');
+          else $('btnFinish').classList.remove('hidden');
+        }
+      }
+    }
+
+    function select(idx, btn) {
+      if (answered) return;
+      answered = true;
+      clearInterval(timerId);
+      const q = remaining[0];
+      $('options').querySelectorAll('.opt-btn').forEach(b => {
+        b.disabled = true;
+        const bi = parseInt(b.dataset.idx, 10);
+        if (bi === q.correct) b.classList.add('correct');
+        else if (bi === idx) b.classList.add('wrong');
+      });
+      if (idx === q.correct) {
+        $('feedback').innerHTML = '🎉 Chúc mừng! Đúng rồi!';
+        $('feedback').style.color = '#2e7d32';
+        showConfetti();
+      } else {
+        $('feedback').innerHTML = '❌ Chưa đúng. Đáp án đúng đã tô xanh.';
+        $('feedback').style.color = '#c62828';
+      }
+      remaining.shift();
+      if (remaining.length) $('btnNext').classList.remove('hidden');
+      else $('btnFinish').classList.remove('hidden');
+    }
+
+    $('btnNext').addEventListener('click', () => loadQ());
+    $('btnFinish').addEventListener('click', () => {
+      clearInterval(timerId);
+      $('playScreen').classList.add('hidden');
+      $('setupScreen').classList.remove('hidden');
+    });
+
+    function showConfetti() {
+      const box = $('confetti'); box.innerHTML = '';
+      const colors = ['#00897b','#4db6ac','#fbbf24','#42a5f5','#f48fb1'];
+      for (let i=0;i<50;i++) {
+        const s = document.createElement('span');
+        s.style.left = Math.random()*100+'%';
+        s.style.background = colors[Math.floor(Math.random()*colors.length)];
+        s.style.animationDelay = Math.random()*0.6+'s';
+        box.appendChild(s);
+      }
+      setTimeout(() => box.innerHTML='', 2800);
+    }
+  </script>
+</body>
+</html>

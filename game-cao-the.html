@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trò chơi Cào thẻ | Góc giáo viên</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: linear-gradient(160deg, #e8eaf6 0%, #f3e5f5 50%, #e3f2fd 100%);
+      min-height: 100vh; color: #263238;
+    }
+    .topbar {
+      background: white; box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      padding: 12px 20px; display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 50;
+    }
+    .topbar a { color: #5e35b1; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+    .topbar h1 { font-size: 18px; font-weight: 800; color: #5e35b1; }
+    .wrap { max-width: 720px; margin: 0 auto; padding: 24px 16px 48px; }
+    .card {
+      background: white; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      padding: 24px; margin-bottom: 20px;
+    }
+    .card h2 { font-size: 20px; font-weight: 800; margin-bottom: 12px; color: #5e35b1; }
+    .card p { font-size: 14px; color: #546e7a; margin-bottom: 16px; line-height: 1.5; }
+    textarea {
+      width: 100%; min-height: 140px; padding: 14px; border: 2px solid #e0e0e0;
+      border-radius: 12px; font-family: inherit; font-size: 15px; resize: vertical;
+      outline: none; transition: 0.2s;
+    }
+    textarea:focus { border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,0.15); }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px; padding: 14px 28px; border-radius: 999px;
+      font-weight: 800; font-size: 16px; border: none; cursor: pointer; font-family: inherit; transition: 0.2s;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #7c3aed, #a78bfa); color: white;
+      box-shadow: 0 6px 18px rgba(124,58,237,0.35);
+    }
+    .btn-primary:hover { transform: translateY(-2px); }
+    .btn-outline { background: white; border: 2px solid #7c3aed; color: #7c3aed; }
+    .hint { font-size: 13px; color: #888; margin-top: 8px; }
+    .scratch-wrap {
+      position: relative; width: 100%; max-width: 360px; height: 220px;
+      margin: 20px auto; border-radius: 16px; overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15); user-select: none;
+      touch-action: none;
+    }
+    .scratch-result {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, #f3e5f5, #e1bee7);
+      padding: 20px; text-align: center;
+    }
+    .scratch-result .name {
+      font-size: 28px; font-weight: 800; color: #5e35b1; word-break: break-word;
+    }
+    .scratch-result .congrats {
+      margin-top: 10px; font-size: 18px; font-weight: 700; color: #4caf50;
+    }
+    canvas {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      cursor: grab; z-index: 2;
+    }
+    canvas:active { cursor: grabbing; }
+    .instr-scratch {
+      text-align: center; font-weight: 700; color: #7c3aed; margin-top: 12px; font-size: 15px;
+    }
+    .confetti { position: fixed; inset: 0; pointer-events: none; z-index: 100; overflow: hidden; }
+    .confetti span {
+      position: absolute; width: 12px; height: 12px; border-radius: 2px;
+      animation: fall 2.5s ease-out forwards;
+    }
+    @keyframes fall {
+      0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+    }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <a href="goc-giao-vien.html"><i class="fas fa-arrow-left"></i> Quay lại</a>
+    <h1><i class="fas fa-ticket-alt"></i> Cào thẻ – Random</h1>
+    <span style="width:80px"></span>
+  </div>
+  <div class="wrap">
+    <div class="card" id="setupCard">
+      <h2>📝 Nhập danh sách</h2>
+      <p>Nhập tên học sinh hoặc phần thưởng, <strong>mỗi dòng một mục</strong>.</p>
+      <textarea id="listInput" placeholder="Nguyễn Văn A&#10;Trần Thị B&#10;Lê Hoàng C&#10;Phần thưởng: 1 ngôi sao&#10;Phần thưởng: Kẹo"></textarea>
+      <p class="hint">Sau khi bấm Tạo thẻ, dùng chuột kéo để cào lớp phủ bạc.</p>
+      <div style="margin-top:16px;text-align:center">
+        <button class="btn btn-primary" id="btnCreate"><i class="fas fa-magic"></i> Tạo thẻ cào</button>
+      </div>
+    </div>
+
+    <div class="card hidden" id="playCard">
+      <h2 style="text-align:center">🎟️ Cào thẻ để xem kết quả!</h2>
+      <div class="scratch-wrap" id="scratchWrap">
+        <div class="scratch-result">
+          <div class="name" id="resultName">...</div>
+          <div class="congrats hidden" id="congrats">🎉 Chúc mừng!</div>
+        </div>
+        <canvas id="scratchCanvas"></canvas>
+      </div>
+      <p class="instr-scratch" id="instr">🖱️ Giữ chuột và kéo để cào lớp phủ</p>
+      <div style="text-align:center;margin-top:16px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+        <button class="btn btn-primary" id="btnNew"><i class="fas fa-random"></i> Thẻ mới (Random)</button>
+        <button class="btn btn-outline" id="btnBack"><i class="fas fa-list"></i> Đổi danh sách</button>
+      </div>
+    </div>
+  </div>
+  <div class="confetti" id="confetti"></div>
+  <script>
+    const $ = id => document.getElementById(id);
+    let list = [], revealed = false, scratching = false;
+
+    function parseList() {
+      return $('listInput').value.split('\n').map(s => s.trim()).filter(Boolean);
+    }
+
+    function showConfetti() {
+      const box = $('confetti');
+      box.innerHTML = '';
+      const colors = ['#7c3aed','#f472b6','#fbbf24','#34d399','#60a5fa','#f87171'];
+      for (let i = 0; i < 60; i++) {
+        const s = document.createElement('span');
+        s.style.left = Math.random() * 100 + '%';
+        s.style.background = colors[Math.floor(Math.random() * colors.length)];
+        s.style.animationDelay = (Math.random() * 0.8) + 's';
+        s.style.width = (8 + Math.random() * 10) + 'px';
+        s.style.height = s.style.width;
+        box.appendChild(s);
+      }
+      setTimeout(() => box.innerHTML = '', 3000);
+    }
+
+    function initCanvas() {
+      const canvas = $('scratchCanvas');
+      const wrap = $('scratchWrap');
+      const rect = wrap.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      canvas.style.width = rect.width + 'px';
+      canvas.style.height = rect.height + 'px';
+      const ctx = canvas.getContext('2d');
+      ctx.scale(dpr, dpr);
+
+      // Silver scratch layer
+      const grad = ctx.createLinearGradient(0, 0, rect.width, rect.height);
+      grad.addColorStop(0, '#b0bec5');
+      grad.addColorStop(0.5, '#cfd8dc');
+      grad.addColorStop(1, '#90a4ae');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, rect.width, rect.height);
+
+      // Pattern text
+      ctx.fillStyle = 'rgba(255,255,255,0.35)';
+      ctx.font = 'bold 18px Nunito, sans-serif';
+      ctx.textAlign = 'center';
+      for (let y = 30; y < rect.height; y += 40) {
+        for (let x = 40; x < rect.width; x += 90) {
+          ctx.fillText('CÀO', x, y);
+        }
+      }
+      ctx.fillStyle = 'rgba(0,0,0,0.25)';
+      ctx.font = 'bold 22px Nunito, sans-serif';
+      ctx.fillText('CÀO ĐỂ MỞ', rect.width / 2, rect.height / 2);
+
+      revealed = false;
+      $('congrats').classList.add('hidden');
+      $('instr').textContent = '🖱️ Giữ chuột và kéo để cào lớp phủ';
+      setupScratch(ctx, rect.width, rect.height, dpr);
+    }
+
+    function setupScratch(ctx, w, h, dpr) {
+      const canvas = $('scratchCanvas');
+      let isDown = false;
+
+      function getPos(e) {
+        const r = canvas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return {
+          x: (clientX - r.left),
+          y: (clientY - r.top)
+        };
+      }
+
+      function scratch(x, y) {
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.beginPath();
+        ctx.arc(x, y, 28, 0, Math.PI * 2);
+        ctx.fill();
+        checkReveal(ctx, w, h, dpr);
+      }
+
+      function onStart(e) {
+        e.preventDefault();
+        isDown = true;
+        const p = getPos(e);
+        scratch(p.x, p.y);
+      }
+      function onMove(e) {
+        if (!isDown) return;
+        e.preventDefault();
+        const p = getPos(e);
+        scratch(p.x, p.y);
+      }
+      function onEnd() { isDown = false; }
+
+      canvas.onmousedown = onStart;
+      canvas.onmousemove = onMove;
+      canvas.onmouseup = onEnd;
+      canvas.onmouseleave = onEnd;
+      canvas.ontouchstart = onStart;
+      canvas.ontouchmove = onMove;
+      canvas.ontouchend = onEnd;
+    }
+
+    function checkReveal(ctx, w, h, dpr) {
+      if (revealed) return;
+      try {
+        const imageData = ctx.getImageData(0, 0, w * dpr, h * dpr);
+        const data = imageData.data;
+        let transparent = 0;
+        for (let i = 3; i < data.length; i += 4) {
+          if (data[i] < 128) transparent++;
+        }
+        const ratio = transparent / (data.length / 4);
+        if (ratio > 0.45) {
+          revealed = true;
+          // Clear remaining
+          ctx.clearRect(0, 0, w * dpr, h * dpr);
+          $('congrats').classList.remove('hidden');
+          $('instr').textContent = '✨ Đã mở thẻ!';
+          showConfetti();
+        }
+      } catch (err) { /* ignore */ }
+    }
+
+    function createCard() {
+      list = parseList();
+      if (!list.length) {
+        alert('Vui lòng nhập ít nhất 1 mục!');
+        return;
+      }
+      const pick = list[Math.floor(Math.random() * list.length)];
+      $('resultName').textContent = pick;
+      $('setupCard').classList.add('hidden');
+      $('playCard').classList.remove('hidden');
+      setTimeout(initCanvas, 50);
+    }
+
+    $('btnCreate').addEventListener('click', createCard);
+    $('btnNew').addEventListener('click', () => {
+      if (!list.length) list = parseList();
+      if (!list.length) return;
+      const pick = list[Math.floor(Math.random() * list.length)];
+      $('resultName').textContent = pick;
+      initCanvas();
+    });
+    $('btnBack').addEventListener('click', () => {
+      $('playCard').classList.add('hidden');
+      $('setupCard').classList.remove('hidden');
+    });
+  </script>
+</body>
+</html>

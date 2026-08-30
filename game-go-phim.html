@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Luyện gõ phím – 5 cửa | Tin học Tiểu học</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --primary: #1a73e8; --primary-dark: #0d47a1; --orange: #ff9800; --green: #4caf50;
+      --gray-100: #f5f7fa; --gray-600: #546e7a; --gray-800: #263238;
+      --shadow: 0 4px 20px rgba(0,0,0,0.1); --radius: 16px;
+    }
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: linear-gradient(160deg, #e8f0fe 0%, #f3e5f5 50%, #fff8e1 100%);
+      min-height: 100vh; color: var(--gray-800);
+    }
+    .topbar {
+      background: white; box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      padding: 12px 20px; display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 50;
+    }
+    .topbar a { color: var(--primary); font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+    .topbar h1 { font-size: 18px; font-weight: 800; color: var(--primary); }
+    .wrap { max-width: 900px; margin: 0 auto; padding: 24px 16px 48px; }
+    .hud { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; justify-content: center; }
+    .hud-item {
+      background: white; border-radius: 12px; padding: 10px 18px; box-shadow: var(--shadow);
+      font-weight: 800; font-size: 15px; display: flex; align-items: center; gap: 8px;
+    }
+    .hud-item i { color: var(--primary); }
+    .hud-item.timer { color: var(--orange); }
+    .hud-item.timer.danger { color: #e53935; animation: pulse 0.6s infinite; }
+    @keyframes pulse { 50% { transform: scale(1.05); } }
+    .doors { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 28px; }
+    .door {
+      background: white; border-radius: 12px; padding: 12px 8px; text-align: center;
+      box-shadow: var(--shadow); border: 3px solid transparent; transition: 0.25s;
+    }
+    .door.active { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(26,115,232,0.2); transform: translateY(-4px); }
+    .door.done { border-color: var(--green); opacity: 0.85; }
+    .door .num {
+      width: 28px; height: 28px; background: var(--gray-100); border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; margin-bottom: 6px;
+    }
+    .door.active .num { background: var(--primary); color: white; }
+    .door.done .num { background: var(--green); color: white; }
+    .door .label { font-size: 11px; font-weight: 700; color: var(--gray-600); }
+    .game-card {
+      background: white; border-radius: var(--radius); box-shadow: var(--shadow);
+      padding: 28px 24px; text-align: center;
+    }
+    .stage-title { font-size: 14px; font-weight: 700; color: var(--primary); margin-bottom: 8px; }
+    .prompt-img {
+      width: 140px; height: 140px; margin: 0 auto 16px; border-radius: 20px;
+      display: flex; align-items: center; justify-content: center; font-size: 72px;
+      background: linear-gradient(145deg, #e3f2fd, #bbdefb);
+      box-shadow: inset 0 0 0 4px rgba(26,115,232,0.15); user-select: none;
+    }
+    .hint { font-size: 15px; color: var(--gray-600); margin-bottom: 8px; }
+    .hint strong { color: var(--orange); font-size: 16px; }
+    .target-word {
+      font-size: 22px; font-weight: 800; letter-spacing: 4px; color: var(--primary);
+      margin-bottom: 16px; background: #e3f2fd; display: inline-block;
+      padding: 8px 20px; border-radius: 12px;
+    }
+    .type-area { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+    #answer {
+      width: 100%; max-width: 340px; font-size: 24px; font-weight: 800; text-align: center;
+      padding: 14px 16px; border: 3px solid #e0e0e0; border-radius: 14px; outline: none;
+      font-family: inherit; letter-spacing: 2px; text-transform: uppercase; transition: 0.2s;
+    }
+    #answer:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(26,115,232,0.15); }
+    #answer.correct { border-color: var(--green); background: #e8f5e9; }
+    #answer.wrong { border-color: #e53935; background: #ffebee; animation: shake 0.4s; }
+    @keyframes shake {
+      0%,100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); }
+    }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px; padding: 12px 28px; border-radius: 999px;
+      font-weight: 800; font-size: 15px; border: none; cursor: pointer; font-family: inherit; transition: 0.2s;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), #42a5f5); color: white;
+      box-shadow: 0 6px 18px rgba(26,115,232,0.35);
+    }
+    .btn-primary:hover { transform: translateY(-2px); }
+    .btn-outline { background: white; border: 2px solid var(--primary); color: var(--primary); text-decoration: none; }
+    .feedback { min-height: 28px; font-weight: 700; font-size: 15px; margin-top: 10px; }
+    .feedback.ok { color: var(--green); }
+    .feedback.bad { color: #e53935; }
+    .screen { display: none; text-align: center; padding: 40px 20px; }
+    .screen.show { display: block; }
+    .screen h2 { font-size: 28px; font-weight: 800; margin-bottom: 12px; }
+    .screen p { color: var(--gray-600); margin-bottom: 24px; font-size: 15px; line-height: 1.6; }
+    .stars { font-size: 36px; color: #ffc107; margin-bottom: 16px; letter-spacing: 4px; }
+    .start-doors { display: flex; justify-content: center; gap: 10px; margin: 24px 0; flex-wrap: wrap; }
+    .start-doors span {
+      width: 48px; height: 48px; border-radius: 12px;
+      background: linear-gradient(135deg, #7c3aed, #a78bfa); color: white;
+      display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 18px;
+      box-shadow: 0 4px 12px rgba(124,58,237,0.3);
+    }
+    @media (max-width: 640px) {
+      .doors { gap: 6px; }
+      .prompt-img { width: 110px; height: 110px; font-size: 56px; }
+      #answer { font-size: 18px; }
+      .target-word { font-size: 16px; letter-spacing: 2px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <a href="hoc-ma-choi.html"><i class="fas fa-arrow-left"></i> Quay lại</a>
+    <h1><i class="fas fa-keyboard"></i> Luyện gõ phím</h1>
+    <span style="width:80px"></span>
+  </div>
+  <div class="wrap">
+    <div class="screen show" id="startScreen">
+      <div class="game-card">
+        <h2>🎮 5 Cửa Gõ Phím</h2>
+        <p>Mỗi cửa hiện <strong>một hình</strong> và <strong>từ cần gõ</strong>.<br>
+        Em nhìn hình + gợi ý rồi <strong>gõ đúng đủ toàn bộ từ</strong> (không dấu, viết hoa/thường đều được).<br>
+        Có <strong>đồng hồ đếm ngược</strong> – gõ đúng càng nhanh càng nhiều điểm!</p>
+        <div class="start-doors"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div>
+        <p style="font-size:13px;color:#888">Mỗi cửa: 30 giây · Gõ đủ ký tự đúng → mở cửa tiếp</p>
+        <button class="btn btn-primary" id="btnStart"><i class="fas fa-play"></i> Bắt đầu chơi</button>
+      </div>
+    </div>
+    <div id="playScreen" style="display:none">
+      <div class="hud">
+        <div class="hud-item"><i class="fas fa-star"></i> Điểm: <span id="score">0</span></div>
+        <div class="hud-item timer" id="timerBox"><i class="fas fa-clock"></i> <span id="timer">30</span>s</div>
+        <div class="hud-item"><i class="fas fa-door-open"></i> Cửa: <span id="doorNum">1</span>/5</div>
+      </div>
+      <div class="doors">
+        <div class="door active"><div class="num">1</div><div class="label">Cửa 1</div></div>
+        <div class="door"><div class="num">2</div><div class="label">Cửa 2</div></div>
+        <div class="door"><div class="num">3</div><div class="label">Cửa 3</div></div>
+        <div class="door"><div class="num">4</div><div class="label">Cửa 4</div></div>
+        <div class="door"><div class="num">5</div><div class="label">Cửa 5</div></div>
+      </div>
+      <div class="game-card">
+        <div class="stage-title" id="stageTitle">Cửa 1 – Gõ đủ từ!</div>
+        <div class="prompt-img" id="promptImg">🍎</div>
+        <div class="hint">Gợi ý: <strong id="hintWord">Trái cây màu đỏ</strong></div>
+        <div class="target-word" id="targetDisplay">TAO</div>
+        <div class="type-area">
+          <input type="text" id="answer" autocomplete="off" autocapitalize="characters" placeholder="Gõ đủ từ ở đây...">
+          <button class="btn btn-primary" id="btnCheck"><i class="fas fa-check"></i> Kiểm tra</button>
+        </div>
+        <div class="feedback" id="feedback"></div>
+      </div>
+    </div>
+    <div class="screen" id="endScreen">
+      <div class="game-card">
+        <div class="stars" id="endStars">★★★★★</div>
+        <h2 id="endTitle">Hoàn thành!</h2>
+        <p id="endMsg">Em đã mở hết 5 cửa!</p>
+        <p style="font-size:22px;font-weight:800;color:var(--primary)">Điểm: <span id="finalScore">0</span></p>
+        <div style="margin-top:24px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+          <button class="btn btn-primary" id="btnReplay"><i class="fas fa-redo"></i> Chơi lại</button>
+          <a href="hoc-ma-choi.html" class="btn btn-outline"><i class="fas fa-home"></i> Về Học mà chơi</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    const POOL = [
+      { emoji: '🍎', word: 'TAO', hint: 'Trái cây màu đỏ' },
+      { emoji: '🐱', word: 'MEO', hint: 'Con vật kêu meo meo' },
+      { emoji: '🌞', word: 'MAT TROI', hint: 'Vầng sáng ban ngày' },
+      { emoji: '📚', word: 'SACH', hint: 'Đồ để đọc bài' },
+      { emoji: '💻', word: 'MAY TINH', hint: 'Thiết bị học Tin học' },
+      { emoji: '🍌', word: 'CHUOI', hint: 'Trái cây màu vàng' },
+      { emoji: '🐶', word: 'CHO', hint: 'Con vật trung thành' },
+      { emoji: '🌸', word: 'HOA', hint: 'Đẹp và có hương thơm' },
+      { emoji: '✏️', word: 'BUT', hint: 'Dùng để viết' },
+      { emoji: '🖱️', word: 'CHUOT', hint: 'Dùng để click trên máy' },
+      { emoji: '⌨️', word: 'BAN PHIM', hint: 'Dùng để gõ chữ' },
+      { emoji: '🐟', word: 'CA', hint: 'Sống dưới nước' },
+      { emoji: '🚗', word: 'XE', hint: 'Phương tiện đi lại' },
+      { emoji: '🏠', word: 'NHA', hint: 'Nơi em ở' },
+      { emoji: '⭐', word: 'SAO', hint: 'Lấp lánh trên trời' },
+      { emoji: '🖥️', word: 'MAN HINH', hint: 'Nhìn thấy hình máy tính' },
+      { emoji: '🔌', word: 'USB', hint: 'Lưu file nhỏ gọn' },
+      { emoji: '📶', word: 'WIFI', hint: 'Kết nối mạng không dây' },
+    ];
+    let current = 0, score = 0, timeLeft = 30, timerId = null, doorsData = [], answered = false;
+    const $ = id => document.getElementById(id);
+    function shuffle(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+    function normalize(s) { return s.trim().toUpperCase().replace(/\s+/g, ' '); }
+    function startGame() {
+      doorsData = shuffle(POOL).slice(0, 5);
+      current = 0; score = 0; answered = false;
+      $('startScreen').classList.remove('show');
+      $('startScreen').style.display = 'none';
+      $('endScreen').classList.remove('show');
+      $('playScreen').style.display = 'block';
+      $('score').textContent = '0';
+      updateDoorsBar(); loadDoor();
+    }
+    function updateDoorsBar() {
+      document.querySelectorAll('.door').forEach((el, i) => {
+        el.classList.remove('active', 'done');
+        if (i < current) el.classList.add('done');
+        if (i === current) el.classList.add('active');
+      });
+      $('doorNum').textContent = current + 1;
+    }
+    function loadDoor() {
+      answered = false;
+      const d = doorsData[current];
+      $('promptImg').textContent = d.emoji;
+      $('hintWord').textContent = d.hint;
+      $('targetDisplay').textContent = d.word;
+      $('stageTitle').textContent = 'Cửa ' + (current + 1) + ' – Gõ đủ từ: ' + d.word;
+      const inp = $('answer');
+      inp.value = ''; inp.classList.remove('correct', 'wrong'); inp.disabled = false; inp.focus();
+      $('feedback').textContent = ''; $('feedback').className = 'feedback';
+      timeLeft = 30; $('timer').textContent = timeLeft; $('timerBox').classList.remove('danger');
+      clearInterval(timerId); timerId = setInterval(tick, 1000);
+      updateDoorsBar();
+    }
+    function tick() {
+      timeLeft--; $('timer').textContent = timeLeft;
+      if (timeLeft <= 8) $('timerBox').classList.add('danger');
+      if (timeLeft <= 0) {
+        clearInterval(timerId);
+        if (!answered) {
+          $('feedback').textContent = '⏰ Hết giờ! Từ đúng: ' + doorsData[current].word;
+          $('feedback').className = 'feedback bad';
+          $('answer').disabled = true;
+          setTimeout(nextDoor, 1600);
+        }
+      }
+    }
+    function checkAnswer() {
+      if (answered) return;
+      const val = normalize($('answer').value);
+      if (!val) return;
+      answered = true; clearInterval(timerId);
+      const correct = normalize(doorsData[current].word);
+      if (val === correct) {
+        const bonus = Math.max(5, timeLeft);
+        score += 15 + bonus; $('score').textContent = score;
+        $('answer').classList.add('correct');
+        $('feedback').textContent = '✅ Đúng đủ ký tự! +' + (15 + bonus) + ' điểm';
+        $('feedback').className = 'feedback ok';
+        setTimeout(nextDoor, 900);
+      } else {
+        $('answer').classList.add('wrong');
+        $('feedback').textContent = '❌ Chưa đúng đủ! Hãy gõ: ' + doorsData[current].word;
+        $('feedback').className = 'feedback bad';
+        setTimeout(() => {
+          $('answer').classList.remove('wrong'); $('answer').value = '';
+          answered = false; $('answer').disabled = false; $('answer').focus();
+          if (timeLeft > 0) timerId = setInterval(tick, 1000);
+        }, 1400);
+      }
+    }
+    function nextDoor() {
+      current++;
+      if (current >= 5) endGame(); else loadDoor();
+    }
+    function endGame() {
+      clearInterval(timerId);
+      $('playScreen').style.display = 'none';
+      $('endScreen').classList.add('show');
+      $('finalScore').textContent = score;
+      let stars = '★☆☆☆☆', msg = 'Cố gắng thêm nhé!';
+      if (score >= 140) { stars = '★★★★★'; msg = 'Xuất sắc! Em gõ đủ và nhanh!'; }
+      else if (score >= 100) { stars = '★★★★☆'; msg = 'Rất tốt!'; }
+      else if (score >= 70) { stars = '★★★☆☆'; msg = 'Khá lắm! Luyện thêm sẽ giỏi hơn.'; }
+      else if (score >= 40) { stars = '★★☆☆☆'; msg = 'Cố gắng thêm nhé!'; }
+      $('endStars').textContent = stars;
+      $('endTitle').textContent = score >= 70 ? 'Hoàn thành!' : 'Hết giờ rồi!';
+      $('endMsg').textContent = msg;
+    }
+    $('btnStart').addEventListener('click', startGame);
+    $('btnReplay').addEventListener('click', () => { $('endScreen').classList.remove('show'); startGame(); });
+    $('btnCheck').addEventListener('click', checkAnswer);
+    $('answer').addEventListener('keydown', e => { if (e.key === 'Enter') checkAnswer(); });
+  </script>
+</body>
+</html>

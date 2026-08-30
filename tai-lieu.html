@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tài liệu - SGK & SGV tất cả môn | Tin học Tiểu học</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --primary: #1a73e8;
+      --primary-dark: #0d47a1;
+      --orange: #ff9800;
+      --green: #4caf50;
+      --purple: #9c27b0;
+      --blue-light: #e3f2fd;
+      --gray-100: #f5f7fa;
+      --gray-200: #e8eef5;
+      --gray-600: #546e7a;
+      --gray-800: #263238;
+      --shadow: 0 4px 15px rgba(0,0,0,0.08);
+      --shadow-hover: 0 8px 25px rgba(0,0,0,0.12);
+      --radius: 12px;
+      --transition: all 0.3s ease;
+    }
+    html { height: 100%; }
+    body {
+      font-family: 'Nunito', 'Segoe UI', sans-serif;
+      background: var(--gray-100);
+      color: var(--gray-800);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .main {
+      flex: 1 0 auto;
+      padding: 32px 0 48px;
+    }
+    
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+    a { text-decoration: none; color: inherit; transition: var(--transition); }
+    ul { list-style: none; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 10px 20px; border-radius: 25px; font-weight: 700;
+      font-size: 14px; border: none; cursor: pointer;
+      transition: var(--transition); font-family: inherit;
+    }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-dark); transform: translateY(-2px); }
+    .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
+    .btn-outline:hover { background: var(--primary); color: white; }
+    .btn-download {
+      background: linear-gradient(135deg, #1a73e8, #0d47a1);
+      color: white; padding: 8px 16px; font-size: 13px; border-radius: 20px;
+    }
+    .btn-download:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(26,115,232,0.35); }
+    .header {
+      background: white;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      position: sticky; top: 0; z-index: 1000;
+    }
+    .header-top {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 0; gap: 16px;
+    }
+    .logo { display: flex; align-items: center; gap: 12px; }
+    .logo-icon {
+      width: 44px; height: 44px;
+      background: linear-gradient(135deg, #1a73e8, #42a5f5);
+      border-radius: 11px; display: flex; align-items: center; justify-content: center;
+      color: white; font-size: 20px;
+      box-shadow: 0 4px 12px rgba(26,115,232,0.3);
+    }
+    .logo-text h1 { font-size: 18px; font-weight: 800; color: var(--primary); letter-spacing: 0.3px; }
+    .logo-text p { font-size: 11px; color: var(--gray-600); font-weight: 600; }
+    .header-actions { display: flex; align-items: center; gap: 10px; }
+    .search-box {
+      display: flex; align-items: center; background: var(--gray-100);
+      border-radius: 22px; padding: 5px 5px 5px 14px;
+      border: 1px solid transparent; transition: var(--transition);
+    }
+    .search-box:focus-within {
+      border-color: var(--primary); background: white;
+      box-shadow: 0 0 0 3px rgba(26,115,232,0.12);
+    }
+    .search-box input {
+      border: none; background: transparent; outline: none;
+      width: 160px; font-size: 13px; font-family: inherit; color: var(--gray-800);
+    }
+    .search-box button {
+      width: 34px; height: 34px; border-radius: 50%; border: none;
+      background: var(--primary); color: white; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .search-box button:hover { background: var(--primary-dark); }
+    .mobile-menu-btn {
+      display: none; width: 40px; height: 40px; border: none;
+      background: var(--gray-100); border-radius: 10px; font-size: 18px;
+      color: var(--primary); cursor: pointer;
+    }
+    .nav {
+      background: linear-gradient(90deg, #1565c0, #1a73e8);
+    }
+    .nav-list {
+      display: flex; align-items: center; justify-content: center;
+      gap: 2px; padding: 0 8px;
+      overflow-x: auto; scrollbar-width: none;
+    }
+    .nav-list::-webkit-scrollbar { display: none; }
+    .nav-item a {
+      display: flex; align-items: center; gap: 7px;
+      padding: 12px 18px; color: rgba(255,255,255,0.92);
+      font-weight: 700; font-size: 13.5px; border-radius: 10px 10px 0 0;
+      white-space: nowrap; transition: var(--transition);
+    }
+    .nav-item a:hover { background: rgba(255,255,255,0.15); color: white; }
+    .nav-item.active a {
+      background: white; color: var(--primary);
+      position: relative;
+    }
+    .nav-item.active a::after {
+      content: ''; position: absolute; bottom: 0; left: 12px; right: 12px;
+      height: 3px; background: var(--orange); border-radius: 3px 3px 0 0;
+    }
+    .page-hero {
+      background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+      padding: 36px 0 40px;
+      text-align: center;
+    }
+    .page-hero h2 {
+      font-size: 32px; font-weight: 800; color: var(--primary); margin-bottom: 8px;
+    }
+    .page-hero p { font-size: 16px; color: var(--gray-600); }
+    .breadcrumb {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      font-size: 13px; color: var(--gray-600); margin-bottom: 12px;
+    }
+    .breadcrumb a { color: var(--primary); font-weight: 600; }
+    .section-title {
+      font-size: 22px; font-weight: 800; color: var(--gray-800);
+      margin-bottom: 20px; display: flex; align-items: center; gap: 10px;
+      padding-bottom: 12px; border-bottom: 3px solid var(--primary);
+    }
+    .section-title i { color: var(--primary); }
+    .books-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 14px;
+      margin-bottom: 36px;
+    }
+    @media (max-width: 1100px) {
+      .books-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 768px) {
+      .books-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 480px) {
+      .books-grid { grid-template-columns: 1fr; }
+    }
+    .book-card {
+      background: white; border-radius: var(--radius); box-shadow: var(--shadow);
+      overflow: hidden; transition: var(--transition); display: flex; flex-direction: column;
+    }
+    .book-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-hover); }
+    .book-cover {
+      height: 100px; display: flex; align-items: center; justify-content: center;
+      color: white; font-size: 36px; font-weight: 800; position: relative;
+    }
+    .book-cover.g1 { background: linear-gradient(135deg, #1a73e8, #42a5f5); }
+    .book-cover.g2 { background: linear-gradient(135deg, #00897b, #4db6ac); }
+    .book-cover.g3 { background: linear-gradient(135deg, #7b1fa2, #ab47bc); }
+    .book-cover.g4 { background: linear-gradient(135deg, #ef6c00, #ffb74d); }
+    .book-cover.g5 { background: linear-gradient(135deg, #c2185b, #f48fb1); }
+    .book-cover .badge {
+      position: absolute; top: 10px; right: 10px;
+      background: rgba(255,255,255,0.25); padding: 4px 10px; border-radius: 12px;
+      font-size: 12px; font-weight: 700;
+    }
+    .book-body { padding: 12px 14px 14px; flex: 1; display: flex; flex-direction: column; }
+    .book-body h4 { font-size: 14px; font-weight: 800; margin-bottom: 4px; color: var(--gray-800); }
+    .book-body p { font-size: 12px; color: var(--gray-600); margin-bottom: 10px; flex: 1; line-height: 1.4; }
+    .book-body .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .tabs {
+      display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap;
+    }
+    .tab-btn {
+      padding: 10px 22px; border-radius: 25px; font-weight: 700; font-size: 14px;
+      border: 2px solid var(--primary); background: white; color: var(--primary);
+      cursor: pointer; transition: var(--transition); font-family: inherit;
+    }
+    .tab-btn.active, .tab-btn:hover {
+      background: var(--primary); color: white;
+    }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .footer {
+      background: linear-gradient(90deg, #0d47a1, #1565c0); color: white; padding: 18px 0;
+      flex-shrink: 0;
+      margin-top: auto;
+    }
+    .footer-content {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 14px; flex-wrap: wrap;
+    }
+    .copyright { font-size: 12.5px; opacity: 0.9; }
+    .footer-links { display: flex; align-items: center; gap: 8px; font-size: 12.5px; }
+    .footer-links a:hover { text-decoration: underline; }
+    .social-links { display: flex; gap: 8px; }
+    .social {
+      width: 34px; height: 34px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(255,255,255,0.15); font-size: 13px; transition: var(--transition);
+    }
+    .social:hover { background: white; color: var(--primary); transform: scale(1.08); }
+    .social.zalo { font-size: 11px; font-weight: 800; width: auto; padding: 0 11px; border-radius: 17px; }
+    @media (max-width: 768px) {
+      .header-actions .btn { display: none; }
+      .search-box { display: none; }
+      .mobile-menu-btn { display: flex; align-items: center; justify-content: center; }
+      .nav { display: none; }
+      .nav.active { display: block; }
+      .nav-list { flex-direction: column; padding: 8px; align-items: stretch; }
+      .nav-item a { border-radius: 8px; width: 100%; justify-content: flex-start; }
+      .nav-item.active a::after { display: none; }
+      .page-hero h2 { font-size: 26px; }
+      .footer-content { flex-direction: column; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="container header-top">
+      <div class="logo">
+        <div class="logo-icon"><i class="fas fa-book-open"></i></div>
+        <div class="logo-text">
+          <h1>TIN HỌC TIỂU HỌC</h1>
+          <p>Học để hiểu – Hiểu để sáng tạo</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <div class="search-box">
+          <input type="text" placeholder="Tìm kiếm...">
+          <button type="button"><i class="fas fa-search"></i></button>
+        </div>
+        <a href="404.html" class="btn btn-outline">Đăng nhập</a>
+        <a href="404.html" class="btn btn-primary">Đăng ký</a>
+      </div>
+      <button class="mobile-menu-btn" id="mobileMenuBtn"><i class="fas fa-bars"></i></button>
+    </div>
+    <nav class="nav" id="mainNav">
+      <div class="container">
+        <ul class="nav-list">
+          <li class="nav-item"><a href="index.html"><i class="fas fa-home"></i> Trang chủ</a></li>
+          <li class="nav-item"><a href="hoc-ma-choi.html"><i class="fas fa-gamepad"></i> Học mà chơi</a></li>
+          <li class="nav-item"><a href="phong-may.html"><i class="fas fa-desktop"></i> Phòng máy</a></li>
+          <li class="nav-item active"><a href="tai-lieu.html"><i class="fas fa-book"></i> Tài liệu</a></li>
+          <li class="nav-item"><a href="https://script.google.com/macros/s/AKfycbyj5MhUVpP2tJ9QkyylrDVszYoGhzSA0Dt5lS4JURERb1CMdEHGOQL-Rvl1jIqhlyrZ/exec" target="_blank" rel="noopener"><i class="fas fa-tasks"></i> Bài tập</a></li>
+          <li class="nav-item"><a href="goc-hoc-sinh.html"><i class="fas fa-trophy"></i> Góc học sinh</a></li>
+          <li class="nav-item"><a href="goc-giao-vien.html"><i class="fas fa-chalkboard-teacher"></i> Góc giáo viên</a></li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+
+  <section class="page-hero">
+    <div class="container">
+      <div class="breadcrumb">
+        <a href="index.html">Trang chủ</a> <i class="fas fa-chevron-right" style="font-size:10px"></i>
+        <span>Tài liệu</span>
+      </div>
+      <h2><i class="fas fa-book-open"></i> Tài liệu học tập</h2>
+      <p>SGK & SGV tiểu học – link Google Drive theo đúng môn và lớp</p>
+    </div>
+  </section>
+
+  <main class="main">
+    <div class="container">
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="sgk">Sách giáo khoa (SGK)</button>
+        <button class="tab-btn" data-tab="sgv">Sách giáo viên (SGV)</button>
+      </div>
+
+      <div class="tab-content active" id="sgk">
+        <h3 class="section-title"><i class="fas fa-laptop-code"></i> Tin học (ưu tiên)</h3>
+        <div class="books-grid">
+          <div class="book-card">
+            <div class="book-cover g3"><span>3</span><span class="badge">SGK</span></div>
+            <div class="book-body">
+              <h4>Tin học Lớp 3</h4>
+              <p>Tin học, máy tính, phần mềm.</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/1e8mxQFf0DgsY79EOEwT0T-llfrqo7UTu?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+          <div class="book-card">
+            <div class="book-cover g4"><span>4</span><span class="badge">SGK</span></div>
+            <div class="book-body">
+              <h4>Tin học Lớp 4</h4>
+              <p>Tin học, máy tính, phần mềm.</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/1jTL79IO9WCk-iqV72yE6aLE9dGP5W_zm?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+          <div class="book-card">
+            <div class="book-cover g5"><span>5</span><span class="badge">SGK</span></div>
+            <div class="book-body">
+              <h4>Tin học Lớp 5</h4>
+              <p>Tin học, máy tính, phần mềm.</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/1Dh-xa51zfamQmRwYejJ0yzqmA3lsjJUm?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+        </div>
+        <h3 class="section-title"><i class="fas fa-cogs"></i> Công nghệ (ưu tiên)</h3>
+        <div class="books-grid">
+          <div class="book-card">
+            <div class="book-cover g3"><span>3</span><span class="badge">SGK</span></div>
+            <div class="book-body">
+              <h4>Công nghệ Lớp 3</h4>
+              <p>Thủ công, kỹ thuật, an toàn.</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/1UmOxA1fc-t_fm8jaKpCkVZjY7a1pdX1u?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+          <div class="book-card">
+            <div class="book-cover g4"><span>4</span><span class="badge">SGK</span></div>
+            <div class="book-body">
+              <h4>Công nghệ Lớp 4</h4>
+              <p>Thủ công, kỹ thuật, an toàn.</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/1sxVkLUej0-0o_A0JKbXXXuDVxm8D3bWD?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+          <div class="book-card">
+            <div class="book-cover g5"><span>5</span><span class="badge">SGK</span></div>
+            <div class="book-body">
+              <h4>Công nghệ Lớp 5</h4>
+              <p>Thủ công, kỹ thuật, an toàn.</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/1tvd6z0-H7e9RCHsg_Gu_3akbaX2JWGB4?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+        </div>
+        <h3 class="section-title"><i class="fas fa-calculator"></i> Toán</h3>
+        <div class="books-grid">
+          <div class="book-card">
+            <div class="book-cover g1"><span>1</span><span class="badge">SGK</span></div>
+            <div class="book-body">
+              <h4>Toán Lớp 1</h4>
+              <p>Số, phép tính, hình học.</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/19qaPsV_Gj6jDS4moInuCijDZibeT9dId?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+          <div class="book-card">
+            <div class="book-cover g2"><span>2</span><span class="badge">SGK</span></div>
+            <div class="book-body">
+              <h4>Toán Lớp 2</h4>
+              <p>Số, phép tính, hình học.</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/190zTr_bYKuGy6X11R7Jcl9giFWpKVIGO?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+          <div class="book-card">
+            <div class="book-cover g3"><span>3</span><span class="badge">SGK</span></div>
+            <div class="book-body">
+              <h4>Toán Lớp 3</h4>
+              <p>Số, phép tính, hình học.</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/1FXzmwEsZbr6adaGDBUCmP9OQphofW_3V?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+          <div class="book-card">
+            <div class="book-cover g4"><span>4</span><span class="badge">SGK</span></div>
+            <div class="book-body">
+              <h4>Toán Lớp 4</h4>
+              <p>Số, phép tính, hình học.</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/16KVbd43HuN2nfGskovtDDxHj29RFkmJC?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+          <div class="book-card">
+            <div class="book-cover g5"><span>5</span><span class="badge">SGK</span></div>
+            <div class="book-body">
+              <h4>Toán Lớp 5</h4>
+              <p>Số, phép tính, hình học.</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/1cXu0cp52oKeTGi_ZYgs1ybpobL2jPyF9?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+        </div>
+        <h3 class="section-title"><i class="fas fa-language"></i> Tiếng Việt</h3>
+        <div class="books-grid">
+          <div class="book-card">
+            <div class="book-cover g1"><span>1</span><span class="badge">SGK</span></div>
+            <div class="book-body">
+              <h4>Tiếng Việt Lớp 1</h4>
+              <p>Đọc, viết, luyện từ và câu.</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/1RozZEx1o9-Gaz9KwHBSqF1hfGXkLCH0z?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+          <div class="book-card">
+            <div class="book-cover g2"><span>2</span><span class="badge">SGK</span></div>
+            <div class="book-body">
+              <h4>Tiếng Việt Lớp 2</h4>
+              <p>Đọc, viết, luyện từ và câu.</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/1QdYNPZWM38wmHdVJb95O7HOPLITfl12M?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+          <div class="book-card">
+            <div class="book-cover g3"><span>3</span><span class="badge">SGK</span></div>
+            <div class="book-body">
+              <h4>Tiếng Việt Lớp 3</h4>
+              <p>Đọc, viết, luyện từ và câu.</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/13WK00qizu_ayj4UGzqKUA9zfywNOptzD?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+          <div class="book-card">
+            <div class="book-cover g4"><span>4</span><span class="badge">SGK</span></div>
+            <div class="book-body">
+              <h4>Tiếng Việt Lớp 4</h4>
+              <p>Đọc, viết, luyện từ và câu.</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/14aYFv-EWnHJdkc4oNXJxLqo5-vx6F2mv?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+          <div class="book-card">
+            <div class="book-cover g5"><span>5</span><span class="badge">SGK</span></div>
+            <div class="book-body">
+              <h4>Tiếng Việt Lớp 5</h4>
+              <p>Đọc, viết, luyện từ và câu.</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/1GhrPF7iVvoP6NuowDrlqZDZq3uS2_9oE?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+        </div>
+        <h3 class="section-title"><i class="fas fa-globe"></i> Tiếng Anh</h3>
+        <div class="books-grid">
+          <div class="book-card">
+            <div class="book-cover g1"><span>1</span><span class="badge">SGK</span></div>
+            <div class="book-body">
+              <h4>Tiếng Anh Lớp 1</h4>
+              <p>Từ vựng, nghe nói đọc viết.</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/13ryahZVFFnjj7U0bM94-Gu_mAHJykpvn?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+          <div class="book-card">
+            <div class="book-cover g2"><span>2</span><span class="badge">SGK</span></div>
+            <div class="book-body">
+              <h4>Tiếng Anh Lớp 2</h4>
+              <p>Từ vựng, nghe nói đọc viết.</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/1UkwMK1uoXwoT5akrQe4gb37-d95Sn4aB?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+          <div class="book-card">
+            <div class="book-cover g3"><span>3</span><span class="badge">SGK</span></div>
+            <div class="book-body">
+              <h4>Tiếng Anh Lớp 3</h4>
+              <p>Từ vựng, nghe nói đọc viết.</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/1EW7mF1GAt6M7CCK03668c_QrYDuq_2TF?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+          <div class="book-card">
+            <div class="book-cover g4"><span>4</span><span class="badge">SGK</span></div>
+            <div class="book-body">
+              <h4>Tiếng Anh Lớp 4</h4>
+              <p>Từ vựng, nghe nói đọc viết.</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/108H_0kRzGPVrVk3V-FUtr6Q-zFrEB0ik?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+          <div class="book-card">
+            <div class="book-cover g5"><span>5</span><span class="badge">SGK</span></div>
+            <div class="book-body">
+              <h4>Tiếng Anh Lớp 5</h4>
+              <p>Từ vựng, nghe nói đọc viết.</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/1gl2abrO-xO2uOz2lkxFYHuSquCDk1Agy?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+        </div>
+        <h3 class="section-title"><i class="fas fa-leaf"></i> Tự nhiên và Xã hội</h3>
+        <div class="books-grid">
+          <div class="book-card">
+            <div class="book-cover g1"><span>1</span><span class="badge">SGK</span></div>
+            <div class="book-body">
+              <h4>Tự nhiên và Xã hội Lớp 1</h4>
+              <p>Tự nhiên, xã hội quanh em.</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/1KQVFNLqqGMCshwTD9mFzYGzv7bVKkSSu?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+          <div class="book-card">
+            <div class="book-cover g2"><span>2</span><span class="badge">SGK</span></div>
+            <div class="book-body">
+              <h4>Tự nhiên và Xã hội Lớp 2</h4>
+              <p>Tự nhiên, xã hội quanh em.</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/1SQM9SFWrCPb9bnvsZWrsnBH4w_mvnxcX?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+          <div class="book-card">
+            <div class="book-cover g3"><span>3</span><span class="badge">SGK</span></div>
+            <div class="book-body">
+              <h4>Tự nhiên và Xã hội Lớp 3</h4>
+              <p>Tự nhiên, xã hội quanh em.</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/1Ou6w-QZVxYZR8EOceA4GVW9sgBwXMlcF?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+        </div>
+        <h3 class="section-title"><i class="fas fa-flask"></i> Khoa học</h3>
+        <div class="books-grid">
+          <div class="book-card">
+            <div class="book-cover g4"><span>4</span><span class="badge">SGK</span></div>
+            <div class="book-body">
+              <h4>Khoa học Lớp 4</h4>
+              <p>Vật chất, sức khỏe, môi trường.</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/1yYNtGj--cTOy6l8iFCJkCR9OF--9vEBi?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+          <div class="book-card">
+            <div class="book-cover g5"><span>5</span><span class="badge">SGK</span></div>
+            <div class="book-body">
+              <h4>Khoa học Lớp 5</h4>
+              <p>Vật chất, sức khỏe, môi trường.</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/1vFyUiD17J8Qyd37LKM6uxtCwU5ayWHm7?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+        </div>
+        <h3 class="section-title"><i class="fas fa-map-marked-alt"></i> Lịch sử và Địa lý</h3>
+        <div class="books-grid">
+          <div class="book-card">
+            <div class="book-cover g4"><span>4</span><span class="badge">SGK</span></div>
+            <div class="book-body">
+              <h4>Lịch sử và Địa lý Lớp 4</h4>
+              <p>Lịch sử và địa lý Việt Nam.</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/1S-_wUYhy_87igmo6c3Cj4IlrtvkZ1lU1?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+          <div class="book-card">
+            <div class="book-cover g5"><span>5</span><span class="badge">SGK</span></div>
+            <div class="book-body">
+              <h4>Lịch sử và Địa lý Lớp 5</h4>
+              <p>Lịch sử và địa lý Việt Nam.</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/1jDrsw4-bUY4J8NbplEz56D18G4veUxM6?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+        </div>
+        <h3 class="section-title"><i class="fas fa-heart"></i> Đạo đức</h3>
+        <div class="books-grid">
+          <div class="book-card">
+            <div class="book-cover g1"><span>1</span><span class="badge">SGK</span></div>
+            <div class="book-body">
+              <h4>Đạo đức Lớp 1</h4>
+              <p>Phẩm chất, kỹ năng sống.</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/1B-n7C2kDNHlFHPRH1Dox0HO4zeP1BQg0?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+          <div class="book-card">
+            <div class="book-cover g2"><span>2</span><span class="badge">SGK</span></div>
+            <div class="book-body">
+              <h4>Đạo đức Lớp 2</h4>
+              <p>Phẩm chất, kỹ năng sống.</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/1b-qlFUqfSRTd8IRONTHl0AOUvX8CW_oU?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+          <div class="book-card">
+            <div class="book-cover g3"><span>3</span><span class="badge">SGK</span></div>
+            <div class="book-body">
+              <h4>Đạo đức Lớp 3</h4>
+              <p>Phẩm chất, kỹ năng sống.</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/16a9I-8ZZmH5SN6cHZ-i3xjjJK7NhAeo7?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+          <div class="book-card">
+            <div class="book-cover g4"><span>4</span><span class="badge">SGK</span></div>
+            <div class="book-body">
+              <h4>Đạo đức Lớp 4</h4>
+              <p>Phẩm chất, kỹ năng sống.</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/10JeV8VePvmh8C3QTuqqqIICyaYnzKWUu?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+          <div class="book-card">
+            <div class="book-cover g5"><span>5</span><span class="badge">SGK</span></div>
+            <div class="book-body">
+              <h4>Đạo đức Lớp 5</h4>
+              <p>Phẩm chất, kỹ năng sống.</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/1HHa0xLuPrZACcwqZkUtI8rNAPstyKutn?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+        </div>
+        <h3 class="section-title"><i class="fas fa-music"></i> Âm nhạc</h3>
+        <div class="books-grid">
+          <div class="book-card">
+            <div class="book-cover g1"><span>1</span><span class="badge">SGK</span></div>
+            <div class="book-body">
+              <h4>Âm nhạc Lớp 1</h4>
+              <p>Hát, nhạc cụ, cảm thụ âm nhạc.</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/16uu8770-z5y8hVhGNi6-QicHDXJlfjrB?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+          <div class="book-card">
+            <div class="book-cover g2"><span>2</span><span class="badge">SGK</span></div>
+            <div class="book-body">
+              <h4>Âm nhạc Lớp 2</h4>
+              <p>Hát, nhạc cụ, cảm thụ âm nhạc.</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/1Ohtu998ScKEemCH0hnG-U33SU6G5HSOL?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+          <div class="book-card">
+            <div class="book-cover g3"><span>3</span><span class="badge">SGK</span></div>
+            <div class="book-body">
+              <h4>Âm nhạc Lớp 3</h4>
+              <p>Hát, nhạc cụ, cảm thụ âm nhạc.</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/1yNcaRNXJY4KxuGrqziF1UkJB48LNXw2o?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+          <div class="book-card">
+            <div class="book-cover g4"><span>4</span><span class="badge">SGK</span></div>
+            <div class="book-body">
+              <h4>Âm nhạc Lớp 4</h4>
+              <p>Hát, nhạc cụ, cảm thụ âm nhạc.</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/1m0Wu_i8WEHEbbyIMoztsZHC2ysffcp4j?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+          <div class="book-card">
+            <div class="book-cover g5"><span>5</span><span class="badge">SGK</span></div>
+            <div class="book-body">
+              <h4>Âm nhạc Lớp 5</h4>
+              <p>Hát, nhạc cụ, cảm thụ âm nhạc.</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/1zI6iW2TJxvv83LVdUqtGyNWORpzTWGYK?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+        </div>
+        <h3 class="section-title"><i class="fas fa-palette"></i> Mỹ thuật</h3>
+        <div class="books-grid">
+          <div class="book-card">
+            <div class="book-cover g1"><span>1</span><span class="badge">SGK</span></div>
+            <div class="book-body">
+              <h4>Mỹ thuật Lớp 1</h4>
+              <p>Vẽ, nặn, trang trí.</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/1tLGh47VCh89_nvD6sdQzD5HD2lLY2USE?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+          <div class="book-card">
+            <div class="book-cover g2"><span>2</span><span class="badge">SGK</span></div>
+            <div class="book-body">
+              <h4>Mỹ thuật Lớp 2</h4>
+              <p>Vẽ, nặn, trang trí.</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/1dpcc5ugsbPYkYMWxILoLyoqsGOPSTkl0?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+          <div class="book-card">
+            <div class="book-cover g3"><span>3</span><span class="badge">SGK</span></div>
+            <div class="book-body">
+              <h4>Mỹ thuật Lớp 3</h4>
+              <p>Vẽ, nặn, trang trí.</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/1Ldr_vjy6mWA-aATaUY49CEvrnPvZzpvp?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+          <div class="book-card">
+            <div class="book-cover g4"><span>4</span><span class="badge">SGK</span></div>
+            <div class="book-body">
+              <h4>Mỹ thuật Lớp 4</h4>
+              <p>Vẽ, nặn, trang trí.</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/19QGqi3zNrNmEe82_llVUknP-Sohkxuxv?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+          <div class="book-card">
+            <div class="book-cover g5"><span>5</span><span class="badge">SGK</span></div>
+            <div class="book-body">
+              <h4>Mỹ thuật Lớp 5</h4>
+              <p>Vẽ, nặn, trang trí.</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/13DEkjlsMzcX8ux4OXXsLlAuD5dKI9tqK?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+        </div>
+        <h3 class="section-title"><i class="fas fa-running"></i> Giáo dục thể chất</h3>
+        <div class="books-grid">
+          <div class="book-card">
+            <div class="book-cover g1"><span>1</span><span class="badge">SGK</span></div>
+            <div class="book-body">
+              <h4>Giáo dục thể chất Lớp 1</h4>
+              <p>Vận động, thể thao, sức khỏe.</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/1B5jh0I-S53xjfJXYWsteRGT0lqmE8OYN?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+          <div class="book-card">
+            <div class="book-cover g2"><span>2</span><span class="badge">SGK</span></div>
+            <div class="book-body">
+              <h4>Giáo dục thể chất Lớp 2</h4>
+              <p>Vận động, thể thao, sức khỏe.</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/1eZx18sVi53edhPQY2-D37r0sSpM1FM95?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+          <div class="book-card">
+            <div class="book-cover g3"><span>3</span><span class="badge">SGK</span></div>
+            <div class="book-body">
+              <h4>Giáo dục thể chất Lớp 3</h4>
+              <p>Vận động, thể thao, sức khỏe.</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/1W3C54c0MNB8q8GJOa5C0s0zsnQ4qCG8S?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+          <div class="book-card">
+            <div class="book-cover g4"><span>4</span><span class="badge">SGK</span></div>
+            <div class="book-body">
+              <h4>Giáo dục thể chất Lớp 4</h4>
+              <p>Vận động, thể thao, sức khỏe.</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/1bPnV3m6m5R0UsiRKKM1UGIc0M6MfTruS?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+          <div class="book-card">
+            <div class="book-cover g5"><span>5</span><span class="badge">SGK</span></div>
+            <div class="book-body">
+              <h4>Giáo dục thể chất Lớp 5</h4>
+              <p>Vận động, thể thao, sức khỏe.</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/14n0Q15VQpHlU9xZNa9yv2qdvCNUpyZ43?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+        </div>
+        <h3 class="section-title"><i class="fas fa-users"></i> Hoạt động trải nghiệm</h3>
+        <div class="books-grid">
+          <div class="book-card">
+            <div class="book-cover g1"><span>1</span><span class="badge">SGK</span></div>
+            <div class="book-body">
+              <h4>Hoạt động trải nghiệm Lớp 1</h4>
+              <p>Trải nghiệm, dự án, kỹ năng.</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/1UwQOAt1DYpWx48NK8lWD6eLSUTRnsCRC?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+          <div class="book-card">
+            <div class="book-cover g2"><span>2</span><span class="badge">SGK</span></div>
+            <div class="book-body">
+              <h4>Hoạt động trải nghiệm Lớp 2</h4>
+              <p>Trải nghiệm, dự án, kỹ năng.</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/1PXdcuGSspDkBdSPfz9cmiEkp1kgPu7Z3?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+          <div class="book-card">
+            <div class="book-cover g3"><span>3</span><span class="badge">SGK</span></div>
+            <div class="book-body">
+              <h4>Hoạt động trải nghiệm Lớp 3</h4>
+              <p>Trải nghiệm, dự án, kỹ năng.</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/1fmJjiodoFvld5N4Oi4Q-XRYeJhlMmgQJ?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+          <div class="book-card">
+            <div class="book-cover g4"><span>4</span><span class="badge">SGK</span></div>
+            <div class="book-body">
+              <h4>Hoạt động trải nghiệm Lớp 4</h4>
+              <p>Trải nghiệm, dự án, kỹ năng.</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/1T5MLJ5X-WFKL4tIK4kiYC8_tfTst3SXT?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+          <div class="book-card">
+            <div class="book-cover g5"><span>5</span><span class="badge">SGK</span></div>
+            <div class="book-body">
+              <h4>Hoạt động trải nghiệm Lớp 5</h4>
+              <p>Trải nghiệm, dự án, kỹ năng.</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/1LzoeUl70OcQkJHAunz9uWtJCSLtjICzC?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="sgv">
+        <h3 class="section-title"><i class="fas fa-chalkboard-teacher"></i> Sách giáo viên theo lớp</h3>
+        <p style="margin-bottom:16px;color:var(--gray-600);font-size:14px;">Mỗi lớp là một thư mục Google Drive chứa đủ SGV các môn.</p>
+        <div class="books-grid">
+          <div class="book-card" id="sgv1">
+            <div class="book-cover g1"><span>1</span><span class="badge">SGV</span></div>
+            <div class="book-body">
+              <h4>Sách giáo viên Lớp 1</h4>
+              <p>Toàn bộ SGV các môn Lớp 1 (thư mục Drive).</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/1Sqjxe1ClYj3NeHexniZIHFHoG_spHx3a?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+          <div class="book-card" id="sgv2">
+            <div class="book-cover g2"><span>2</span><span class="badge">SGV</span></div>
+            <div class="book-body">
+              <h4>Sách giáo viên Lớp 2</h4>
+              <p>Toàn bộ SGV các môn Lớp 2 (thư mục Drive).</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/11_DnhGQGRAM5Invg3WQyuD2cgJUqfvTF?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+          <div class="book-card" id="sgv3">
+            <div class="book-cover g3"><span>3</span><span class="badge">SGV</span></div>
+            <div class="book-body">
+              <h4>Sách giáo viên Lớp 3</h4>
+              <p>Toàn bộ SGV các môn Lớp 3 (thư mục Drive).</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/140P8FuqvNLhzzR36SBvTkQrjf6RfTDTX?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+          <div class="book-card" id="sgv4">
+            <div class="book-cover g4"><span>4</span><span class="badge">SGV</span></div>
+            <div class="book-body">
+              <h4>Sách giáo viên Lớp 4</h4>
+              <p>Toàn bộ SGV các môn Lớp 4 (thư mục Drive).</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/10e_sTnUxckJWhW6v4GYkPQ6-a912At6x?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+          <div class="book-card" id="sgv5">
+            <div class="book-cover g5"><span>5</span><span class="badge">SGV</span></div>
+            <div class="book-body">
+              <h4>Sách giáo viên Lớp 5</h4>
+              <p>Toàn bộ SGV các môn Lớp 5 (thư mục Drive).</p>
+              <div class="actions"><a href="https://drive.google.com/drive/folders/1lMPs64su5PK4RE-rW-E7w7Ca_y8WsC6c?usp=sharing" target="_blank" rel="noopener" class="btn btn-download"><i class="fas fa-external-link-alt"></i> Mở thư mục</a></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-content">
+      <p class="copyright">© 2024 Tin học Tiểu học. Tất cả quyền được bảo lưu.</p>
+      <div class="footer-links">
+        <a href="#">Giới thiệu</a><span>|</span>
+        <a href="#">Điều khoản sử dụng</a><span>|</span>
+        <a href="#">Chính sách bảo mật</a><span>|</span>
+        <a href="#">Liên hệ</a>
+      </div>
+      <div class="social-links">
+        <a href="#" class="social fb" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+        <a href="#" class="social yt" title="YouTube"><i class="fab fa-youtube"></i></a>
+        <a href="#" class="social zalo" title="Zalo">Zalo</a>
+      </div>
+    </div>
+  </footer>
+  <script>
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const mainNav = document.getElementById('mainNav');
+    if (mobileMenuBtn && mainNav) {
+      mobileMenuBtn.addEventListener('click', () => {
+        mainNav.classList.toggle('active');
+        const icon = mobileMenuBtn.querySelector('i');
+        if (mainNav.classList.contains('active')) {
+          icon.classList.remove('fa-bars');
+          icon.classList.add('fa-times');
+        } else {
+          icon.classList.remove('fa-times');
+          icon.classList.add('fa-bars');
+        }
+      });
+      mainNav.querySelectorAll('.nav-item a').forEach(link => {
+        link.addEventListener('click', () => {
+          if (window.innerWidth <= 768) {
+            mainNav.classList.remove('active');
+            const icon = mobileMenuBtn.querySelector('i');
+            icon.classList.remove('fa-times');
+            icon.classList.add('fa-bars');
+          }
+        });
+      });
+    }
+    // Tabs
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.tab).classList.add('active');
+      });
+    });
+    // Hash navigation
+    if (window.location.hash) {
+      const hash = window.location.hash.substring(1);
+      if (hash.startsWith('sgv')) {
+        document.querySelector('[data-tab="sgv"]').click();
+      }
+    }
+  </script>
+</body>
+</html>

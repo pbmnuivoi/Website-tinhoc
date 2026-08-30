@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bắt chuột thông minh | Tin học Tiểu học</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: linear-gradient(160deg, #fce4ec 0%, #f3e5f5 50%, #e8eaf6 100%);
+      min-height: 100vh; color: #263238;
+    }
+    .topbar {
+      background: white; box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      padding: 12px 20px; display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 50;
+    }
+    .topbar a { color: #c2185b; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+    .topbar h1 { font-size: 18px; font-weight: 800; color: #c2185b; }
+    .wrap { max-width: 720px; margin: 0 auto; padding: 20px 16px 48px; }
+    .hud { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; justify-content: center; }
+    .hud-item {
+      background: white; border-radius: 12px; padding: 8px 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      font-weight: 800; font-size: 14px; display: flex; align-items: center; gap: 6px;
+    }
+    .hud-item.timer { color: #ff9800; }
+    .hud-item.timer.danger { color: #e53935; animation: pulse 0.5s infinite; }
+    @keyframes pulse { 50% { transform: scale(1.06); } }
+    .game-card {
+      background: white; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      padding: 24px; text-align: center;
+    }
+    .arena {
+      position: relative; width: 100%; max-width: 560px; height: 360px; margin: 0 auto;
+      background: linear-gradient(180deg, #e3f2fd 0%, #bbdefb 100%);
+      border-radius: 16px; border: 3px solid #90caf9; overflow: hidden; user-select: none;
+    }
+    .target {
+      position: absolute; width: 56px; height: 56px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; font-size: 28px;
+      cursor: pointer; transition: transform 0.1s; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      background: white; border: 3px solid #c2185b;
+    }
+    .target:hover { transform: scale(1.08); }
+    .target.dragging { opacity: 0.85; transform: scale(1.1); z-index: 10; }
+    .dropzone {
+      position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%);
+      width: 120px; height: 70px; border-radius: 12px; border: 3px dashed #c2185b;
+      background: rgba(255,255,255,0.7); display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 13px; color: #c2185b;
+    }
+    .dropzone.active { background: #fce4ec; border-style: solid; }
+    .instr {
+      font-size: 15px; font-weight: 700; color: #c2185b; margin-bottom: 12px; min-height: 24px;
+    }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px; padding: 12px 26px; border-radius: 999px;
+      font-weight: 800; font-size: 15px; border: none; cursor: pointer; font-family: inherit; transition: 0.2s;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #c2185b, #f48fb1); color: white;
+      box-shadow: 0 6px 18px rgba(194,24,91,0.35);
+    }
+    .btn-outline { background: white; border: 2px solid #c2185b; color: #c2185b; text-decoration: none; }
+    .screen { display: none; text-align: center; padding: 30px 10px; }
+    .screen.show { display: block; }
+    .screen h2 { font-size: 26px; font-weight: 800; margin-bottom: 10px; }
+    .screen p { color: #546e7a; margin-bottom: 20px; font-size: 14.5px; line-height: 1.55; }
+    .level-list { display: grid; gap: 10px; max-width: 400px; margin: 0 auto 20px; text-align: left; }
+    .level-list div {
+      background: #fce4ec; border-radius: 12px; padding: 12px 16px; font-size: 14px; font-weight: 700;
+    }
+    .stars { font-size: 32px; color: #ffc107; margin-bottom: 12px; letter-spacing: 3px; }
+    @media (max-width: 500px) {
+      .arena { height: 300px; }
+      .target { width: 48px; height: 48px; font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <a href="hoc-ma-choi.html"><i class="fas fa-arrow-left"></i> Quay lại</a>
+    <h1><i class="fas fa-mouse"></i> Bắt chuột thông minh</h1>
+    <span style="width:80px"></span>
+  </div>
+  <div class="wrap">
+    <div class="screen show" id="startScreen">
+      <div class="game-card">
+        <h2>🖱️ Bắt chuột thông minh</h2>
+        <p>Luyện <strong>click · kéo thả · double-click</strong> qua 3 màn chơi vui!</p>
+        <div class="level-list">
+          <div>① <strong>Click</strong> – Bấm nhanh vào các biểu tượng xuất hiện</div>
+          <div>② <strong>Kéo thả</strong> – Kéo icon vào hộp đúng chỗ</div>
+          <div>③ <strong>Double-click</strong> – Nhấp đúp để “mở” thư mục</div>
+        </div>
+        <p style="font-size:13px;color:#888">Mỗi màn có đồng hồ đếm ngược · Lớp 1 – 3</p>
+        <button class="btn btn-primary" id="btnStart"><i class="fas fa-play"></i> Bắt đầu</button>
+      </div>
+    </div>
+
+    <div id="playScreen" style="display:none">
+      <div class="hud">
+        <div class="hud-item"><i class="fas fa-star"></i> Điểm: <span id="score">0</span></div>
+        <div class="hud-item timer" id="timerBox"><i class="fas fa-clock"></i> <span id="timer">40</span>s</div>
+        <div class="hud-item"><i class="fas fa-flag"></i> Màn: <span id="levelNum">1</span>/3</div>
+        <div class="hud-item"><i class="fas fa-bullseye"></i> Còn: <span id="remain">0</span></div>
+      </div>
+      <div class="game-card">
+        <div class="instr" id="instr">Click vào các biểu tượng!</div>
+        <div class="arena" id="arena"></div>
+      </div>
+    </div>
+
+    <div class="screen" id="endScreen">
+      <div class="game-card">
+        <div class="stars" id="endStars">★★★★★</div>
+        <h2 id="endTitle">Hoàn thành!</h2>
+        <p id="endMsg">Em dùng chuột rất khéo!</p>
+        <p style="font-size:20px;font-weight:800;color:#c2185b">Điểm: <span id="finalScore">0</span></p>
+        <div style="margin-top:20px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+          <button class="btn btn-primary" id="btnReplay"><i class="fas fa-redo"></i> Chơi lại</button>
+          <a href="hoc-ma-choi.html" class="btn btn-outline"><i class="fas fa-home"></i> Về Học mà chơi</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    const ICONS = ['💻','🖱️','⌨️','📁','💾','🖥️','🔌','📶','🎮','🤖'];
+    let level = 0, score = 0, timeLeft = 40, timerId = null, remain = 0, done = false;
+    const $ = id => document.getElementById(id);
+
+    function startGame() {
+      level = 0; score = 0; done = false;
+      $('startScreen').classList.remove('show');
+      $('startScreen').style.display = 'none';
+      $('endScreen').classList.remove('show');
+      $('playScreen').style.display = 'block';
+      $('score').textContent = '0';
+      nextLevel();
+    }
+
+    function nextLevel() {
+      level++;
+      if (level > 3) { endGame(false); return; }
+      $('levelNum').textContent = level;
+      clearInterval(timerId);
+      timeLeft = level === 1 ? 35 : level === 2 ? 45 : 40;
+      $('timer').textContent = timeLeft;
+      $('timerBox').classList.remove('danger');
+      timerId = setInterval(tick, 1000);
+      const arena = $('arena');
+      arena.innerHTML = '';
+      if (level === 1) setupClick(arena);
+      else if (level === 2) setupDrag(arena);
+      else setupDouble(arena);
+    }
+
+    function tick() {
+      timeLeft--; $('timer').textContent = timeLeft;
+      if (timeLeft <= 8) $('timerBox').classList.add('danger');
+      if (timeLeft <= 0) {
+        clearInterval(timerId);
+        endGame(true);
+      }
+    }
+
+    function setupClick(arena) {
+      $('instr').textContent = '👆 Click nhanh vào các biểu tượng!';
+      remain = 8; $('remain').textContent = remain;
+      for (let i = 0; i < 8; i++) {
+        setTimeout(() => spawnClickTarget(arena), i * 400);
+      }
+    }
+
+    function spawnClickTarget(arena) {
+      if (done || level !== 1) return;
+      const t = document.createElement('div');
+      t.className = 'target';
+      t.textContent = ICONS[Math.floor(Math.random() * ICONS.length)];
+      const rect = arena.getBoundingClientRect();
+      t.style.left = (20 + Math.random() * (rect.width - 80)) + 'px';
+      t.style.top = (20 + Math.random() * (rect.height - 80)) + 'px';
+      t.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (done) return;
+        t.remove();
+        score += 10; $('score').textContent = score;
+        remain--; $('remain').textContent = Math.max(0, remain);
+        if (remain <= 0) { clearInterval(timerId); setTimeout(nextLevel, 500); }
+      });
+      arena.appendChild(t);
+      setTimeout(() => { if (t.parentNode) t.remove(); }, 5000);
+    }
+
+    function setupDrag(arena) {
+      $('instr').textContent = '🖐️ Kéo icon vào hộp bên dưới!';
+      remain = 5; $('remain').textContent = remain;
+      const zone = document.createElement('div');
+      zone.className = 'dropzone';
+      zone.textContent = 'Thả vào đây';
+      arena.appendChild(zone);
+
+      for (let i = 0; i < 5; i++) {
+        const t = document.createElement('div');
+        t.className = 'target';
+        t.textContent = ICONS[i % ICONS.length];
+        t.draggable = true;
+        t.style.left = (30 + (i % 5) * 90) + 'px';
+        t.style.top = (30 + Math.floor(i / 5) * 70) + 'px';
+        t.addEventListener('dragstart', e => {
+          e.dataTransfer.setData('text', 'ok');
+          t.classList.add('dragging');
+        });
+        t.addEventListener('dragend', () => t.classList.remove('dragging'));
+        // Touch / mouse drag fallback
+        let dragging = false, ox = 0, oy = 0;
+        t.addEventListener('mousedown', e => {
+          dragging = true; ox = e.offsetX; oy = e.offsetY;
+          t.classList.add('dragging');
+          e.preventDefault();
+        });
+        document.addEventListener('mousemove', e => {
+          if (!dragging || !t.parentNode) return;
+          const r = arena.getBoundingClientRect();
+          t.style.left = Math.max(0, Math.min(r.width - 56, e.clientX - r.left - ox)) + 'px';
+          t.style.top = Math.max(0, Math.min(r.height - 56, e.clientY - r.top - oy)) + 'px';
+        });
+        document.addEventListener('mouseup', e => {
+          if (!dragging) return;
+          dragging = false; t.classList.remove('dragging');
+          const zr = zone.getBoundingClientRect();
+          const tr = t.getBoundingClientRect();
+          const cx = tr.left + tr.width / 2, cy = tr.top + tr.height / 2;
+          if (cx >= zr.left && cx <= zr.right && cy >= zr.top && cy <= zr.bottom) {
+            t.remove();
+            score += 15; $('score').textContent = score;
+            remain--; $('remain').textContent = Math.max(0, remain);
+            if (remain <= 0) { clearInterval(timerId); setTimeout(nextLevel, 500); }
+          }
+        });
+        arena.appendChild(t);
+      }
+      zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('active'); });
+      zone.addEventListener('dragleave', () => zone.classList.remove('active'));
+      zone.addEventListener('drop', e => {
+        e.preventDefault(); zone.classList.remove('active');
+      });
+    }
+
+    function setupDouble(arena) {
+      $('instr').textContent = '🖱️🖱️ Nhấp đúp (double-click) vào thư mục để mở!';
+      remain = 6; $('remain').textContent = remain;
+      for (let i = 0; i < 6; i++) {
+        const t = document.createElement('div');
+        t.className = 'target';
+        t.textContent = '📁';
+        t.style.left = (40 + (i % 3) * 140) + 'px';
+        t.style.top = (40 + Math.floor(i / 3) * 120) + 'px';
+        let clicks = 0, tmo = null;
+        t.addEventListener('click', e => {
+          e.stopPropagation();
+          clicks++;
+          if (clicks === 1) {
+            tmo = setTimeout(() => { clicks = 0; }, 350);
+          } else if (clicks === 2) {
+            clearTimeout(tmo); clicks = 0;
+            t.textContent = '📂';
+            t.style.borderColor = '#4caf50';
+            setTimeout(() => t.remove(), 200);
+            score += 12; $('score').textContent = score;
+            remain--; $('remain').textContent = Math.max(0, remain);
+            if (remain <= 0) { clearInterval(timerId); setTimeout(() => endGame(false), 500); }
+          }
+        });
+        arena.appendChild(t);
+      }
+    }
+
+    function endGame(timeout) {
+      done = true; clearInterval(timerId);
+      $('playScreen').style.display = 'none';
+      $('endScreen').classList.add('show');
+      $('finalScore').textContent = score;
+      let stars = '★☆☆☆☆', title = timeout ? 'Hết giờ!' : 'Hoàn thành!', msg = 'Cố gắng thêm nhé!';
+      if (!timeout) {
+        if (score >= 150) { stars = '★★★★★'; msg = 'Siêu đỉnh! Chuột trong tay em!'; }
+        else if (score >= 100) { stars = '★★★★☆'; msg = 'Rất tốt!'; }
+        else if (score >= 60) { stars = '★★★☆☆'; msg = 'Khá lắm!'; }
+        else { stars = '★★☆☆☆'; msg = 'Luyện thêm sẽ nhanh hơn!'; }
+      }
+      $('endStars').textContent = stars;
+      $('endTitle').textContent = title;
+      $('endMsg').textContent = msg;
+    }
+
+    $('btnStart').addEventListener('click', startGame);
+    $('btnReplay').addEventListener('click', () => { $('endScreen').classList.remove('show'); startGame(); });
+  </script>
+</body>
+</html>

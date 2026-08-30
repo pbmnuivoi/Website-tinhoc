@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trí nhớ siêu phàm | Tin học Tiểu học</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: linear-gradient(160deg, #e0f2f1 0%, #e8f5e9 50%, #e3f2fd 100%);
+      min-height: 100vh; color: #263238;
+    }
+    .topbar {
+      background: white; box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      padding: 12px 20px; display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 50;
+    }
+    .topbar a { color: #00695c; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+    .topbar h1 { font-size: 18px; font-weight: 800; color: #00695c; }
+    .wrap { max-width: 640px; margin: 0 auto; padding: 20px 16px 48px; }
+    .hud { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; justify-content: center; }
+    .hud-item {
+      background: white; border-radius: 12px; padding: 8px 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      font-weight: 800; font-size: 14px; display: flex; align-items: center; gap: 6px;
+    }
+    .hud-item.timer { color: #ff9800; }
+    .hud-item.timer.danger { color: #e53935; animation: pulse 0.5s infinite; }
+    @keyframes pulse { 50% { transform: scale(1.06); } }
+    .game-card {
+      background: white; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      padding: 20px; text-align: center;
+    }
+    .board {
+      display: grid; gap: 10px; margin: 0 auto; max-width: 480px;
+    }
+    .card {
+      aspect-ratio: 1; border-radius: 12px; cursor: pointer;
+      perspective: 600px; position: relative;
+    }
+    .card-inner {
+      width: 100%; height: 100%; position: relative;
+      transition: transform 0.4s; transform-style: preserve-3d;
+    }
+    .card.flipped .card-inner, .card.matched .card-inner { transform: rotateY(180deg); }
+    .card-face {
+      position: absolute; inset: 0; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      backface-visibility: hidden; font-size: 32px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    }
+    .card-back {
+      background: linear-gradient(135deg, #00695c, #4db6ac); color: white; font-size: 24px; font-weight: 800;
+    }
+    .card-front {
+      background: white; border: 2px solid #b2dfdb; transform: rotateY(180deg);
+    }
+    .card.matched .card-front { border-color: #4caf50; background: #e8f5e9; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px; padding: 12px 26px; border-radius: 999px;
+      font-weight: 800; font-size: 15px; border: none; cursor: pointer; font-family: inherit; transition: 0.2s;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #00695c, #4db6ac); color: white;
+      box-shadow: 0 6px 18px rgba(0,105,92,0.35);
+    }
+    .btn-outline { background: white; border: 2px solid #00695c; color: #00695c; text-decoration: none; }
+    .screen { display: none; text-align: center; padding: 30px 10px; }
+    .screen.show { display: block; }
+    .screen h2 { font-size: 26px; font-weight: 800; margin-bottom: 10px; }
+    .screen p { color: #546e7a; margin-bottom: 20px; font-size: 14.5px; line-height: 1.55; }
+    .diff-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; max-width: 360px; margin: 0 auto 20px; }
+    .diff-btn {
+      padding: 14px 10px; border-radius: 14px; border: 2px solid #e0e0e0; background: white;
+      cursor: pointer; font-family: inherit; font-weight: 700; transition: 0.2s;
+    }
+    .diff-btn:hover, .diff-btn.selected { border-color: #00695c; background: #e0f2f1; }
+    .diff-btn strong { display: block; font-size: 16px; color: #00695c; margin-bottom: 4px; }
+    .diff-btn span { font-size: 12px; color: #546e7a; font-weight: 600; }
+    .stars { font-size: 32px; color: #ffc107; margin-bottom: 12px; letter-spacing: 3px; }
+    @media (max-width: 480px) {
+      .card-face { font-size: 24px; }
+      .board { gap: 6px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <a href="hoc-ma-choi.html"><i class="fas fa-arrow-left"></i> Quay lại</a>
+    <h1><i class="fas fa-brain"></i> Trí nhớ siêu phàm</h1>
+    <span style="width:80px"></span>
+  </div>
+  <div class="wrap">
+    <div class="screen show" id="startScreen">
+      <div class="game-card">
+        <h2>🧠 Trí nhớ siêu phàm</h2>
+        <p>Lật thẻ tìm <strong>cặp hình giống nhau</strong> về máy tính, phần mềm và thiết bị.<br>
+        Có <strong>đồng hồ đếm ngược</strong>!</p>
+        <div class="diff-grid">
+          <button class="diff-btn selected" data-pairs="4" data-time="60">
+            <strong>4 cặp</strong><span>Dễ · 60 giây</span>
+          </button>
+          <button class="diff-btn" data-pairs="6" data-time="90">
+            <strong>6 cặp</strong><span>Vừa · 90 giây</span>
+          </button>
+          <button class="diff-btn" data-pairs="8" data-time="120">
+            <strong>8 cặp</strong><span>Khó · 120 giây</span>
+          </button>
+          <button class="diff-btn" data-pairs="10" data-time="150">
+            <strong>10 cặp</strong><span>Siêu khó · 150 giây</span>
+          </button>
+        </div>
+        <button class="btn btn-primary" id="btnStart"><i class="fas fa-play"></i> Bắt đầu</button>
+      </div>
+    </div>
+
+    <div id="playScreen" style="display:none">
+      <div class="hud">
+        <div class="hud-item"><i class="fas fa-star"></i> Điểm: <span id="score">0</span></div>
+        <div class="hud-item timer" id="timerBox"><i class="fas fa-clock"></i> <span id="timer">60</span>s</div>
+        <div class="hud-item"><i class="fas fa-layer-group"></i> Cặp: <span id="matched">0</span>/<span id="totalPairs">4</span></div>
+        <div class="hud-item"><i class="fas fa-hand-pointer"></i> Lật: <span id="flips">0</span></div>
+      </div>
+      <div class="game-card">
+        <div class="board" id="board"></div>
+      </div>
+    </div>
+
+    <div class="screen" id="endScreen">
+      <div class="game-card">
+        <div class="stars" id="endStars">★★★★★</div>
+        <h2 id="endTitle">Hoàn thành!</h2>
+        <p id="endMsg">Trí nhớ của em thật siêu!</p>
+        <p style="font-size:20px;font-weight:800;color:#00695c">Điểm: <span id="finalScore">0</span> · Lật: <span id="finalFlips">0</span></p>
+        <div style="margin-top:20px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+          <button class="btn btn-primary" id="btnReplay"><i class="fas fa-redo"></i> Chơi lại</button>
+          <a href="hoc-ma-choi.html" class="btn btn-outline"><i class="fas fa-home"></i> Về Học mà chơi</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    const ICONS = ['💻','🖱️','⌨️','🖥️','📁','💾','🔌','📶','🎮','🤖','🖨️','📷'];
+    let pairs = 4, timeLeft = 60, timerId = null, score = 0, flips = 0, matched = 0;
+    let cards = [], flipped = [], lock = false, finished = false;
+    const $ = id => document.getElementById(id);
+
+    document.querySelectorAll('.diff-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        pairs = parseInt(btn.dataset.pairs, 10);
+        timeLeft = parseInt(btn.dataset.time, 10);
+      });
+    });
+
+    function shuffle(a) {
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function startGame() {
+      finished = false; score = 0; flips = 0; matched = 0; flipped = []; lock = false;
+      const sel = document.querySelector('.diff-btn.selected');
+      pairs = parseInt(sel.dataset.pairs, 10);
+      timeLeft = parseInt(sel.dataset.time, 10);
+      $('startScreen').classList.remove('show');
+      $('startScreen').style.display = 'none';
+      $('endScreen').classList.remove('show');
+      $('playScreen').style.display = 'block';
+      $('score').textContent = '0';
+      $('flips').textContent = '0';
+      $('matched').textContent = '0';
+      $('totalPairs').textContent = pairs;
+      $('timer').textContent = timeLeft;
+      $('timerBox').classList.remove('danger');
+
+      const icons = shuffle([...ICONS]).slice(0, pairs);
+      cards = shuffle([...icons, ...icons]);
+      const cols = pairs <= 4 ? 4 : pairs <= 6 ? 4 : 4;
+      const board = $('board');
+      board.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+      board.innerHTML = '';
+      cards.forEach((icon, i) => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.dataset.icon = icon;
+        card.dataset.idx = i;
+        card.innerHTML = `
+          <div class="card-inner">
+            <div class="card-face card-back">?</div>
+            <div class="card-face card-front">${icon}</div>
+          </div>`;
+        card.addEventListener('click', () => flipCard(card));
+        board.appendChild(card);
+      });
+      clearInterval(timerId);
+      timerId = setInterval(tick, 1000);
+    }
+
+    function tick() {
+      timeLeft--; $('timer').textContent = timeLeft;
+      if (timeLeft <= 10) $('timerBox').classList.add('danger');
+      if (timeLeft <= 0) {
+        clearInterval(timerId);
+        endGame(true);
+      }
+    }
+
+    function flipCard(card) {
+      if (lock || finished || card.classList.contains('flipped') || card.classList.contains('matched')) return;
+      card.classList.add('flipped');
+      flipped.push(card);
+      flips++; $('flips').textContent = flips;
+      if (flipped.length < 2) return;
+      lock = true;
+      const [a, b] = flipped;
+      if (a.dataset.icon === b.dataset.icon) {
+        a.classList.add('matched');
+        b.classList.add('matched');
+        matched++; $('matched').textContent = matched;
+        score += 20; $('score').textContent = score;
+        flipped = []; lock = false;
+        if (matched >= pairs) {
+          clearInterval(timerId);
+          score += Math.max(10, timeLeft);
+          $('score').textContent = score;
+          setTimeout(() => endGame(false), 500);
+        }
+      } else {
+        setTimeout(() => {
+          a.classList.remove('flipped');
+          b.classList.remove('flipped');
+          flipped = []; lock = false;
+        }, 700);
+      }
+    }
+
+    function endGame(timeout) {
+      finished = true; clearInterval(timerId);
+      $('playScreen').style.display = 'none';
+      $('endScreen').classList.add('show');
+      $('finalScore').textContent = score;
+      $('finalFlips').textContent = flips;
+      let stars = '★☆☆☆☆', title = timeout ? 'Hết giờ!' : 'Hoàn thành!', msg = 'Cố gắng thêm nhé!';
+      if (!timeout) {
+        if (score >= 150) { stars = '★★★★★'; msg = 'Trí nhớ siêu phàm!'; }
+        else if (score >= 100) { stars = '★★★★☆'; msg = 'Rất tốt!'; }
+        else if (score >= 60) { stars = '★★★☆☆'; msg = 'Khá lắm!'; }
+        else { stars = '★★☆☆☆'; msg = 'Luyện thêm sẽ nhớ nhanh hơn!'; }
+      }
+      $('endStars').textContent = stars;
+      $('endTitle').textContent = title;
+      $('endMsg').textContent = msg;
+    }
+
+    $('btnStart').addEventListener('click', startGame);
+    $('btnReplay').addEventListener('click', () => { $('endScreen').classList.remove('show'); startGame(); });
+  </script>
+</body>
+</html>
