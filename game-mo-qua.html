@@ -35,18 +35,19 @@
     .q-block {
       background: #fce4ec; border-radius: 12px; padding: 14px; margin-bottom: 12px;
     }
-    .ans-row { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
-    .ans-row input[type=text] { flex: 1; margin-bottom: 0; }
-    .ans-row input[type=radio] { width: 18px; height: 18px; accent-color: #c2185b; }
+    .ans-row { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; flex-wrap: wrap; }
+    .ans-row input[type=text] { flex: 1; margin-bottom: 0; min-width: 120px; }
+    .ans-row input[type=radio] { width: 18px; height: 18px; accent-color: #c2185b; flex-shrink: 0; }
+    .ans-img-input { width: 100%; max-width: 280px; font-size: 12px !important; padding: 6px 10px !important; margin-bottom: 0 !important; }
     .btn {
       display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border-radius: 999px;
       font-weight: 800; font-size: 14px; border: none; cursor: pointer; font-family: inherit; transition: 0.2s;
     }
     .btn-primary { background: linear-gradient(135deg, #c2185b, #f48fb1); color: white; box-shadow: 0 6px 18px rgba(194,24,91,0.3); }
     .btn-outline { background: white; border: 2px solid #c2185b; color: #c2185b; }
-    .gift-box {
-      text-align: center; padding: 30px; cursor: pointer; user-select: none;
-    }
+    .btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 8px; }
+    .btn-json { background: #eceff1; border: 2px solid #90a4ae; color: #455a64; }
+    .gift-box { text-align: center; padding: 30px; cursor: pointer; user-select: none; }
     .gift-icon { font-size: 80px; transition: 0.3s; display: inline-block; }
     .gift-icon:hover { transform: scale(1.1) rotate(-5deg); }
     .gift-icon.open { animation: openGift 0.6s ease; }
@@ -59,10 +60,12 @@
     .opt-btn {
       padding: 14px 18px; border-radius: 12px; border: 2px solid #e0e0e0; background: white;
       font-weight: 700; font-size: 15px; cursor: pointer; text-align: left; transition: 0.2s; font-family: inherit;
+      display: flex; align-items: center; gap: 12px;
     }
     .opt-btn:hover { border-color: #c2185b; background: #fce4ec; }
     .opt-btn.correct { border-color: #4caf50; background: #e8f5e9; color: #2e7d32; }
     .opt-btn.wrong { border-color: #e53935; background: #ffebee; color: #c62828; }
+    .opt-btn img { width: 48px; height: 48px; object-fit: cover; border-radius: 8px; flex-shrink: 0; }
     .feedback { font-size: 20px; font-weight: 800; margin-top: 16px; min-height: 30px; text-align: center; }
     .q-img { max-width: 100%; max-height: 180px; border-radius: 12px; margin: 12px auto; display: block; object-fit: contain; }
     .confetti { position: fixed; inset: 0; pointer-events: none; z-index: 100; overflow: hidden; }
@@ -72,6 +75,8 @@
       100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
     }
     .hidden { display: none !important; }
+    .toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; align-items: center; }
+    #jsonFile { display: none; }
   </style>
 </head>
 <body>
@@ -83,19 +88,19 @@
   <div class="wrap">
     <div id="setupScreen">
       <div class="card">
-        <h2>⚙️ Cài đặt câu hỏi (1–5 câu)</h2>
+        <h2>⚙️ Cài đặt câu hỏi (1–20 câu)</h2>
 
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
           <div>
             <label>Thứ tự câu hỏi</label>
-            <select id="orderQ" style="width:100%;padding:10px 12px;border:2px solid #e0e0e0;border-radius:10px;font-family:inherit;font-size:14px">
+            <select id="orderQ">
               <option value="default">Mặc định (theo thứ tự nhập)</option>
               <option value="random">Random câu hỏi</option>
             </select>
           </div>
           <div>
             <label>Thứ tự đáp án</label>
-            <select id="orderA" style="width:100%;padding:10px 12px;border:2px solid #e0e0e0;border-radius:10px;font-family:inherit;font-size:14px">
+            <select id="orderA">
               <option value="default">Mặc định (theo thứ tự nhập)</option>
               <option value="random">Random đáp án</option>
             </select>
@@ -103,8 +108,11 @@
         </div>
 
         <div id="questionsBox"></div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">
+        <div class="toolbar">
           <button class="btn btn-outline" id="btnAddQ"><i class="fas fa-plus"></i> Thêm câu hỏi</button>
+          <button class="btn btn-json" id="btnExport"><i class="fas fa-download"></i> Xuất JSON</button>
+          <button class="btn btn-json" id="btnImport"><i class="fas fa-upload"></i> Cập nhật JSON</button>
+          <input type="file" id="jsonFile" accept=".json,application/json">
           <button class="btn btn-primary" id="btnStart"><i class="fas fa-play"></i> Bắt đầu chơi</button>
         </div>
       </div>
@@ -132,21 +140,26 @@
   <script>
     let questions = [], remaining = [], answered = false;
     const $ = id => document.getElementById(id);
+    const LABELS = ['A', 'B', 'C', 'D'];
 
-    function makeQBlock(idx) {
+    function makeQBlock(idx, data) {
       const div = document.createElement('div');
       div.className = 'q-block';
+      const q = data || { text: '', img: '', answers: [{text:'',img:''},{text:'',img:''},{text:'',img:''},{text:'',img:''}], correct: 0 };
+      while (q.answers.length < 4) q.answers.push({ text: '', img: '' });
       div.innerHTML = `
         <label>Câu ${idx + 1}</label>
-        <input type="text" class="q-text" placeholder="Nhập câu hỏi...">
-        <label>Ảnh minh họa (URL – tùy chọn)</label>
-        <input type="text" class="q-img-url" placeholder="https://... hoặc để trống">
-        <label>Đáp án (chọn 1 đúng bằng nút radio)</label>
+        <input type="text" class="q-text" placeholder="Nhập câu hỏi..." value="${(q.text||'').replace(/"/g,'&quot;')}">
+        <label>Ảnh minh họa câu hỏi (URL – tùy chọn)</label>
+        <input type="text" class="q-img-url" placeholder="https://... hoặc để trống" value="${(q.img||'').replace(/"/g,'&quot;')}">
+        <label>Đáp án (chọn 1 đúng bằng nút radio · có thể gắn ảnh cho từng đáp án)</label>
         <div class="ans-list">
           ${[0,1,2,3].map(i => `
             <div class="ans-row">
-              <input type="radio" name="correct${idx}" value="${i}" ${i===0?'checked':''}>
-              <input type="text" class="ans-text" placeholder="Đáp án ${i+1}">
+              <input type="radio" name="correct${idx}" value="${i}" ${i===q.correct?'checked':''}>
+              <span style="font-weight:800;min-width:18px">${LABELS[i]}</span>
+              <input type="text" class="ans-text" placeholder="Đáp án ${LABELS[i]}" value="${(q.answers[i]?.text||'').replace(/"/g,'&quot;')}">
+              <input type="text" class="ans-img ans-img-input" placeholder="Link ảnh đáp án ${LABELS[i]} (tùy chọn)" value="${(q.answers[i]?.img||'').replace(/"/g,'&quot;')}">
             </div>
           `).join('')}
         </div>
@@ -154,16 +167,16 @@
       return div;
     }
 
-    function rebuildQuestions(n) {
+    function rebuildQuestions(n, list) {
       const box = $('questionsBox');
       box.innerHTML = '';
-      for (let i = 0; i < n; i++) box.appendChild(makeQBlock(i));
+      for (let i = 0; i < n; i++) box.appendChild(makeQBlock(i, list ? list[i] : null));
     }
     rebuildQuestions(1);
 
     $('btnAddQ').addEventListener('click', () => {
       const cur = $('questionsBox').children.length;
-      if (cur >= 5) return alert('Tối đa 5 câu hỏi');
+      if (cur >= 20) return alert('Tối đa 20 câu hỏi');
       $('questionsBox').appendChild(makeQBlock(cur));
     });
 
@@ -172,10 +185,15 @@
       document.querySelectorAll('.q-block').forEach(block => {
         const text = block.querySelector('.q-text').value.trim();
         const img = block.querySelector('.q-img-url').value.trim();
-        const ans = [...block.querySelectorAll('.ans-text')].map(i => i.value.trim()).filter(Boolean);
+        const ansTexts = [...block.querySelectorAll('.ans-text')].map(i => i.value.trim());
+        const ansImgs = [...block.querySelectorAll('.ans-img')].map(i => i.value.trim());
+        const answers = [];
+        for (let i = 0; i < 4; i++) {
+          if (ansTexts[i]) answers.push({ text: ansTexts[i], img: ansImgs[i] || '' });
+        }
         const correctIdx = parseInt(block.querySelector('input[type=radio]:checked')?.value || 0, 10);
-        if (text && ans.length >= 2) {
-          list.push({ text, img, answers: ans.slice(0, 4), correct: Math.min(correctIdx, ans.length - 1) });
+        if (text && answers.length >= 2) {
+          list.push({ text, img, answers: answers.slice(0, 4), correct: Math.min(correctIdx, answers.length - 1) });
         }
       });
       return list;
@@ -189,6 +207,56 @@
       }
       return a;
     }
+
+    // Export JSON
+    $('btnExport').addEventListener('click', () => {
+      const qs = collectQuestions();
+      if (!qs.length) return alert('Chưa có câu hỏi hợp lệ để xuất!');
+      const data = {
+        tool: 'mo-qua',
+        orderQ: $('orderQ').value,
+        orderA: $('orderA').value,
+        questions: qs
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'mo-qua-cau-hoi.json';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    });
+
+    // Import JSON
+    $('btnImport').addEventListener('click', () => $('jsonFile').click());
+    $('jsonFile').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const data = JSON.parse(reader.result);
+          const qs = data.questions || data;
+          if (!Array.isArray(qs) || !qs.length) throw new Error('JSON không có danh sách câu hỏi');
+          if (qs.length > 20) qs.length = 20;
+          if (data.orderQ) $('orderQ').value = data.orderQ;
+          if (data.orderA) $('orderA').value = data.orderA;
+          // Normalize answers to {text, img}
+          const normalized = qs.map(q => {
+            const answers = (q.answers || []).map(a => {
+              if (typeof a === 'string') return { text: a, img: '' };
+              return { text: a.text || '', img: a.img || '' };
+            });
+            return { text: q.text || '', img: q.img || '', answers, correct: q.correct || 0 };
+          });
+          rebuildQuestions(normalized.length, normalized);
+          alert('Đã tải ' + normalized.length + ' câu hỏi từ JSON!');
+        } catch (err) {
+          alert('Lỗi đọc JSON: ' + err.message);
+        }
+        e.target.value = '';
+      };
+      reader.readAsText(file);
+    });
 
     $('btnStart').addEventListener('click', () => {
       questions = collectQuestions();
@@ -236,8 +304,17 @@
       idxs.forEach(i => {
         const b = document.createElement('button');
         b.className = 'opt-btn';
-        b.textContent = q.answers[i];
         b.dataset.idx = i;
+        const ans = q.answers[i];
+        if (ans.img) {
+          const im = document.createElement('img');
+          im.src = ans.img;
+          im.alt = '';
+          b.appendChild(im);
+        }
+        const span = document.createElement('span');
+        span.textContent = ans.text;
+        b.appendChild(span);
         b.addEventListener('click', () => selectAns(i, b));
         opts.appendChild(b);
       });

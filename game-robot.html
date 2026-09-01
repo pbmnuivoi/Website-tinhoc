@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Robot mê cung | Tin học Tiểu học</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Nunito',sans-serif;min-height:100vh;color:#263238;background:linear-gradient(160deg,#e0f2f1,#e8f5e9,#e3f2fd)}
+    .topbar{background:#fff;box-shadow:0 2px 12px rgba(0,0,0,.06);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+    .topbar a{color:#00695c;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+    .topbar h1{font-size:18px;font-weight:800;color:#00695c}
+    .wrap{max-width:760px;margin:0 auto;padding:16px 12px 48px}
+    .hud{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;justify-content:center}
+    .hud-item{background:#fff;border-radius:12px;padding:8px 14px;box-shadow:0 4px 15px rgba(0,0,0,.08);font-weight:800;font-size:13px;display:flex;align-items:center;gap:6px}
+    .hud-item.timer{color:#ff9800}
+    .hud-item.timer.danger{color:#e53935;animation:pulse .5s infinite}
+    @keyframes pulse{50%{transform:scale(1.06)}}
+    .game-card{background:#fff;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,.1);padding:18px;text-align:center}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:999px;font-weight:800;font-size:14px;border:none;cursor:pointer;font-family:inherit}
+    .btn-primary{background:linear-gradient(135deg,#00695c,#4db6ac);color:#fff;box-shadow:0 6px 18px rgba(0,105,92,.35)}
+    .btn-outline{background:#fff;border:2px solid #00695c;color:#00695c;text-decoration:none}
+    .btn-ctrl{padding:10px 20px;font-size:18px;min-width:52px}
+    .screen{display:none;text-align:center;padding:24px 10px}
+    .screen.show{display:block}
+    .screen h2{font-size:24px;font-weight:800;margin-bottom:8px;color:#00695c}
+    .screen p{color:#546e7a;margin-bottom:16px;font-size:14px;line-height:1.5}
+    .stars{font-size:30px;color:#ffc107;margin-bottom:10px;letter-spacing:3px}
+    #maze{display:inline-grid;gap:2px;background:#80cbc4;padding:4px;border-radius:12px}
+    .cell{width:28px;height:28px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:14px}
+    @media(min-width:480px){.cell{width:32px;height:32px;font-size:16px}}
+    .level-badge{display:inline-block;background:#e0f2f1;color:#00695c;font-weight:800;font-size:12px;padding:4px 12px;border-radius:999px;margin-bottom:8px}
+    .confetti{position:fixed;inset:0;pointer-events:none;z-index:100;overflow:hidden}
+    .confetti span{position:absolute;width:10px;height:10px;border-radius:2px;animation:fall 2.2s ease-out forwards}
+    @keyframes fall{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+    .popup{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:80;display:none;align-items:center;justify-content:center;padding:16px}
+    .popup.show{display:flex}
+    .popup-box{background:#fff;border-radius:20px;padding:28px 24px;text-align:center;max-width:340px;width:100%;box-shadow:0 12px 40px rgba(0,0,0,.2);animation:popIn .35s ease}
+    @keyframes popIn{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
+    .popup-box h3{font-size:22px;font-weight:800;color:#00695c;margin-bottom:8px}
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <a href="hoc-ma-choi.html"><i class="fas fa-arrow-left"></i> Quay lại</a>
+    <h1><i class="fas fa-robot"></i> Robot mê cung</h1>
+    <span style="width:80px"></span>
+  </div>
+  <div class="wrap">
+    <div class="screen show" id="startScreen">
+      <div class="game-card">
+        <h2>🤖 Robot mê cung</h2>
+        <p><strong>10 cửa</strong> · Nhiều đường & ngõ cụt · Quái 👾 đuổi theo<br>
+        Phím <strong>↑ ↓ ← →</strong>. Đến ⭐, tránh quái!</p>
+        <button class="btn btn-primary" id="btnStart"><i class="fas fa-play"></i> Bắt đầu cửa 1</button>
+      </div>
+    </div>
+    <div id="playScreen" style="display:none">
+      <div class="hud">
+        <div class="hud-item"><i class="fas fa-flag"></i> Cửa <span id="levelNum">1</span>/10</div>
+        <div class="hud-item timer" id="timerBox"><i class="fas fa-clock"></i> <span id="timer">0</span>s</div>
+        <div class="hud-item"><i class="fas fa-shoe-prints"></i> <span id="moves">0</span></div>
+        <div class="hud-item"><i class="fas fa-star"></i> <span id="score">0</span></div>
+      </div>
+      <div class="game-card">
+        <div class="level-badge" id="levelLabel">Cửa 1</div>
+        <div id="maze"></div>
+        <div style="margin-top:12px;display:flex;flex-direction:column;align-items:center;gap:6px">
+          <button class="btn btn-outline btn-ctrl" id="btnUp">↑</button>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-outline btn-ctrl" id="btnLeft">←</button>
+            <button class="btn btn-outline btn-ctrl" id="btnDown">↓</button>
+            <button class="btn btn-outline btn-ctrl" id="btnRight">→</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="screen" id="endScreen">
+      <div class="game-card">
+        <div class="stars" id="endStars">★★★★★</div>
+        <h2 id="endTitle">Hoàn thành!</h2>
+        <p id="endMsg"></p>
+        <p style="font-size:20px;font-weight:800;color:#00695c">Tổng điểm: <span id="finalScore">0</span></p>
+        <div style="margin-top:18px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+          <button class="btn btn-primary" id="btnReplay"><i class="fas fa-redo"></i> Chơi lại</button>
+          <a href="hoc-ma-choi.html" class="btn btn-outline"><i class="fas fa-home"></i> Về Học mà chơi</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="popup" id="levelPopup">
+    <div class="popup-box">
+      <div style="font-size:48px;margin-bottom:8px" id="popEmoji">🎉</div>
+      <h3 id="popTitle">Vượt cửa!</h3>
+      <p id="popMsg" style="color:#546e7a;margin-bottom:14px"></p>
+      <button class="btn btn-primary" id="btnNextLevel"><i class="fas fa-arrow-right"></i> Cửa tiếp</button>
+    </div>
+  </div>
+  <div class="confetti" id="confetti"></div>
+  <script>
+  // Mazes with branches + dead ends. Monster spawn points marked as 4 (empty after load)
+  // 0 empty, 1 wall, 2 start, 3 goal, 4 preferred monster spawn
+  const LEVELS=[
+    {name:'Cửa 1 · Dễ',timeBonus:40,monsters:1,map:[
+      [1,1,1,1,1,1,1,1,1],
+      [1,2,0,0,1,0,0,0,1],
+      [1,1,1,0,1,0,1,0,1],
+      [1,0,0,0,0,0,1,0,1],
+      [1,0,1,1,1,0,0,0,1],
+      [1,0,0,4,1,1,1,0,1],
+      [1,1,1,0,0,0,0,0,1],
+      [1,0,0,0,1,0,1,3,1],
+      [1,1,1,1,1,1,1,1,1]
+    ]},
+    {name:'Cửa 2 · Dễ',timeBonus:45,monsters:1,map:[
+      [1,1,1,1,1,1,1,1,1],
+      [1,2,0,1,0,0,0,4,1],
+      [1,0,0,1,0,1,1,0,1],
+      [1,0,1,1,0,0,0,0,1],
+      [1,0,0,0,0,1,1,0,1],
+      [1,1,1,0,1,1,0,0,1],
+      [1,0,0,0,0,0,0,1,1],
+      [1,0,1,1,1,0,0,3,1],
+      [1,1,1,1,1,1,1,1,1]
+    ]},
+    {name:'Cửa 3 · Vừa',timeBonus:50,monsters:2,map:[
+      [1,1,1,1,1,1,1,1,1,1],
+      [1,2,0,0,1,0,0,1,4,1],
+      [1,1,1,0,1,0,1,1,0,1],
+      [1,0,0,0,0,0,0,0,0,1],
+      [1,0,1,1,1,1,0,1,1,1],
+      [1,0,0,4,0,0,0,0,0,1],
+      [1,1,1,0,1,1,1,1,0,1],
+      [1,0,0,0,0,0,0,1,0,1],
+      [1,0,1,1,1,0,0,0,3,1],
+      [1,1,1,1,1,1,1,1,1,1]
+    ]},
+    {name:'Cửa 4 · Vừa',timeBonus:55,monsters:2,map:[
+      [1,1,1,1,1,1,1,1,1,1],
+      [1,2,0,1,0,0,0,0,4,1],
+      [1,0,0,1,0,1,1,0,0,1],
+      [1,0,1,1,0,0,1,1,0,1],
+      [1,0,0,0,0,0,0,0,0,1],
+      [1,1,0,1,1,1,1,0,1,1],
+      [1,0,0,0,4,0,0,0,0,1],
+      [1,0,1,1,1,0,1,1,0,1],
+      [1,0,0,0,0,0,0,0,3,1],
+      [1,1,1,1,1,1,1,1,1,1]
+    ]},
+    {name:'Cửa 5 · Vừa+',timeBonus:60,monsters:2,map:[
+      [1,1,1,1,1,1,1,1,1,1,1],
+      [1,2,0,0,1,0,0,1,0,4,1],
+      [1,1,1,0,1,0,1,1,0,0,1],
+      [1,0,0,0,0,0,0,0,0,1,1],
+      [1,0,1,1,1,1,1,0,1,1,1],
+      [1,0,0,0,4,0,0,0,0,0,1],
+      [1,1,1,0,1,1,1,1,1,0,1],
+      [1,0,0,0,0,0,0,0,1,0,1],
+      [1,0,1,1,1,1,0,0,0,0,1],
+      [1,0,0,0,0,0,0,1,0,3,1],
+      [1,1,1,1,1,1,1,1,1,1,1]
+    ]},
+    {name:'Cửa 6 · Khó',timeBonus:65,monsters:3,map:[
+      [1,1,1,1,1,1,1,1,1,1,1],
+      [1,2,0,0,0,1,0,0,0,4,1],
+      [1,1,1,1,0,1,0,1,1,0,1],
+      [1,0,0,0,0,0,0,1,0,0,1],
+      [1,0,1,1,1,1,0,1,0,1,1],
+      [1,0,0,4,0,0,0,0,0,0,1],
+      [1,1,1,0,1,1,1,1,1,0,1],
+      [1,0,0,0,0,0,4,0,1,0,1],
+      [1,0,1,1,1,1,1,0,1,0,1],
+      [1,0,0,0,0,0,0,0,0,3,1],
+      [1,1,1,1,1,1,1,1,1,1,1]
+    ]},
+    {name:'Cửa 7 · Khó',timeBonus:70,monsters:3,map:[
+      [1,1,1,1,1,1,1,1,1,1,1,1],
+      [1,2,0,0,1,0,0,0,1,0,4,1],
+      [1,1,1,0,1,0,1,0,1,0,0,1],
+      [1,0,0,0,0,0,1,0,0,0,1,1],
+      [1,0,1,1,1,1,1,1,1,0,0,1],
+      [1,0,0,0,4,0,0,0,0,0,1,1],
+      [1,1,1,0,1,1,1,0,1,0,0,1],
+      [1,0,0,0,0,0,1,0,1,1,0,1],
+      [1,0,1,1,1,0,0,0,0,0,0,1],
+      [1,0,0,4,1,1,1,1,0,1,0,1],
+      [1,1,0,0,0,0,0,0,0,0,3,1],
+      [1,1,1,1,1,1,1,1,1,1,1,1]
+    ]},
+    {name:'Cửa 8 · Rất khó',timeBonus:75,monsters:3,map:[
+      [1,1,1,1,1,1,1,1,1,1,1,1],
+      [1,2,0,1,0,0,0,1,0,0,4,1],
+      [1,0,0,1,0,1,0,1,0,1,0,1],
+      [1,1,0,0,0,1,0,0,0,1,0,1],
+      [1,0,0,1,1,1,1,1,0,0,0,1],
+      [1,0,1,0,0,4,0,0,0,1,1,1],
+      [1,0,1,0,1,1,1,1,0,0,0,1],
+      [1,0,0,0,0,0,0,1,1,1,0,1],
+      [1,1,1,1,1,0,0,0,4,0,0,1],
+      [1,0,0,0,0,0,1,1,1,0,1,1],
+      [1,0,1,1,1,0,0,0,0,0,3,1],
+      [1,1,1,1,1,1,1,1,1,1,1,1]
+    ]},
+    {name:'Cửa 9 · Siêu khó',timeBonus:80,monsters:4,map:[
+      [1,1,1,1,1,1,1,1,1,1,1,1,1],
+      [1,2,0,0,1,0,0,0,1,0,0,4,1],
+      [1,1,1,0,1,0,1,0,1,0,1,0,1],
+      [1,0,0,0,0,0,1,0,0,0,1,0,1],
+      [1,0,1,1,1,1,1,1,1,0,0,0,1],
+      [1,0,0,0,4,0,0,0,0,0,1,1,1],
+      [1,1,1,0,1,1,1,0,1,0,0,4,1],
+      [1,0,0,0,0,0,1,0,1,1,0,0,1],
+      [1,0,1,1,1,0,0,0,0,0,0,1,1],
+      [1,0,0,4,1,1,1,1,0,1,0,0,1],
+      [1,1,0,0,0,0,0,0,0,1,0,0,1],
+      [1,0,0,1,1,1,0,1,0,0,0,3,1],
+      [1,1,1,1,1,1,1,1,1,1,1,1,1]
+    ]},
+    {name:'Cửa 10 · Boss',timeBonus:90,monsters:4,map:[
+      [1,1,1,1,1,1,1,1,1,1,1,1,1],
+      [1,2,0,0,0,1,0,0,0,1,0,4,1],
+      [1,1,1,1,0,1,0,1,0,1,0,0,1],
+      [1,0,0,0,0,0,0,1,0,0,0,1,1],
+      [1,0,1,1,1,1,1,1,1,1,0,0,1],
+      [1,0,0,0,4,0,0,0,0,0,0,1,1],
+      [1,1,1,0,1,1,1,1,1,0,0,0,1],
+      [1,0,0,0,0,0,0,0,1,1,1,0,1],
+      [1,0,1,1,1,1,1,0,0,4,0,0,1],
+      [1,0,0,0,0,0,1,1,0,1,1,0,1],
+      [1,1,1,1,0,0,0,0,0,0,0,0,1],
+      [1,4,0,0,0,1,1,1,0,1,0,3,1],
+      [1,1,1,1,1,1,1,1,1,1,1,1,1]
+    ]}
+  ];
+  let level=0,map=[],rows=0,cols=0,r=0,c=0,monsters=[],score=0,moves=0,elapsed=0,timerId=null,monsterId=null,done=false;
+  const $=id=>document.getElementById(id);
+
+  function startGame(){
+    level=0;score=0;
+    $('startScreen').classList.remove('show');$('startScreen').style.display='none';
+    $('endScreen').classList.remove('show');$('playScreen').style.display='block';
+    loadLevel();
+  }
+  function loadLevel(){
+    const L=LEVELS[level];
+    map=L.map.map(row=>row.map(v=>v===4?0:v));
+    const spawnMarks=[];
+    L.map.forEach((row,i)=>row.forEach((v,j)=>{if(v===4)spawnMarks.push({i,j});}));
+    rows=map.length;cols=map[0].length;
+    for(let i=0;i<rows;i++)for(let j=0;j<cols;j++)if(map[i][j]===2){r=i;c=j;map[i][j]=0;}
+    // spawn monsters: prefer marked cells, far from player
+    monsters=[];
+    const candidates=spawnMarks.length?spawnMarks:[];
+    if(candidates.length<L.monsters){
+      for(let i=0;i<rows;i++)for(let j=0;j<cols;j++)
+        if(map[i][j]===0&&!(i===r&&j===c)&&!candidates.some(p=>p.i===i&&p.j===j))
+          candidates.push({i,j});
+    }
+    // sort by distance from start (farthest first)
+    candidates.sort((a,b)=>(Math.abs(b.i-r)+Math.abs(b.j-c))-(Math.abs(a.i-r)+Math.abs(a.j-c)));
+    for(let k=0;k<L.monsters&&k<candidates.length;k++)
+      monsters.push({i:candidates[k].i,j:candidates[k].j});
+    moves=0;elapsed=0;done=false;
+    $('levelNum').textContent=level+1;$('levelLabel').textContent=L.name;
+    $('moves').textContent='0';$('score').textContent=score;$('timer').textContent='0';
+    $('timerBox').classList.remove('danger');
+    render();
+    clearInterval(timerId);clearInterval(monsterId);
+    timerId=setInterval(()=>{
+      elapsed++;$('timer').textContent=elapsed;
+      if(elapsed>L.timeBonus)$('timerBox').classList.add('danger');
+    },1000);
+    const spd=Math.max(500,950-level*40);
+    monsterId=setInterval(moveMonsters,spd);
+  }
+  function render(){
+    const maze=$('maze');maze.innerHTML='';
+    maze.style.gridTemplateColumns=`repeat(${cols},1fr)`;
+    for(let i=0;i<rows;i++)for(let j=0;j<cols;j++){
+      const cell=document.createElement('div');cell.className='cell';
+      if(map[i][j]===1)cell.style.background='#00695c';
+      else if(map[i][j]===3){cell.style.background='#fff9c4';cell.textContent='⭐';}
+      else cell.style.background='#e0f2f1';
+      if(monsters.some(m=>m.i===i&&m.j===j)) cell.textContent='👾';
+      if(i===r&&j===c) cell.textContent='🤖';
+      maze.appendChild(cell);
+    }
+  }
+  function moveMonsters(){
+    if(done)return;
+    monsters.forEach(m=>{
+      const dirs=[[-1,0],[1,0],[0,-1],[0,1]].sort((a,b)=>{
+        const da=Math.abs(m.i+a[0]-r)+Math.abs(m.j+a[1]-c);
+        const db=Math.abs(m.i+b[0]-r)+Math.abs(m.j+b[1]-c);
+        return da-db+(Math.random()-0.5)*0.5;
+      });
+      for(const [di,dj] of dirs){
+        const ni=m.i+di,nj=m.j+dj;
+        if(ni<0||nj<0||ni>=rows||nj>=cols)continue;
+        if(map[ni][nj]===1||map[ni][nj]===3)continue;
+        if(monsters.some(o=>o!==m&&o.i===ni&&o.j===nj))continue;
+        m.i=ni;m.j=nj;break;
+      }
+      if(m.i===r&&m.j===c) caught();
+    });
+    if(!done)render();
+  }
+  function caught(){
+    done=true;clearInterval(timerId);clearInterval(monsterId);
+    $('popEmoji').textContent='👾';
+    $('popTitle').textContent='Bị quái bắt!';
+    $('popMsg').textContent='Thử lại cửa này nhé!';
+    $('btnNextLevel').innerHTML='<i class="fas fa-redo"></i> Thử lại';
+    $('btnNextLevel').onclick=()=>{$('levelPopup').classList.remove('show');loadLevel();};
+    $('levelPopup').classList.add('show');
+  }
+  function move(dr,dc){
+    if(done)return;
+    const nr=r+dr,nc=c+dc;
+    if(nr<0||nc<0||nr>=rows||nc>=cols||map[nr][nc]===1)return;
+    r=nr;c=nc;moves++;$('moves').textContent=moves;
+    if(monsters.some(m=>m.i===r&&m.j===c)){caught();render();return;}
+    if(map[r][c]===3){
+      done=true;clearInterval(timerId);clearInterval(monsterId);
+      const L=LEVELS[level];
+      const gained=Math.max(5,L.timeBonus-elapsed+10)+Math.max(0,40-moves)+20;
+      score+=gained;$('score').textContent=score;
+      showConfetti();
+      $('popEmoji').textContent='🎉';
+      $('popTitle').textContent='Vượt cửa '+(level+1)+'!';
+      $('popMsg').textContent='Thời gian: '+elapsed+'s · '+moves+' bước · +'+gained+' điểm';
+      if(level>=LEVELS.length-1){
+        $('btnNextLevel').innerHTML='<i class="fas fa-trophy"></i> Xem kết quả';
+        $('btnNextLevel').onclick=()=>{$('levelPopup').classList.remove('show');finishAll();};
+      } else {
+        $('btnNextLevel').innerHTML='<i class="fas fa-arrow-right"></i> Cửa tiếp theo';
+        $('btnNextLevel').onclick=()=>{$('levelPopup').classList.remove('show');level++;loadLevel();};
+      }
+      setTimeout(()=>$('levelPopup').classList.add('show'),250);
+    }
+    render();
+  }
+  function finishAll(){
+    $('playScreen').style.display='none';$('endScreen').classList.add('show');
+    $('finalScore').textContent=score;
+    let s='★★★☆☆',m='Cố gắng thêm!';
+    if(score>=800){s='★★★★★';m='HUYỀN THOẠI! Né quái siêu đỉnh!';}
+    else if(score>=550){s='★★★★☆';m='Xuất sắc! Hoàn thành 10 cửa!';}
+    else if(score>=350){s='★★★★☆';m='Rất tốt!';}
+    $('endStars').textContent=s;$('endMsg').textContent=m;showConfetti();
+  }
+  function showConfetti(){
+    const box=$('confetti');box.innerHTML='';
+    const colors=['#00695c','#4db6ac','#fbbf24','#ef5350','#42a5f5'];
+    for(let i=0;i<55;i++){const s=document.createElement('span');s.style.left=Math.random()*100+'%';s.style.background=colors[i%5];s.style.animationDelay=Math.random()*.5+'s';s.style.width=(6+Math.random()*8)+'px';s.style.height=s.style.width;box.appendChild(s);}
+    setTimeout(()=>box.innerHTML='',2400);
+  }
+  $('btnStart').onclick=startGame;
+  $('btnReplay').onclick=()=>{$('endScreen').classList.remove('show');startGame();};
+  $('btnUp').onclick=()=>move(-1,0);$('btnDown').onclick=()=>move(1,0);
+  $('btnLeft').onclick=()=>move(0,-1);$('btnRight').onclick=()=>move(0,1);
+  document.addEventListener('keydown',e=>{
+    if(e.key==='ArrowUp'){e.preventDefault();move(-1,0);}
+    if(e.key==='ArrowDown'){e.preventDefault();move(1,0);}
+    if(e.key==='ArrowLeft'){e.preventDefault();move(0,-1);}
+    if(e.key==='ArrowRight'){e.preventDefault();move(0,1);}
+  });
+  </script>
+</body>
+</html>

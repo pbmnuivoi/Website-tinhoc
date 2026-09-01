@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cá lớn nuốt cá bé | Tin học Tiểu học</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Nunito',sans-serif;min-height:100vh;color:#263238;background:linear-gradient(160deg,#e3f2fd,#e0f7fa,#e8eaf6)}
+    .topbar{background:#fff;box-shadow:0 2px 12px rgba(0,0,0,.06);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+    .topbar a{color:#0277bd;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+    .topbar h1{font-size:18px;font-weight:800;color:#0277bd}
+    .wrap{max-width:720px;margin:0 auto;padding:16px 12px 48px}
+    .hud{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;justify-content:center}
+    .hud-item{background:#fff;border-radius:12px;padding:8px 14px;box-shadow:0 4px 15px rgba(0,0,0,.08);font-weight:800;font-size:13px}
+    .game-card{background:#fff;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,.1);padding:16px;text-align:center}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:999px;font-weight:800;font-size:14px;border:none;cursor:pointer;font-family:inherit;background:linear-gradient(135deg,#0277bd,#4fc3f7);color:#fff}
+    .btn-outline{background:#fff;border:2px solid #0277bd;color:#0277bd;text-decoration:none}
+    .screen{display:none;text-align:center;padding:20px 8px}
+    .screen.show{display:block}
+    #arena{
+      position:relative;width:100%;max-width:640px;height:360px;margin:0 auto;
+      border-radius:16px;overflow:hidden;cursor:none;border:4px solid #0288d1;
+      background:#0277bd;
+    }
+    @media(max-width:480px){#arena{height:280px}}
+    #player{position:absolute;transform:translate(-50%,-50%);z-index:10;pointer-events:none;line-height:1;filter:drop-shadow(0 2px 3px rgba(0,0,0,.3))}
+    .fish{position:absolute;transform:translate(-50%,-50%);pointer-events:none;line-height:1;filter:drop-shadow(0 1px 2px rgba(0,0,0,.25))}
+    .fish-label{position:absolute;font-size:9px;font-weight:800;color:#fff;text-shadow:0 1px 2px #000;white-space:nowrap;transform:translate(-50%,0);pointer-events:none}
+    .legend{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:10px;font-size:12px;font-weight:700;color:#546e7a}
+    .legend span{background:#e3f2fd;padding:4px 10px;border-radius:8px}
+    .confetti{position:fixed;inset:0;pointer-events:none;z-index:100;overflow:hidden}
+    .confetti span{position:absolute;width:10px;height:10px;border-radius:2px;animation:fall 2s ease-out forwards}
+    @keyframes fall{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+    .hidden{display:none!important}
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <a href="hoc-ma-choi.html"><i class="fas fa-arrow-left"></i> Quay lại</a>
+    <h1><i class="fas fa-fish"></i> Cá lớn nuốt cá bé</h1>
+    <span style="width:80px"></span>
+  </div>
+  <div class="wrap">
+    <div class="screen show" id="startScreen">
+      <div class="game-card">
+        <h2 style="font-size:22px;font-weight:800;color:#0277bd;margin-bottom:8px">🐟 Cá lớn nuốt cá bé</h2>
+        <p style="color:#546e7a;margin-bottom:14px;font-size:14px;line-height:1.5">
+          Di chuyển <strong>chuột</strong> trong khung để bơi.<br>
+          Nuốt <strong>cá nhỏ hơn</strong> mình. Tránh <strong>cá lớn hơn</strong> — bị ăn là thua!<br>
+          3 màn · đủ điểm đổi hình & nền.
+        </p>
+        <div class="legend">
+          <span>🦐 Mồi nhỏ</span>
+          <span>🐟 Cá vừa</span>
+          <span>🦈 Cá lớn (nguy hiểm)</span>
+        </div>
+        <button class="btn" id="btnStart" style="margin-top:16px"><i class="fas fa-play"></i> Bắt đầu</button>
+      </div>
+    </div>
+
+    <div id="playScreen" class="hidden">
+      <div class="hud">
+        <div class="hud-item">🌊 Màn <span id="stage">1</span>/3</div>
+        <div class="hud-item">⭐ <span id="score">0</span>/<span id="need">40</span></div>
+        <div class="hud-item">💪 Size <span id="size">1</span></div>
+      </div>
+      <div class="game-card" style="padding:12px">
+        <div id="arena">
+          <div id="player">🐟</div>
+        </div>
+        <div class="legend">
+          <span id="legMe">Bạn: 🐟 size 1</span>
+          <span>Nuốt được: nhỏ hơn size</span>
+          <span style="background:#ffebee;color:#c62828">Tránh: lớn hơn size</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen hidden" id="endScreen">
+      <div class="game-card">
+        <div style="font-size:40px;margin-bottom:8px" id="endEmoji">🎉</div>
+        <h2 style="font-size:22px;font-weight:800;color:#0277bd" id="endTitle">Hoàn thành!</h2>
+        <p style="color:#546e7a;margin:8px 0" id="endMsg"></p>
+        <p style="font-weight:800;font-size:18px;color:#0277bd">Điểm: <span id="finalScore">0</span></p>
+        <button class="btn" id="btnReplay" style="margin-top:12px"><i class="fas fa-redo"></i> Chơi lại</button>
+        <a href="hoc-ma-choi.html" class="btn btn-outline" style="margin-top:8px;display:inline-flex"><i class="fas fa-home"></i> Về Học mà chơi</a>
+      </div>
+    </div>
+  </div>
+  <div class="confetti" id="confetti"></div>
+  <script>
+  // size tiers: 1 shrimp, 2 small fish, 3 medium, 4 shark danger for low size
+  const STAGES=[
+    {need:35, bg:'#0277bd', border:'#0288d1', me:['🐟','🐠','🐡'], growAt:[0,15,28]},
+    {need:80, bg:'#00695c', border:'#00897b', me:['🐠','🐡','🐙'], growAt:[0,25,55]},
+    {need:130, bg:'#4a148c', border:'#7b1fa2', me:['🐡','🐙','🐲'], growAt:[0,40,90]}
+  ];
+  // fish types: size rank 1-4
+  const FISH_TYPES=[
+    {emoji:'🦐', rank:1, pts:5, label:'tôm'},
+    {emoji:'🦑', rank:1, pts:5, label:'mực nhỏ'},
+    {emoji:'🐟', rank:2, pts:8, label:'cá'},
+    {emoji:'🐠', rank:2, pts:8, label:'cá nhiệt đới'},
+    {emoji:'🐡', rank:3, pts:12, label:'cá nóc'},
+    {emoji:'🦈', rank:4, pts:0, label:'cá mập'},
+    {emoji:'🐋', rank:4, pts:0, label:'cá voi'}
+  ];
+  let stage=0,score=0,size=1,px=0,py=0,fishes=[],running=false,raf=null;
+  const arena=document.getElementById('arena');
+  const player=document.getElementById('player');
+  const $=id=>document.getElementById(id);
+
+  function start(){
+    stage=0;score=0;size=1;fishes=[];running=true;
+    $('startScreen').classList.remove('show');$('startScreen').style.display='none';
+    $('endScreen').classList.add('hidden');
+    $('playScreen').classList.remove('hidden');
+    applyStage();
+    px=arena.clientWidth/2; py=arena.clientHeight/2;
+    player.style.left=px+'px';player.style.top=py+'px';
+    spawnLoop();
+    raf=requestAnimationFrame(tick);
+  }
+  function applyStage(){
+    const S=STAGES[stage];
+    arena.style.background=S.bg;
+    arena.style.borderColor=S.border;
+    $('stage').textContent=stage+1;
+    $('score').textContent=score;
+    $('need').textContent=S.need;
+    $('size').textContent=size;
+    updatePlayer();
+    arena.querySelectorAll('.fish').forEach(e=>e.remove());
+    fishes=[];
+  }
+  function updatePlayer(){
+    const S=STAGES[stage];
+    const idx=Math.min(size-1,S.me.length-1);
+    player.textContent=S.me[idx];
+    player.style.fontSize=(26+size*7)+'px';
+    $('legMe').textContent='Bạn: '+S.me[idx]+' size '+size;
+  }
+  function spawnLoop(){
+    if(!running)return;
+    spawnFish();
+    setTimeout(spawnLoop, 550+Math.random()*450-stage*40);
+  }
+  function spawnFish(){
+    if(!running)return;
+    // pick type weighted: more small early, more danger later
+    let pool;
+    if(size<=1) pool=FISH_TYPES.filter(f=>f.rank<=2).concat(FISH_TYPES.filter(f=>f.rank===4));
+    else if(size===2) pool=FISH_TYPES;
+    else pool=FISH_TYPES.filter(f=>f.rank!==1).concat(FISH_TYPES.filter(f=>f.rank===1));
+    // ensure some danger
+    if(Math.random()<0.2+stage*0.08) pool=FISH_TYPES.filter(f=>f.rank>=3);
+    if(Math.random()<0.55) pool=FISH_TYPES.filter(f=>f.rank<=size);
+    const t=pool[Math.floor(Math.random()*pool.length)];
+    const el=document.createElement('div');
+    el.className='fish';
+    el.textContent=t.emoji;
+    el.style.fontSize=(16+t.rank*6)+'px';
+    const side=Math.random()<0.5?0:1;
+    const y=30+Math.random()*(arena.clientHeight-60);
+    const x=side?arena.clientWidth+40:-40;
+    el.style.left=x+'px';el.style.top=y+'px';
+    arena.appendChild(el);
+    fishes.push({el,x,y,vx:(side?-1:1)*(1.1+Math.random()*1.4+stage*0.25), rank:t.rank, pts:t.pts, dead:false});
+  }
+  function tick(){
+    if(!running)return;
+    for(const f of fishes){
+      if(f.dead)continue;
+      f.x+=f.vx;
+      f.el.style.left=f.x+'px';
+      if(f.x<-60||f.x>arena.clientWidth+60){f.dead=true;f.el.remove();continue;}
+      const dx=f.x-px, dy=f.y-py;
+      const dist=Math.sqrt(dx*dx+dy*dy);
+      const hitR=14+size*5;
+      if(dist<hitR){
+        if(f.rank>size){
+          // LOSE - eaten by bigger fish
+          f.dead=true;f.el.remove();
+          lose();
+          return;
+        } else if(f.rank<=size){
+          f.dead=true;f.el.remove();
+          score+=f.pts;
+          $('score').textContent=score;
+          // grow
+          const S=STAGES[stage];
+          let newSize=1;
+          for(let g=0;g<S.growAt.length;g++) if(score>=S.growAt[g]) newSize=g+1;
+          if(newSize>size){size=newSize;updatePlayer();}
+          if(score>=S.need){
+            showConfetti();
+            if(stage>=2){win();return;}
+            stage++; size=Math.max(1,size-1);
+            applyStage();
+          }
+        }
+      }
+    }
+    fishes=fishes.filter(f=>!f.dead);
+    raf=requestAnimationFrame(tick);
+  }
+  function lose(){
+    running=false;cancelAnimationFrame(raf);
+    $('endEmoji').textContent='💀';
+    $('endTitle').textContent='Bị cá lớn ăn mất!';
+    $('endMsg').textContent='Em đã bị cá to hơn nuốt. Cẩn thận tránh cá mập nhé!';
+    $('finalScore').textContent=score;
+    $('playScreen').classList.add('hidden');
+    $('endScreen').classList.remove('hidden');
+    $('endScreen').classList.add('show');
+  }
+  function win(){
+    running=false;cancelAnimationFrame(raf);
+    $('endEmoji').textContent='🎉';
+    $('endTitle').textContent='Vua đại dương!';
+    $('endMsg').textContent='Vượt 3 màn thành công!';
+    $('finalScore').textContent=score;
+    $('playScreen').classList.add('hidden');
+    $('endScreen').classList.remove('hidden');
+    $('endScreen').classList.add('show');
+    showConfetti();
+  }
+  arena.addEventListener('mousemove',e=>{
+    const rect=arena.getBoundingClientRect();
+    px=Math.max(10,Math.min(rect.width-10,e.clientX-rect.left));
+    py=Math.max(10,Math.min(rect.height-10,e.clientY-rect.top));
+    player.style.left=px+'px';player.style.top=py+'px';
+  });
+  arena.addEventListener('touchmove',e=>{
+    e.preventDefault();
+    const t=e.touches[0];const rect=arena.getBoundingClientRect();
+    px=Math.max(10,Math.min(rect.width-10,t.clientX-rect.left));
+    py=Math.max(10,Math.min(rect.height-10,t.clientY-rect.top));
+    player.style.left=px+'px';player.style.top=py+'px';
+  },{passive:false});
+  function showConfetti(){
+    const box=$('confetti');box.innerHTML='';
+    const colors=['#4fc3f7','#fbbf24','#ef5350','#66bb6a','#ab47bc'];
+    for(let i=0;i<50;i++){const s=document.createElement('span');s.style.left=Math.random()*100+'%';s.style.background=colors[i%5];s.style.animationDelay=Math.random()*.5+'s';box.appendChild(s);}
+    setTimeout(()=>box.innerHTML='',2200);
+  }
+  $('btnStart').onclick=start;
+  $('btnReplay').onclick=()=>{$('endScreen').classList.add('hidden');$('endScreen').classList.remove('show');start();};
+  </script>
+</body>
+</html>

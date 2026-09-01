@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nối hình giống nhau | Tin học Tiểu học</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Nunito',sans-serif;min-height:100vh;color:#263238;background:linear-gradient(160deg,#f3e5f5,#e8eaf6,#e3f2fd)}
+    .topbar{background:#fff;box-shadow:0 2px 12px rgba(0,0,0,.06);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+    .topbar a{color:#7b1fa2;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+    .topbar h1{font-size:17px;font-weight:800;color:#7b1fa2}
+    .wrap{max-width:720px;margin:0 auto;padding:16px 12px 48px}
+    .card{background:#fff;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,.1);padding:18px;text-align:center}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:999px;font-weight:800;font-size:13px;border:none;cursor:pointer;font-family:inherit;margin:4px}
+    .btn-primary{background:linear-gradient(135deg,#7b1fa2,#ce93d8);color:#fff}
+    .btn-outline{background:#fff;border:2px solid #7b1fa2;color:#7b1fa2;text-decoration:none}
+    .btn-lv{border:2px solid #e0e0e0;background:#fafafa;color:#546e7a}
+    .btn-lv.active{border-color:#7b1fa2;background:#f3e5f5;color:#7b1fa2}
+    .hud{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:12px}
+    .hud span{background:#f3e5f5;padding:6px 12px;border-radius:999px;font-weight:800;font-size:13px;color:#7b1fa2}
+    .board-wrap{position:relative;display:inline-block;margin:0 auto;max-width:100%}
+    .grid{display:grid;gap:4px;position:relative;z-index:1}
+    .tile{aspect-ratio:1;border-radius:8px;border:2px solid #e1bee7;background:#faf5ff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.12s;user-select:none}
+    .tile:hover{border-color:#7b1fa2;transform:scale(1.04)}
+    .tile.selected{border-color:#7b1fa2;background:#e1bee7;box-shadow:0 0 0 3px #ce93d8}
+    .tile.empty{background:transparent;border-color:transparent;cursor:default;pointer-events:none}
+    .tile.hint{animation:blink .4s ease 2}
+    @keyframes blink{50%{background:#fff9c4}}
+    #pathCanvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2}
+    .hidden{display:none!important}
+    .confetti{position:fixed;inset:0;pointer-events:none;z-index:100;overflow:hidden}
+    .confetti span{position:absolute;width:10px;height:10px;border-radius:2px;animation:fall 2.2s ease-out forwards}
+    @keyframes fall{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+    .stars{font-size:28px;color:#ffc107;letter-spacing:2px;margin:8px 0}
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <a href="hoc-ma-choi.html"><i class="fas fa-arrow-left"></i> Quay lại</a>
+    <h1><i class="fas fa-object-group"></i> Nối hình giống nhau</h1>
+    <span style="width:80px"></span>
+  </div>
+  <div class="wrap">
+    <div class="card" id="setup">
+      <h2 style="font-size:20px;font-weight:800;color:#7b1fa2;margin-bottom:10px">Chọn cửa</h2>
+      <p style="font-size:13px;color:#888;margin-bottom:10px">Hình hiện sẵn · Chọn 2 hình giống nhau có đường nối (≤3 đoạn) → biến mất</p>
+      <div id="lvBtns"></div>
+      <p style="margin:12px 0;color:#888;font-size:13px" id="lvInfo">10 hình · 60 giây</p>
+      <button class="btn btn-primary" id="btnStart"><i class="fas fa-play"></i> Bắt đầu</button>
+    </div>
+    <div class="card hidden" id="play">
+      <div class="hud">
+        <span>⏱️ <span id="timer">60</span>s</span>
+        <span>⭐ <span id="score">0</span></span>
+        <span>Còn: <span id="remain">0</span></span>
+      </div>
+      <div class="board-wrap">
+        <canvas id="pathCanvas"></canvas>
+        <div class="grid" id="grid"></div>
+      </div>
+    </div>
+    <div class="card hidden" id="end">
+      <div class="stars" id="endStars">★★★★★</div>
+      <h2 id="endTitle" style="font-size:22px;font-weight:800;color:#7b1fa2">Hoàn thành!</h2>
+      <p id="endMsg" style="color:#546e7a;margin:8px 0"></p>
+      <p style="font-weight:800;font-size:18px;color:#7b1fa2">Điểm: <span id="finalScore">0</span></p>
+      <button class="btn btn-primary" id="btnReplay" style="margin-top:12px"><i class="fas fa-redo"></i> Chơi lại</button>
+      <button class="btn btn-outline" id="btnSetup"><i class="fas fa-list"></i> Chọn cửa khác</button>
+      <a href="hoc-ma-choi.html" class="btn btn-outline"><i class="fas fa-home"></i> Về</a>
+    </div>
+  </div>
+  <div class="confetti" id="confetti"></div>
+  <script>
+  // tile counts (even): 10,20,50,80,160
+  const LEVELS=[
+    {tiles:10, time:60, cols:5, label:'Cửa 1 · 10 hình · Dễ'},
+    {tiles:20, time:90, cols:5, label:'Cửa 2 · 20 hình · Vừa'},
+    {tiles:50, time:150, cols:10, label:'Cửa 3 · 50 hình · Khó'},
+    {tiles:80, time:210, cols:10, label:'Cửa 4 · 80 hình · Rất khó'},
+    {tiles:160, time:360, cols:16, label:'Cửa 5 · 160 hình · Siêu khó'}
+  ];
+  const EMOJIS=['🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🐔','🐧','🐦','🐤','🦆','🦅','🦉','🦇','🐺','🐗','🐴','🦄','🐝','🐛','🦋','🐌','🐞','🐜','🦗','🐢','🐍','🦎','🐙','🦑','🦐','🦞','🦀','🐡','🐠','🐟','🐬','🐳','🦈','🐊','🐅','🐆','🦓','🦍','🐘','🦏','🐪','🦒','🦘','🐄','🐖','🐏','🦙','🐐','🦌','🐕','🐈','🐓','🦚','🦜','🦢','🦩','🐇','🦝','🦨','🦫','🦦','🦥','🐀'];
+  let level=0, cols=0, rows=0, grid=[], selected=null, score=0, remain=0, timeLeft=0, timerId=null, cellW=0, cellH=0;
+  const $=id=>document.getElementById(id);
+
+  LEVELS.forEach((L,i)=>{
+    const b=document.createElement('button');
+    b.className='btn btn-lv'+(i===0?' active':'');
+    b.textContent=L.label;
+    b.onclick=()=>{
+      document.querySelectorAll('.btn-lv').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active'); level=i;
+      $('lvInfo').textContent=L.tiles+' hình · '+L.time+' giây';
+    };
+    $('lvBtns').appendChild(b);
+  });
+  $('lvInfo').textContent=LEVELS[0].tiles+' hình · '+LEVELS[0].time+' giây';
+  $('btnStart').onclick=start;
+  $('btnReplay').onclick=start;
+  $('btnSetup').onclick=()=>{$('end').classList.add('hidden');$('setup').classList.remove('hidden');};
+
+  function shuffle(a){const x=[...a];for(let i=x.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[x[i],x[j]]=[x[j],x[i]];}return x;}
+
+  function start(){
+    const L=LEVELS[level];
+    cols=L.cols;
+    rows=Math.ceil(L.tiles/cols);
+    // pad to full rectangle with empties if needed - better make exact pairs
+    const pairs=L.tiles/2;
+    let pool=EMOJIS.slice(0,Math.min(pairs,EMOJIS.length));
+    while(pool.length<pairs) pool.push(EMOJIS[pool.length%EMOJIS.length]);
+    const tiles=shuffle([...pool,...pool]);
+    // build grid with 1-cell border of empty (for pathing outside)
+    const gCols=cols+2, gRows=rows+2;
+    grid=Array.from({length:gRows},()=>Array(gCols).fill(null));
+    let k=0;
+    for(let i=1;i<=rows;i++) for(let j=1;j<=cols;j++){
+      if(k<tiles.length) grid[i][j]=tiles[k++];
+    }
+    selected=null; score=0; remain=tiles.length; timeLeft=L.time;
+    $('setup').classList.add('hidden'); $('end').classList.add('hidden');
+    $('play').classList.remove('hidden');
+    $('score').textContent='0'; $('remain').textContent=remain; $('timer').textContent=timeLeft;
+    render();
+    clearInterval(timerId);
+    timerId=setInterval(()=>{
+      timeLeft--; $('timer').textContent=timeLeft;
+      if(timeLeft<=0){clearInterval(timerId);finish(false);}
+    },1000);
+  }
+
+  function render(){
+    const L=LEVELS[level];
+    const g=$('grid');
+    g.style.gridTemplateColumns=`repeat(${cols}, minmax(0,1fr))`;
+    const maxW=L.tiles>=80?560:L.tiles>=50?480:340;
+    g.style.width=maxW+'px';
+    g.innerHTML='';
+    for(let i=1;i<=rows;i++) for(let j=1;j<=cols;j++){
+      const t=document.createElement('button');
+      t.className='tile';
+      const v=grid[i][j];
+      if(!v){ t.classList.add('empty'); t.textContent=''; }
+      else {
+        t.textContent=v;
+        t.style.fontSize=L.tiles>=80?'13px':L.tiles>=50?'16px':'22px';
+        t.onclick=()=>onSelect(i,j,t);
+      }
+      t.dataset.r=i; t.dataset.c=j;
+      g.appendChild(t);
+    }
+    // size canvas
+    requestAnimationFrame(()=>{
+      const wrap=g.parentElement;
+      const canvas=$('pathCanvas');
+      canvas.width=wrap.offsetWidth;
+      canvas.height=wrap.offsetHeight;
+      const first=g.querySelector('.tile');
+      if(first){ cellW=first.offsetWidth; cellH=first.offsetHeight; }
+    });
+  }
+
+  function onSelect(i,j,el){
+    if(!grid[i][j]) return;
+    if(!selected){
+      selected={i,j,el};
+      el.classList.add('selected');
+      return;
+    }
+    if(selected.i===i&&selected.j===j){
+      el.classList.remove('selected'); selected=null; return;
+    }
+    // try match
+    if(grid[selected.i][selected.j]===grid[i][j]){
+      const path=findPath(selected.i,selected.j,i,j);
+      if(path){
+        drawPath(path);
+        const a=selected, b={i,j,el};
+        setTimeout(()=>{
+          grid[a.i][a.j]=null; grid[b.i][b.j]=null;
+          remain-=2; score+=15+Math.max(0,Math.floor(timeLeft/15));
+          $('score').textContent=score; $('remain').textContent=remain;
+          clearPath();
+          render();
+          selected=null;
+          if(remain<=0){clearInterval(timerId);setTimeout(()=>finish(true),300);}
+        },280);
+        return;
+      }
+    }
+    // fail
+    selected.el.classList.remove('selected');
+    selected={i,j,el};
+    el.classList.add('selected');
+  }
+
+  // Path finding: 0, 1, or 2 turns (like Mahjong / Pokemon connect)
+  function findPath(r1,c1,r2,c2){
+    if(r1===r2&&c1===c2) return null;
+    // straight line
+    if(lineClear(r1,c1,r2,c2)) return [{r:r1,c:c1},{r:r2,c:c2}];
+    // one corner
+    const corners=[{r:r1,c:c2},{r:r2,c:c1}];
+    for(const p of corners){
+      if(isEmpty(p.r,p.c)||(p.r===r1&&p.c===c1)||(p.r===r2&&p.c===c2)){
+        if(lineClear(r1,c1,p.r,p.c)&&lineClear(p.r,p.c,r2,c2))
+          return [{r:r1,c:c1},p,{r:r2,c:c2}];
+      }
+    }
+    // two corners
+    for(let r=0;r<grid.length;r++){
+      for(let c=0;c<grid[0].length;c++){
+        if(!isEmpty(r,c)&&(r!==r1||c!==c1)&&(r!==r2||c!==c2)) continue;
+        if(lineClear(r1,c1,r,c)){
+          // from (r,c) try one-corner to target
+          const mid=[{r:r,c:c2},{r:r2,c:c}];
+          for(const p of mid){
+            if((isEmpty(p.r,p.c)||(p.r===r2&&p.c===c2)||(p.r===r&&p.c===c))&&
+               lineClear(r,c,p.r,p.c)&&lineClear(p.r,p.c,r2,c2))
+              return [{r:r1,c:c1},{r,c},p,{r:r2,c:c2}];
+          }
+        }
+      }
+    }
+    return null;
+  }
+  function isEmpty(r,c){
+    if(r<0||c<0||r>=grid.length||c>=grid[0].length) return false;
+    return grid[r][c]===null;
+  }
+  function lineClear(r1,c1,r2,c2){
+    if(r1===r2){
+      const [a,b]=c1<c2?[c1,c2]:[c2,c1];
+      for(let c=a+1;c<b;c++) if(!isEmpty(r1,c)) return false;
+      return true;
+    }
+    if(c1===c2){
+      const [a,b]=r1<r2?[r1,r2]:[r2,r1];
+      for(let r=a+1;r<b;r++) if(!isEmpty(r,c1)) return false;
+      return true;
+    }
+    return false;
+  }
+
+  function cellCenter(r,c){
+    // grid is only visible cells (1..rows, 1..cols); border is virtual
+    const g=$('grid');
+    const gap=4;
+    const ci=c-1, ri=r-1;
+    const x=(ci+0.5)*(cellW+gap);
+    const y=(ri+0.5)*(cellH+gap);
+    return {x,y};
+  }
+  function drawPath(path){
+    const canvas=$('pathCanvas');
+    const ctx=canvas.getContext('2d');
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.strokeStyle='#7b1fa2';
+    ctx.lineWidth=3;
+    ctx.lineCap='round';
+    ctx.lineJoin='round';
+    ctx.beginPath();
+    path.forEach((p,i)=>{
+      let pt;
+      if(p.r>=1&&p.r<=rows&&p.c>=1&&p.c<=cols) pt=cellCenter(p.r,p.c);
+      else {
+        // border virtual points
+        const g=$('grid');
+        const gap=4;
+        pt={x:(p.c-0.5)*(cellW+gap), y:(p.r-0.5)*(cellH+gap)};
+      }
+      if(i===0) ctx.moveTo(pt.x,pt.y); else ctx.lineTo(pt.x,pt.y);
+    });
+    ctx.stroke();
+  }
+  function clearPath(){
+    const canvas=$('pathCanvas');
+    const ctx=canvas.getContext('2d');
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+  }
+
+  function finish(win){
+    $('play').classList.add('hidden');
+    $('end').classList.remove('hidden');
+    $('finalScore').textContent=score;
+    if(win){
+      $('endTitle').textContent='🎉 Xong cửa!';
+      $('endMsg').textContent='Nối hết hình trong '+LEVELS[level].label;
+      $('endStars').textContent='★★★★★';
+      showConfetti();
+    } else {
+      $('endTitle').textContent='Hết giờ!';
+      $('endMsg').textContent='Còn '+remain+' hình. Thử lại nhé!';
+      $('endStars').textContent='★★☆☆☆';
+    }
+  }
+  function showConfetti(){
+    const box=$('confetti');box.innerHTML='';
+    const colors=['#7b1fa2','#ce93d8','#fbbf24','#42a5f5','#66bb6a'];
+    for(let i=0;i<55;i++){const s=document.createElement('span');s.style.left=Math.random()*100+'%';s.style.background=colors[i%5];s.style.animationDelay=Math.random()*.5+'s';box.appendChild(s);}
+    setTimeout(()=>box.innerHTML='',2400);
+  }
+  </script>
+</body>
+</html>

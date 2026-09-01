@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cờ caro với máy | Tin học Tiểu học</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Nunito',sans-serif;min-height:100vh;color:#263238;background:linear-gradient(160deg,#fff3e0,#fce4ec,#e3f2fd)}
+    .topbar{background:#fff;box-shadow:0 2px 12px rgba(0,0,0,.06);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+    .topbar a{color:#e65100;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+    .topbar h1{font-size:18px;font-weight:800;color:#e65100}
+    .wrap{max-width:480px;margin:0 auto;padding:20px 16px 48px}
+    .card{background:#fff;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,.1);padding:22px;text-align:center}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:999px;font-weight:800;font-size:14px;border:none;cursor:pointer;font-family:inherit;margin:4px}
+    .btn-primary{background:linear-gradient(135deg,#e65100,#ff9800);color:#fff}
+    .btn-outline{background:#fff;border:2px solid #e65100;color:#e65100;text-decoration:none}
+    .btn-diff{border:2px solid #e0e0e0;background:#fafafa;color:#546e7a}
+    .btn-diff.active{border-color:#e65100;background:#fff3e0;color:#e65100}
+    .board{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:300px;margin:16px auto}
+    .cell{aspect-ratio:1;border-radius:12px;border:2px solid #ffe0b2;background:#fff8e1;font-size:40px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s}
+    .cell:hover{background:#ffe0b2}
+    .cell.x{color:#e65100}
+    .cell.o{color:#1565c0}
+    .hud{display:flex;justify-content:center;gap:12px;margin-bottom:8px;flex-wrap:wrap}
+    .hud span{background:#fff3e0;padding:6px 14px;border-radius:999px;font-weight:800;font-size:13px;color:#e65100}
+    .status{font-weight:800;font-size:16px;min-height:28px;margin:10px 0;color:#e65100}
+    .confetti{position:fixed;inset:0;pointer-events:none;z-index:100;overflow:hidden}
+    .confetti span{position:absolute;width:10px;height:10px;border-radius:2px;animation:fall 2.2s ease-out forwards}
+    @keyframes fall{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+    .hidden{display:none!important}
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <a href="hoc-ma-choi.html"><i class="fas fa-arrow-left"></i> Quay lại</a>
+    <h1><i class="fas fa-th"></i> Cờ caro với máy</h1>
+    <span style="width:80px"></span>
+  </div>
+  <div class="wrap">
+    <div class="card" id="setup">
+      <h2 style="font-size:20px;font-weight:800;color:#e65100;margin-bottom:12px">Chọn độ khó</h2>
+      <div>
+        <button class="btn btn-diff active" data-d="easy">😊 Dễ</button>
+        <button class="btn btn-diff" data-d="medium">😐 Trung bình</button>
+        <button class="btn btn-diff" data-d="hard">😈 Khó</button>
+      </div>
+      <p style="margin:12px 0;color:#888;font-size:13px">Thời gian mỗi nước của em: <strong id="timeLabel">20</strong> giây</p>
+      <button class="btn btn-primary" id="btnStart"><i class="fas fa-play"></i> Bắt đầu</button>
+    </div>
+    <div class="card hidden" id="play">
+      <div class="hud">
+        <span>⏱️ <span id="timer">20</span>s</span>
+        <span>Em: <span id="winX">0</span></span>
+        <span>Máy: <span id="winO">0</span></span>
+      </div>
+      <div class="status" id="status">Lượt của em (X)</div>
+      <div class="board" id="board"></div>
+      <button class="btn btn-outline" id="btnNew" style="margin-top:12px"><i class="fas fa-redo"></i> Ván mới</button>
+      <a href="hoc-ma-choi.html" class="btn btn-outline"><i class="fas fa-home"></i> Về</a>
+    </div>
+  </div>
+  <div class="confetti" id="confetti"></div>
+  <script>
+  let board, turn, difficulty='easy', timeLimit=20, timeLeft=20, timerId=null, gameOver=false;
+  let wins={x:0,o:0};
+  const $=id=>document.getElementById(id);
+  const TIME={easy:25,medium:18,hard:12};
+
+  document.querySelectorAll('.btn-diff').forEach(b=>{
+    b.onclick=()=>{
+      document.querySelectorAll('.btn-diff').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      difficulty=b.dataset.d;
+      timeLimit=TIME[difficulty];
+      $('timeLabel').textContent=timeLimit;
+    };
+  });
+
+  $('btnStart').onclick=()=>{
+    timeLimit=TIME[difficulty];
+    $('setup').classList.add('hidden');
+    $('play').classList.remove('hidden');
+    newRound();
+  };
+  $('btnNew').onclick=newRound;
+
+  function newRound(){
+    board=Array(9).fill(null);
+    turn='x'; gameOver=false;
+    render();
+    $('status').textContent='Lượt của em (X)';
+    startTimer();
+  }
+  function startTimer(){
+    clearInterval(timerId);
+    timeLeft=timeLimit;
+    $('timer').textContent=timeLeft;
+    timerId=setInterval(()=>{
+      timeLeft--;
+      $('timer').textContent=timeLeft;
+      if(timeLeft<=0){
+        clearInterval(timerId);
+        // auto random move or lose turn
+        if(!gameOver&&turn==='x'){
+          const empty=board.map((v,i)=>v===null?i:null).filter(x=>x!==null);
+          if(empty.length) place(empty[Math.floor(Math.random()*empty.length)]);
+        }
+      }
+    },1000);
+  }
+  function render(){
+    const b=$('board'); b.innerHTML='';
+    board.forEach((v,i)=>{
+      const c=document.createElement('button');
+      c.className='cell'+(v?' '+v:'');
+      c.textContent=v==='x'?'X':v==='o'?'O':'';
+      c.onclick=()=>{ if(turn==='x'&&!gameOver&&!board[i]) place(i); };
+      b.appendChild(c);
+    });
+  }
+  function place(i){
+    if(board[i]||gameOver)return;
+    board[i]=turn;
+    render();
+    const w=checkWin();
+    if(w){ endRound(w); return; }
+    if(board.every(x=>x)){ endRound('draw'); return; }
+    turn=turn==='x'?'o':'x';
+    if(turn==='o'){
+      $('status').textContent='Máy đang nghĩ...';
+      clearInterval(timerId);
+      setTimeout(aiMove, 400+Math.random()*400);
+    } else {
+      $('status').textContent='Lượt của em (X)';
+      startTimer();
+    }
+  }
+  function checkWin(){
+    const lines=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+    for(const [a,b,c] of lines) if(board[a]&&board[a]===board[b]&&board[a]===board[c]) return board[a];
+    return null;
+  }
+  function endRound(res){
+    gameOver=true; clearInterval(timerId);
+    if(res==='x'){ wins.x++; $('status').textContent='🎉 Em thắng!'; showConfetti(); }
+    else if(res==='o'){ wins.o++; $('status').textContent='Máy thắng! Thử lại nhé'; }
+    else $('status').textContent='Hòa!';
+    $('winX').textContent=wins.x;
+    $('winO').textContent=wins.o;
+  }
+  function aiMove(){
+    if(gameOver)return;
+    let idx;
+    if(difficulty==='easy'){
+      const empty=board.map((v,i)=>v===null?i:null).filter(x=>x!==null);
+      idx=empty[Math.floor(Math.random()*empty.length)];
+    } else {
+      idx=bestMove(difficulty==='hard');
+    }
+    place(idx);
+  }
+  function bestMove(hard){
+    // minimax-ish: win > block > center > corner > random
+    const empty=board.map((v,i)=>v===null?i:null).filter(x=>x!==null);
+    // can O win?
+    for(const i of empty){ board[i]='o'; if(checkWin()==='o'){board[i]=null;return i;} board[i]=null; }
+    // block X
+    for(const i of empty){ board[i]='x'; if(checkWin()==='x'){board[i]=null;return i;} board[i]=null; }
+    if(hard){
+      // fork-ish: prefer center, corners
+      if(board[4]===null) return 4;
+      const corners=[0,2,6,8].filter(i=>board[i]===null);
+      if(corners.length) return corners[Math.floor(Math.random()*corners.length)];
+    }
+    if(board[4]===null && Math.random()>0.3) return 4;
+    return empty[Math.floor(Math.random()*empty.length)];
+  }
+  function showConfetti(){
+    const box=$('confetti');box.innerHTML='';
+    const colors=['#ff9800','#e65100','#fbbf24','#42a5f5','#66bb6a'];
+    for(let i=0;i<50;i++){const s=document.createElement('span');s.style.left=Math.random()*100+'%';s.style.background=colors[i%5];s.style.animationDelay=Math.random()*.5+'s';box.appendChild(s);}
+    setTimeout(()=>box.innerHTML='',2200);
+  }
+  </script>
+</body>
+</html>

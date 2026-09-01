@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đoán thiết bị | Tin học Tiểu học</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Nunito', sans-serif; min-height: 100vh; color: #263238; }
+    .topbar { background: white; box-shadow: 0 2px 12px rgba(0,0,0,0.06); padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
+    .topbar a { font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+    .topbar h1 { font-size: 18px; font-weight: 800; }
+    .wrap { max-width: 720px; margin: 0 auto; padding: 20px 16px 48px; }
+    .hud { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; justify-content: center; }
+    .hud-item { background: white; border-radius: 12px; padding: 8px 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); font-weight: 800; font-size: 14px; display: flex; align-items: center; gap: 6px; }
+    .hud-item.timer { color: #ff9800; }
+    .hud-item.timer.danger { color: #e53935; animation: pulse 0.5s infinite; }
+    @keyframes pulse { 50% { transform: scale(1.06); } }
+    .game-card { background: white; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); padding: 24px; text-align: center; }
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 26px; border-radius: 999px; font-weight: 800; font-size: 15px; border: none; cursor: pointer; font-family: inherit; transition: 0.2s; }
+    .btn-primary { color: white; }
+    .btn-outline { background: white; text-decoration: none; }
+    .screen { display: none; text-align: center; padding: 30px 10px; }
+    .screen.show { display: block; }
+    .screen h2 { font-size: 26px; font-weight: 800; margin-bottom: 10px; }
+    .screen p { color: #546e7a; margin-bottom: 20px; font-size: 14.5px; line-height: 1.55; }
+    .stars { font-size: 32px; color: #ffc107; margin-bottom: 12px; letter-spacing: 3px; }
+    .opt { display: block; width: 100%; max-width: 400px; margin: 8px auto; padding: 14px 18px; border-radius: 12px; border: 2px solid #e0e0e0; background: white; font-weight: 700; font-size: 15px; cursor: pointer; font-family: inherit; text-align: left; transition: 0.2s; }
+    .opt:hover { transform: translateY(-2px); }
+    .opt.correct { border-color: #4caf50; background: #e8f5e9; }
+    .opt.wrong { border-color: #e53935; background: #ffebee; }
+
+    body { background: linear-gradient(160deg,#e3f2fd 0%,#e8eaf6 50%,#fce4ec 100%); }
+    .topbar a, .topbar h1 { color: #1565c0; }
+    .btn-primary { background: linear-gradient(135deg, #1565c0, #42a5f5); box-shadow: 0 6px 18px #1565c055; }
+    .btn-outline { border: 2px solid #1565c0; color: #1565c0; }
+    .opt:hover { border-color: #1565c0; background: #42a5f522; }
+  
+    .confetti { position: fixed; inset: 0; pointer-events: none; z-index: 100; overflow: hidden; }
+    .confetti span { position: absolute; width: 10px; height: 10px; border-radius: 2px; animation: fall 2.2s ease-out forwards; }
+    @keyframes fall {
+      0% { transform: translateY(-20px) rotate(0); opacity: 1; }
+      100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+    }
+    .combo { font-size: 18px; font-weight: 800; color: #ff9800; min-height: 24px; margin-top: 8px; }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <a href="hoc-ma-choi.html"><i class="fas fa-arrow-left"></i> Quay lại</a>
+    <h1><i class="fas fa-desktop"></i> Đoán thiết bị</h1>
+    <span style="width:80px"></span>
+  </div>
+  <div class="wrap">
+    <div class="screen show" id="startScreen">
+      <div class="game-card">
+        <h2>🖥️ Đoán thiết bị Tin học</h2>
+        <p>Nhìn biểu tượng, chọn <strong>đúng tên thiết bị</strong>. Có đồng hồ đếm ngược!</p>
+        <button class="btn btn-primary" id="btnStart"><i class="fas fa-play"></i> Bắt đầu</button>
+      </div>
+    </div>
+    <div id="playScreen" style="display:none">
+      <div class="hud">
+        <div class="hud-item"><i class="fas fa-star"></i> Điểm: <span id="score">0</span></div>
+        <div class="hud-item timer" id="timerBox"><i class="fas fa-clock"></i> <span id="timer">15</span>s</div>
+        <div class="hud-item"><i class="fas fa-flag"></i> Câu: <span id="qNum">1</span>/8</div>
+      </div>
+      <div class="game-card">
+        <div id="prompt" style="font-size:72px;margin:12px 0">💻</div>
+        <div id="options"></div>
+        <div class="combo" id="combo"></div>
+      </div>
+    </div>
+    <div class="screen" id="endScreen">
+      <div class="game-card">
+        <div class="stars" id="endStars">★★★★★</div>
+        <h2 id="endTitle">Hoàn thành!</h2>
+        <p id="endMsg"></p>
+        <p style="font-size:20px;font-weight:800;color:#1565c0">Điểm: <span id="finalScore">0</span></p>
+        <div style="margin-top:20px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+          <button class="btn btn-primary" id="btnReplay"><i class="fas fa-redo"></i> Chơi lại</button>
+          <a href="hoc-ma-choi.html" class="btn btn-outline"><i class="fas fa-home"></i> Về Học mà chơi</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="confetti" id="confetti"></div>
+  <script>
+
+const POOL = [
+  {e:'💻', correct:'Máy tính xách tay', wrong:['Máy in','USB','Loa']},
+  {e:'🖱️', correct:'Chuột máy tính', wrong:['Bàn phím','Màn hình','Webcam']},
+  {e:'⌨️', correct:'Bàn phím', wrong:['Chuột','Máy in','Tai nghe']},
+  {e:'🖥️', correct:'Màn hình', wrong:['CPU','Loa','USB']},
+  {e:'🖨️', correct:'Máy in', wrong:['Máy scan','Màn hình','Micro']},
+  {e:'💾', correct:'USB / Ổ nhớ', wrong:['Đĩa CD','Máy tính','Camera']},
+  {e:'🎧', correct:'Tai nghe', wrong:['Loa','Micro','Webcam']},
+  {e:'📷', correct:'Webcam / Camera', wrong:['Máy in','Micro','USB']},
+  {e:'🔌', correct:'Cáp / Nguồn', wrong:['USB','Chuột','Bàn phím']},
+  {e:'📶', correct:'Wi-Fi / Mạng', wrong:['Bluetooth chỉ','USB','CPU']},
+];
+let score=0, idx=0, streak=0, timerId=null, timeLeft=15, data=[], answered=false;
+const $=id=>document.getElementById(id);
+function shuffle(a){const x=[...a];for(let i=x.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[x[i],x[j]]=[x[j],x[i]];}return x;}
+function start(){
+  data=shuffle(POOL).slice(0,8); score=0; idx=0; streak=0;
+  $('startScreen').classList.remove('show'); $('startScreen').style.display='none';
+  $('endScreen').classList.remove('show'); $('playScreen').style.display='block';
+  $('score').textContent='0'; loadQ();
+}
+function loadQ(){
+  answered=false; const q=data[idx];
+  $('qNum').textContent=idx+1; $('prompt').textContent=q.e;
+  const opts=shuffle([q.correct,...q.wrong]);
+  const box=$('options'); box.innerHTML='';
+  opts.forEach(t=>{
+    const b=document.createElement('button'); b.className='opt'; b.textContent=t;
+    b.onclick=()=>choose(t,q.correct,b); box.appendChild(b);
+  });
+  clearInterval(timerId); timeLeft=15; $('timer').textContent=timeLeft; $('timerBox').classList.remove('danger');
+  timerId=setInterval(()=>{
+    timeLeft--; $('timer').textContent=timeLeft;
+    if(timeLeft<=5)$('timerBox').classList.add('danger');
+    if(timeLeft<=0){clearInterval(timerId); if(!answered) next();}
+  },1000);
+}
+function choose(t,correct,btn){
+  if(answered)return; answered=true; clearInterval(timerId);
+  document.querySelectorAll('.opt').forEach(b=>{b.disabled=true; if(b.textContent===correct)b.classList.add('correct');});
+  if(t===correct){streak++; showConfetti(); const cmb=document.getElementById('combo'); if(cmb) cmb.textContent=streak>=2?('🔥 Chuỗi x'+streak+'!'):''; const bonus=streak>=3?5:0; score+=10+bonus+Math.max(0,timeLeft); $('score').textContent=score; btn.classList.add('correct');}
+  else { streak=0; btn.classList.add('wrong'); const cmb=document.getElementById('combo'); if(cmb) cmb.textContent=''; }
+  setTimeout(next,900);
+}
+function next(){idx++; if(idx>=data.length) end(); else loadQ();}
+function end(){
+  clearInterval(timerId); $('playScreen').style.display='none'; $('endScreen').classList.add('show');
+  $('finalScore').textContent=score;
+  let s='★★☆☆☆',m='Cố gắng thêm nhé!';
+  if(score>=90){s='★★★★★';m='Siêu đỉnh! Em nhận biết thiết bị rất giỏi!';}
+  else if(score>=70){s='★★★★☆';m='Rất tốt!';}
+  else if(score>=50){s='★★★☆☆';m='Khá lắm!';}
+  if(score>=70)showConfetti();
+  $('endStars').textContent=s; $('endMsg').textContent=m;
+}
+$('btnStart').onclick=start;
+$('btnReplay').onclick=()=>{$('endScreen').classList.remove('show');start();};
+
+  
+function showConfetti() {
+  const box = document.getElementById('confetti');
+  if (!box) return;
+  box.innerHTML = '';
+  const colors = ['#fbbf24','#ef5350','#42a5f5','#ab47bc','#4caf50','#ff9800'];
+  for (let i = 0; i < 50; i++) {
+    const s = document.createElement('span');
+    s.style.left = Math.random()*100 + '%';
+    s.style.background = colors[Math.floor(Math.random()*colors.length)];
+    s.style.animationDelay = Math.random()*0.5 + 's';
+    s.style.width = (6+Math.random()*8)+'px';
+    s.style.height = s.style.width;
+    box.appendChild(s);
+  }
+  setTimeout(() => box.innerHTML = '', 2400);
+}
+</script>
+</body>
+</html>

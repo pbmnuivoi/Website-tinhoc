@@ -94,8 +94,11 @@
       <p>Nhập tên học sinh hoặc phần thưởng, <strong>mỗi dòng một mục</strong>.</p>
       <textarea id="listInput" placeholder="Nguyễn Văn A&#10;Trần Thị B&#10;Lê Hoàng C&#10;Phần thưởng: 1 ngôi sao&#10;Phần thưởng: Kẹo"></textarea>
       <p class="hint">Sau khi bấm Tạo thẻ, dùng chuột kéo để cào lớp phủ bạc.</p>
-      <div style="margin-top:16px;text-align:center">
+      <div style="margin-top:16px;text-align:center;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
         <button class="btn btn-primary" id="btnCreate"><i class="fas fa-magic"></i> Tạo thẻ cào</button>
+        <button class="btn btn-outline" id="btnExport" style="background:#eceff1;border-color:#90a4ae;color:#455a64"><i class="fas fa-download"></i> Xuất JSON</button>
+        <button class="btn btn-outline" id="btnImport" style="background:#eceff1;border-color:#90a4ae;color:#455a64"><i class="fas fa-upload"></i> Cập nhật JSON</button>
+        <input type="file" id="jsonFile" accept=".json,application/json" style="display:none">
       </div>
     </div>
 
@@ -269,6 +272,38 @@
     $('btnBack').addEventListener('click', () => {
       $('playCard').classList.add('hidden');
       $('setupCard').classList.remove('hidden');
+    });
+
+    // Xuất / Nhập JSON danh sách
+    $('btnExport').addEventListener('click', () => {
+      const items = parseList();
+      if (!items.length) return alert('Danh sách trống!');
+      const data = { tool: 'cao-the', items };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'cao-the-danh-sach.json';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    });
+    $('btnImport').addEventListener('click', () => $('jsonFile').click());
+    $('jsonFile').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const data = JSON.parse(reader.result);
+          const items = data.items || data.list || (Array.isArray(data) ? data : null);
+          if (!items || !items.length) throw new Error('JSON không có danh sách');
+          $('listInput').value = items.join('\n');
+          alert('Đã tải ' + items.length + ' mục từ JSON!');
+        } catch (err) {
+          alert('Lỗi đọc JSON: ' + err.message);
+        }
+        e.target.value = '';
+      };
+      reader.readAsText(file);
     });
   </script>
 </body>

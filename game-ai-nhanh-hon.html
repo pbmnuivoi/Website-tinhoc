@@ -10,7 +10,7 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Nunito', sans-serif;
-      background: linear-gradient(160deg, #e0f7fa 0%, #e8f5e9 50%, #e3f2fd 100%);
+      background: linear-gradient(160deg, #e8f5e9 0%, #e0f2f1 50%, #e3f2fd 100%);
       min-height: 100vh; color: #263238;
     }
     .topbar {
@@ -18,43 +18,54 @@
       padding: 12px 20px; display: flex; align-items: center; justify-content: space-between;
       position: sticky; top: 0; z-index: 50;
     }
-    .topbar a { color: #00897b; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
-    .topbar h1 { font-size: 18px; font-weight: 800; color: #00897b; }
+    .topbar a { color: #2e7d32; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+    .topbar h1 { font-size: 18px; font-weight: 800; color: #2e7d32; }
     .wrap { max-width: 800px; margin: 0 auto; padding: 20px 16px 48px; }
     .card {
       background: white; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);
       padding: 22px; margin-bottom: 18px;
     }
-    .card h2 { font-size: 18px; font-weight: 800; margin-bottom: 12px; color: #00897b; }
+    .card h2 { font-size: 18px; font-weight: 800; margin-bottom: 12px; color: #2e7d32; }
     label { font-weight: 700; font-size: 13px; display: block; margin-bottom: 4px; }
-    input[type=text], input[type=number] {
+    input[type=text], textarea, select {
       width: 100%; padding: 10px 12px; border: 2px solid #e0e0e0; border-radius: 10px;
       font-family: inherit; font-size: 14px; outline: none; margin-bottom: 10px;
     }
-    input:focus { border-color: #00897b; }
-    .q-block { background: #e0f2f1; border-radius: 12px; padding: 14px; margin-bottom: 12px; }
-    .ans-row { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
-    .ans-row input[type=text] { flex: 1; margin-bottom: 0; }
-    .ans-row input[type=radio] { width: 18px; height: 18px; accent-color: #00897b; }
+    input:focus, textarea:focus, select:focus { border-color: #2e7d32; }
+    .q-block {
+      background: #e8f5e9; border-radius: 12px; padding: 14px; margin-bottom: 12px;
+    }
+    .ans-row { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; flex-wrap: wrap; }
+    .ans-row input[type=text] { flex: 1; margin-bottom: 0; min-width: 120px; }
+    .ans-row input[type=radio] { width: 18px; height: 18px; accent-color: #2e7d32; flex-shrink: 0; }
+    .ans-img-input { width: 100%; max-width: 280px; font-size: 12px !important; padding: 6px 10px !important; margin-bottom: 0 !important; }
     .btn {
       display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border-radius: 999px;
       font-weight: 800; font-size: 14px; border: none; cursor: pointer; font-family: inherit; transition: 0.2s;
     }
-    .btn-primary { background: linear-gradient(135deg, #00897b, #4db6ac); color: white; box-shadow: 0 6px 18px rgba(0,137,123,0.3); }
-    .btn-outline { background: white; border: 2px solid #00897b; color: #00897b; }
-    .timer {
-      font-size: 48px; font-weight: 800; color: #00897b; text-align: center; margin: 12px 0;
+    .btn-primary { background: linear-gradient(135deg, #2e7d32, #66bb6a); color: white; box-shadow: 0 6px 18px rgba(46,125,50,0.3); }
+    .btn-outline { background: white; border: 2px solid #2e7d32; color: #2e7d32; }
+    .btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 8px; }
+    .btn-json { background: #eceff1; border: 2px solid #90a4ae; color: #455a64; }
+    .gift-box { text-align: center; padding: 30px; cursor: pointer; user-select: none; }
+    .gift-icon { font-size: 80px; transition: 0.3s; display: inline-block; }
+    .gift-icon:hover { transform: scale(1.1) rotate(-5deg); }
+    .gift-icon.open { animation: openGift 0.6s ease; }
+    @keyframes openGift {
+      0% { transform: scale(1); }
+      40% { transform: scale(1.3) rotate(10deg); }
+      100% { transform: scale(1); }
     }
-    .timer.danger { color: #e53935; animation: pulse 0.5s infinite; }
-    @keyframes pulse { 50% { transform: scale(1.08); } }
     .options { display: grid; gap: 10px; margin-top: 16px; }
     .opt-btn {
       padding: 14px 18px; border-radius: 12px; border: 2px solid #e0e0e0; background: white;
       font-weight: 700; font-size: 15px; cursor: pointer; text-align: left; transition: 0.2s; font-family: inherit;
+      display: flex; align-items: center; gap: 12px;
     }
-    .opt-btn:hover { border-color: #00897b; background: #e0f2f1; }
+    .opt-btn:hover { border-color: #2e7d32; background: #e8f5e9; }
     .opt-btn.correct { border-color: #4caf50; background: #e8f5e9; color: #2e7d32; }
     .opt-btn.wrong { border-color: #e53935; background: #ffebee; color: #c62828; }
+    .opt-btn img { width: 48px; height: 48px; object-fit: cover; border-radius: 8px; flex-shrink: 0; }
     .feedback { font-size: 20px; font-weight: 800; margin-top: 16px; min-height: 30px; text-align: center; }
     .q-img { max-width: 100%; max-height: 180px; border-radius: 12px; margin: 12px auto; display: block; object-fit: contain; }
     .confetti { position: fixed; inset: 0; pointer-events: none; z-index: 100; overflow: hidden; }
@@ -64,6 +75,8 @@
       100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
     }
     .hidden { display: none !important; }
+    .toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; align-items: center; }
+    #jsonFile { display: none; }
   </style>
 </head>
 <body>
@@ -75,91 +88,118 @@
   <div class="wrap">
     <div id="setupScreen">
       <div class="card">
-        <h2>⚙️ Cài đặt câu hỏi (1–5 câu) + thời gian</h2>
+        <h2>⚙️ Cài đặt câu hỏi (1–20 câu)</h2>
 
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px">
           <div>
             <label>Thứ tự câu hỏi</label>
-            <select id="orderQ" style="width:100%;padding:10px 12px;border:2px solid #e0e0e0;border-radius:10px;font-family:inherit;font-size:14px">
+            <select id="orderQ">
               <option value="default">Mặc định (theo thứ tự nhập)</option>
               <option value="random">Random câu hỏi</option>
             </select>
           </div>
           <div>
             <label>Thứ tự đáp án</label>
-            <select id="orderA" style="width:100%;padding:10px 12px;border:2px solid #e0e0e0;border-radius:10px;font-family:inherit;font-size:14px">
+            <select id="orderA">
               <option value="default">Mặc định (theo thứ tự nhập)</option>
               <option value="random">Random đáp án</option>
             </select>
           </div>
+          <div>
+            <label>Thời gian mỗi câu (giây)</label>
+            <input type="text" id="timePerQ" value="20" placeholder="20">
+          </div>
         </div>
 
-        <label>Thời gian mỗi câu (giây)</label>
-        <input type="number" id="timePerQ" value="20" min="5" max="120" style="max-width:120px">
         <div id="questionsBox"></div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">
+        <div class="toolbar">
           <button class="btn btn-outline" id="btnAddQ"><i class="fas fa-plus"></i> Thêm câu hỏi</button>
-          <button class="btn btn-primary" id="btnStart"><i class="fas fa-play"></i> Bắt đầu</button>
+          <button class="btn btn-json" id="btnExport"><i class="fas fa-download"></i> Xuất JSON</button>
+          <button class="btn btn-json" id="btnImport"><i class="fas fa-upload"></i> Cập nhật JSON</button>
+          <input type="file" id="jsonFile" accept=".json,application/json">
+          <button class="btn btn-primary" id="btnStart"><i class="fas fa-play"></i> Bắt đầu chơi</button>
         </div>
       </div>
     </div>
     <div id="playScreen" class="hidden">
       <div class="card">
-        <div class="timer" id="timer">20</div>
-        <h2 id="qText" style="font-size:17px;text-align:center;margin-bottom:8px"></h2>
-        <img id="qImg" class="q-img hidden" alt="Ảnh minh họa">
-        <div class="options" id="options"></div>
-        <div class="feedback" id="feedback"></div>
-        <div style="margin-top:16px;text-align:center">
-          <button class="btn btn-primary hidden" id="btnNext"><i class="fas fa-arrow-right"></i> Câu tiếp</button>
-          <button class="btn btn-outline hidden" id="btnFinish"><i class="fas fa-flag-checkered"></i> Kết thúc</button>
+        <div style="text-align:center;margin-bottom:12px">
+          <div style="display:inline-flex;align-items:center;gap:8px;background:#e8f5e9;padding:8px 18px;border-radius:999px;font-weight:800;color:#2e7d32">
+            <i class="fas fa-clock"></i> <span id="timerDisplay">20</span>s · Câu <span id="qNum">1</span>/<span id="qTotal">1</span>
+          </div>
+        </div>
+        <div id="quizArea">
+          <h2 id="qText" style="font-size:18px;margin-bottom:8px;text-align:center"></h2>
+          <img id="qImg" class="q-img hidden" alt="Ảnh minh họa">
+          <div class="options" id="options"></div>
+          <div class="feedback" id="feedback"></div>
+          <div style="margin-top:16px;text-align:center">
+            <button class="btn btn-primary hidden" id="btnNext"><i class="fas fa-arrow-right"></i> Câu tiếp</button>
+            <button class="btn btn-outline hidden" id="btnFinish"><i class="fas fa-flag-checkered"></i> Kết thúc</button>
+          </div>
         </div>
       </div>
     </div>
   </div>
   <div class="confetti" id="confetti"></div>
   <script>
-    let remaining = [], answered = false, timeLeft = 20, timerId = null, timePerQ = 20;
+    let questions = [], remaining = [], answered = false;
     const $ = id => document.getElementById(id);
+    const LABELS = ['A', 'B', 'C', 'D'];
 
-    function makeQBlock(idx) {
+    function makeQBlock(idx, data) {
       const div = document.createElement('div');
       div.className = 'q-block';
+      const q = data || { text: '', img: '', answers: [{text:'',img:''},{text:'',img:''},{text:'',img:''},{text:'',img:''}], correct: 0 };
+      while (q.answers.length < 4) q.answers.push({ text: '', img: '' });
       div.innerHTML = `
         <label>Câu ${idx + 1}</label>
-        <input type="text" class="q-text" placeholder="Nhập câu hỏi...">
-        <label>Ảnh minh họa (URL – tùy chọn)</label>
-        <input type="text" class="q-img-url" placeholder="https://... hoặc để trống">
-        <label>Đáp án (chọn 1 đúng)</label>
-        <div>
+        <input type="text" class="q-text" placeholder="Nhập câu hỏi..." value="${(q.text||'').replace(/"/g,'&quot;')}">
+        <label>Ảnh minh họa câu hỏi (URL – tùy chọn)</label>
+        <input type="text" class="q-img-url" placeholder="https://... hoặc để trống" value="${(q.img||'').replace(/"/g,'&quot;')}">
+        <label>Đáp án (chọn 1 đúng bằng nút radio · có thể gắn ảnh cho từng đáp án)</label>
+        <div class="ans-list">
           ${[0,1,2,3].map(i => `
             <div class="ans-row">
-              <input type="radio" name="correct${idx}" value="${i}" ${i===0?'checked':''}>
-              <input type="text" class="ans-text" placeholder="Đáp án ${i+1}">
+              <input type="radio" name="correct${idx}" value="${i}" ${i===q.correct?'checked':''}>
+              <span style="font-weight:800;min-width:18px">${LABELS[i]}</span>
+              <input type="text" class="ans-text" placeholder="Đáp án ${LABELS[i]}" value="${(q.answers[i]?.text||'').replace(/"/g,'&quot;')}">
+              <input type="text" class="ans-img ans-img-input" placeholder="Link ảnh đáp án ${LABELS[i]} (tùy chọn)" value="${(q.answers[i]?.img||'').replace(/"/g,'&quot;')}">
             </div>
           `).join('')}
         </div>
       `;
       return div;
     }
-    function rebuild(n) {
-      const box = $('questionsBox'); box.innerHTML = '';
-      for (let i=0;i<n;i++) box.appendChild(makeQBlock(i));
+
+    function rebuildQuestions(n, list) {
+      const box = $('questionsBox');
+      box.innerHTML = '';
+      for (let i = 0; i < n; i++) box.appendChild(makeQBlock(i, list ? list[i] : null));
     }
-    rebuild(1);
+    rebuildQuestions(1);
+
     $('btnAddQ').addEventListener('click', () => {
-      if ($('questionsBox').children.length >= 5) return alert('Tối đa 5 câu');
-      $('questionsBox').appendChild(makeQBlock($('questionsBox').children.length));
+      const cur = $('questionsBox').children.length;
+      if (cur >= 20) return alert('Tối đa 20 câu hỏi');
+      $('questionsBox').appendChild(makeQBlock(cur));
     });
 
-    function collect() {
+    function collectQuestions() {
       const list = [];
       document.querySelectorAll('.q-block').forEach(block => {
         const text = block.querySelector('.q-text').value.trim();
         const img = block.querySelector('.q-img-url').value.trim();
-        const ans = [...block.querySelectorAll('.ans-text')].map(i => i.value.trim()).filter(Boolean);
+        const ansTexts = [...block.querySelectorAll('.ans-text')].map(i => i.value.trim());
+        const ansImgs = [...block.querySelectorAll('.ans-img')].map(i => i.value.trim());
+        const answers = [];
+        for (let i = 0; i < 4; i++) {
+          if (ansTexts[i]) answers.push({ text: ansTexts[i], img: ansImgs[i] || '' });
+        }
         const correctIdx = parseInt(block.querySelector('input[type=radio]:checked')?.value || 0, 10);
-        if (text && ans.length >= 2) list.push({ text, img, answers: ans.slice(0,4), correct: Math.min(correctIdx, ans.length-1) });
+        if (text && answers.length >= 2) {
+          list.push({ text, img, answers: answers.slice(0, 4), correct: Math.min(correctIdx, answers.length - 1) });
+        }
       });
       return list;
     }
@@ -173,25 +213,74 @@
       return a;
     }
 
-    $('btnStart').addEventListener('click', () => {
-      const qs = collect();
-      timePerQ = parseInt($('timePerQ').value, 10) || 20;
-      if (!qs.length) return alert('Cần ít nhất 1 câu hỏi hợp lệ');
-      const orderQ = $('orderQ').value;
-      remaining = orderQ === 'random' ? shuffle(qs) : [...qs];
-      window._orderA = $('orderA').value;
-      answered = false;
-      $('setupScreen').classList.add('hidden');
-      $('playScreen').classList.remove('hidden');
-      loadQ();
+    // Export JSON
+    $('btnExport').addEventListener('click', () => {
+      const qs = collectQuestions();
+      if (!qs.length) return alert('Chưa có câu hỏi hợp lệ để xuất!');
+      const data = {
+        tool: 'ai-nhanh-hon',
+        orderQ: $('orderQ').value,
+        orderA: $('orderA').value,
+        questions: qs
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'ai-nhanh-hon-cau-hoi.json';
+      a.click();
+      URL.revokeObjectURL(a.href);
     });
 
-    function loadQ() {
+    // Import JSON
+    $('btnImport').addEventListener('click', () => $('jsonFile').click());
+    $('jsonFile').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const data = JSON.parse(reader.result);
+          const qs = data.questions || data;
+          if (!Array.isArray(qs) || !qs.length) throw new Error('JSON không có danh sách câu hỏi');
+          if (qs.length > 20) qs.length = 20;
+          if (data.orderQ) $('orderQ').value = data.orderQ;
+          if (data.orderA) $('orderA').value = data.orderA;
+          // Normalize answers to {text, img}
+          const normalized = qs.map(q => {
+            const answers = (q.answers || []).map(a => {
+              if (typeof a === 'string') return { text: a, img: '' };
+              return { text: a.text || '', img: a.img || '' };
+            });
+            return { text: q.text || '', img: q.img || '', answers, correct: q.correct || 0 };
+          });
+          rebuildQuestions(normalized.length, normalized);
+          alert('Đã tải ' + normalized.length + ' câu hỏi từ JSON!');
+        } catch (err) {
+          alert('Lỗi đọc JSON: ' + err.message);
+        }
+        e.target.value = '';
+      };
+      reader.readAsText(file);
+    });
+
+    let timeLeft = 20, timerId = null, qIndex = 0, timePerQ = 20;
+    $('btnStart').addEventListener('click', () => {
+      questions = collectQuestions();
+      if (!questions.length) return alert('Cần ít nhất 1 câu hỏi hợp lệ (có từ 2 đáp án trở lên)');
+      const orderQ = $('orderQ').value;
+      remaining = orderQ === 'random' ? shuffle(questions) : [...questions];
+      window._orderA = $('orderA').value;
       answered = false;
-      clearInterval(timerId);
-      timeLeft = timePerQ;
-      $('timer').textContent = timeLeft;
-      $('timer').classList.remove('danger');
+      qIndex = 0;
+      timePerQ = parseInt(($('timePerQ').value || '20').trim(), 10) || 20;
+      $('setupScreen').classList.add('hidden');
+      $('playScreen').classList.remove('hidden');
+      $('qTotal').textContent = remaining.length;
+      loadQuestion();
+    });
+
+    function loadQuestion() {
+      answered = false;
       const q = remaining[0];
       $('qText').textContent = q.text;
       const imgEl = $('qImg');
@@ -202,50 +291,65 @@
         imgEl.classList.add('hidden');
         imgEl.removeAttribute('src');
       }
-      const opts = $('options'); opts.innerHTML = '';
+      const opts = $('options');
+      opts.innerHTML = '';
       let idxs = q.answers.map((_, i) => i);
       if (window._orderA === 'random') idxs = shuffle(idxs);
       idxs.forEach(i => {
         const b = document.createElement('button');
-        b.className = 'opt-btn'; b.textContent = q.answers[i];
+        b.className = 'opt-btn';
         b.dataset.idx = i;
-        b.addEventListener('click', () => select(i,b));
+        const ans = q.answers[i];
+        if (ans.img) {
+          const im = document.createElement('img');
+          im.src = ans.img;
+          im.alt = '';
+          b.appendChild(im);
+        }
+        const span = document.createElement('span');
+        span.textContent = ans.text;
+        b.appendChild(span);
+        b.addEventListener('click', () => selectAns(i, b));
         opts.appendChild(b);
       });
       $('feedback').textContent = '';
       $('btnNext').classList.add('hidden');
       $('btnFinish').classList.add('hidden');
-      timerId = setInterval(tick, 1000);
-    }
-
-    function tick() {
-      timeLeft--;
-      $('timer').textContent = timeLeft;
-      if (timeLeft <= 5) $('timer').classList.add('danger');
-      if (timeLeft <= 0) {
-        clearInterval(timerId);
-        if (!answered) {
-          answered = true;
-          const q = remaining[0];
-          $('options').querySelectorAll('.opt-btn').forEach(b => {
-            b.disabled = true;
-            if (parseInt(b.dataset.idx, 10) === q.correct) b.classList.add('correct');
-          });
-          $('feedback').innerHTML = '⏰ Hết giờ! Đáp án đúng đã tô xanh.';
-          $('feedback').style.color = '#e53935';
-          remaining.shift();
-          if (remaining.length) $('btnNext').classList.remove('hidden');
-          else $('btnFinish').classList.remove('hidden');
+      qIndex++;
+      $('qNum').textContent = qIndex;
+      clearInterval(timerId);
+      timeLeft = timePerQ;
+      $('timerDisplay').textContent = timeLeft;
+      timerId = setInterval(() => {
+        timeLeft--;
+        $('timerDisplay').textContent = timeLeft;
+        if (timeLeft <= 0) {
+          clearInterval(timerId);
+          if (!answered) {
+            // auto show correct
+            answered = true;
+            const q = remaining[0];
+            $('options').querySelectorAll('.opt-btn').forEach(b => {
+              b.disabled = true;
+              if (parseInt(b.dataset.idx, 10) === q.correct) b.classList.add('correct');
+            });
+            $('feedback').innerHTML = '⏰ Hết giờ! Đáp án đúng đã tô xanh.';
+            $('feedback').style.color = '#e65100';
+            remaining.shift();
+            if (remaining.length) $('btnNext').classList.remove('hidden');
+            else $('btnFinish').classList.remove('hidden');
+          }
         }
-      }
+      }, 1000);
     }
 
-    function select(idx, btn) {
+    function selectAns(idx, btn) {
       if (answered) return;
       answered = true;
       clearInterval(timerId);
       const q = remaining[0];
-      $('options').querySelectorAll('.opt-btn').forEach(b => {
+      const all = $('options').querySelectorAll('.opt-btn');
+      all.forEach(b => {
         b.disabled = true;
         const bi = parseInt(b.dataset.idx, 10);
         if (bi === q.correct) b.classList.add('correct');
@@ -256,7 +360,7 @@
         $('feedback').style.color = '#2e7d32';
         showConfetti();
       } else {
-        $('feedback').innerHTML = '❌ Chưa đúng. Đáp án đúng đã tô xanh.';
+        $('feedback').innerHTML = '❌ Chưa đúng. Đáp án đúng đã được tô xanh.';
         $('feedback').style.color = '#c62828';
       }
       remaining.shift();
@@ -264,7 +368,10 @@
       else $('btnFinish').classList.remove('hidden');
     }
 
-    $('btnNext').addEventListener('click', () => loadQ());
+    $('btnNext').addEventListener('click', () => {
+      loadQuestion();
+    });
+
     $('btnFinish').addEventListener('click', () => {
       clearInterval(timerId);
       $('playScreen').classList.add('hidden');
@@ -272,16 +379,17 @@
     });
 
     function showConfetti() {
-      const box = $('confetti'); box.innerHTML = '';
-      const colors = ['#00897b','#4db6ac','#fbbf24','#42a5f5','#f48fb1'];
-      for (let i=0;i<50;i++) {
+      const box = $('confetti');
+      box.innerHTML = '';
+      const colors = ['#2e7d32','#66bb6a','#fbbf24','#4caf50','#42a5f5'];
+      for (let i = 0; i < 50; i++) {
         const s = document.createElement('span');
-        s.style.left = Math.random()*100+'%';
+        s.style.left = Math.random()*100 + '%';
         s.style.background = colors[Math.floor(Math.random()*colors.length)];
-        s.style.animationDelay = Math.random()*0.6+'s';
+        s.style.animationDelay = Math.random()*0.6 + 's';
         box.appendChild(s);
       }
-      setTimeout(() => box.innerHTML='', 2800);
+      setTimeout(() => box.innerHTML = '', 2800);
     }
   </script>
 </body>
