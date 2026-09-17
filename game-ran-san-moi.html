@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rắn săn mồi | Tin học Tiểu học</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Nunito',sans-serif;min-height:100vh;color:#263238;background:linear-gradient(160deg,#e8f5e9,#c8e6c9,#e0f2f1)}
+    .topbar{background:#fff;box-shadow:0 2px 12px rgba(0,0,0,.06);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+    .topbar a{color:#2e7d32;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+    .topbar h1{font-size:18px;font-weight:800;color:#2e7d32}
+    .wrap{max-width:520px;margin:0 auto;padding:16px 12px 48px}
+    .hud{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;justify-content:center}
+    .hud-item{background:#fff;border-radius:12px;padding:8px 14px;box-shadow:0 4px 15px rgba(0,0,0,.08);font-weight:800;font-size:13px}
+    .game-card{background:#fff;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,.1);padding:16px;text-align:center}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:999px;font-weight:800;font-size:14px;border:none;cursor:pointer;font-family:inherit;background:linear-gradient(135deg,#2e7d32,#66bb6a);color:#fff}
+    .btn-outline{background:#fff;border:2px solid #2e7d32;color:#2e7d32;text-decoration:none}
+    .btn-ctrl{padding:10px 18px;font-size:18px;min-width:48px;background:#e8f5e9;border:2px solid #2e7d32;color:#2e7d32}
+    .screen{display:none;text-align:center;padding:20px 8px}
+    .screen.show{display:block!important}
+    #board{display:grid;gap:2px;background:#1b5e20;padding:6px;border-radius:12px;margin:0 auto;border:3px solid #2e7d32}
+    .cell{width:24px;height:24px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:15px;background:#e8f5e9}
+    @media(min-width:480px){.cell{width:28px;height:28px;font-size:17px}}
+    .hidden{display:none!important}
+    .confetti{position:fixed;inset:0;pointer-events:none;z-index:100;overflow:hidden}
+    .confetti span{position:absolute;width:10px;height:10px;border-radius:2px;animation:fall 2s ease-out forwards}
+    @keyframes fall{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+    .stars{font-size:28px;color:#ffc107;letter-spacing:2px;margin:8px 0}
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <a href="hoc-ma-choi.html"><i class="fas fa-arrow-left"></i> Quay lại</a>
+    <h1><i class="fas fa-dragon"></i> Rắn săn mồi</h1>
+    <span style="width:80px"></span>
+  </div>
+  <div class="wrap">
+    <div class="screen show" id="startScreen">
+      <div class="game-card">
+        <h2 style="font-size:22px;font-weight:800;color:#2e7d32;margin-bottom:8px">🐍 Rắn săn mồi</h2>
+        <p style="color:#546e7a;margin-bottom:14px;font-size:14px;line-height:1.5">
+          Điều khiển rắn ăn <strong>biểu tượng Tin học</strong> để dài hơn.<br>
+          Ăn đủ số món → qua cửa tiếp · tốc độ tăng.<br>
+          Chạm thân/đuôi hoặc tường = <strong>thua</strong>.
+        </p>
+        <button class="btn" id="btnStart"><i class="fas fa-play"></i> Bắt đầu cửa 1</button>
+      </div>
+    </div>
+    <div id="playScreen" class="hidden">
+      <div class="hud">
+        <div class="hud-item">🚪 Cửa <span id="level">1</span>/10</div>
+        <div class="hud-item">⭐ <span id="score">0</span></div>
+        <div class="hud-item">📏 Dài <span id="len">3</span></div>
+        <div class="hud-item">🎯 Còn <span id="need">5</span></div>
+      </div>
+      <div class="game-card" style="padding:12px">
+        <div id="board"></div>
+        <div style="margin-top:12px;display:flex;flex-direction:column;align-items:center;gap:6px">
+          <button class="btn btn-ctrl" id="btnUp">↑</button>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-ctrl" id="btnLeft">←</button>
+            <button class="btn btn-ctrl" id="btnDown">↓</button>
+            <button class="btn btn-ctrl" id="btnRight">→</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="screen hidden" id="endScreen">
+      <div class="game-card">
+        <div class="stars" id="endStars">★★☆☆☆</div>
+        <h2 style="font-size:22px;font-weight:800;color:#2e7d32" id="endTitle">Thua rồi!</h2>
+        <p style="color:#546e7a;margin:8px 0" id="endMsg"></p>
+        <p style="font-weight:800;font-size:18px;color:#2e7d32">Điểm: <span id="finalScore">0</span></p>
+        <button class="btn" id="btnReplay" style="margin-top:12px"><i class="fas fa-redo"></i> Chơi lại</button>
+        <a href="hoc-ma-choi.html" class="btn btn-outline" style="margin-top:8px;display:inline-flex"><i class="fas fa-home"></i> Về Học mà chơi</a>
+      </div>
+    </div>
+  </div>
+  <div class="confetti" id="confetti"></div>
+  <script>
+  const ICONS=['💻','🖱️','⌨️','🖥️','📁','💾','🔌','📶','🎮','🤖'];
+  const SIZE=14;
+  const LEVELS=[
+    {need:4, tick:200, startLen:3},
+    {need:5, tick:180, startLen:3},
+    {need:5, tick:160, startLen:4},
+    {need:6, tick:145, startLen:4},
+    {need:6, tick:130, startLen:5},
+    {need:7, tick:115, startLen:5},
+    {need:7, tick:100, startLen:6},
+    {need:8, tick:90,  startLen:6},
+    {need:8, tick:80,  startLen:7},
+    {need:10,tick:70,  startLen:8}
+  ];
+  let level=0, score=0, snake=[], dir={x:1,y:0}, food=null, foodIcon='', needLeft=0, running=false, timer=null, pendingDir=null, advancing=false;
+  const $=id=>document.getElementById(id);
+  const boardEl=$('board');
+
+  function start(){
+    level=0; score=0; advancing=false;
+    $('startScreen').classList.remove('show');
+    $('startScreen').style.display='none';
+    $('endScreen').classList.add('hidden');
+    $('endScreen').classList.remove('show');
+    $('endScreen').style.display='';
+    $('playScreen').classList.remove('hidden');
+    loadLevel();
+  }
+  function loadLevel(){
+    advancing=false;
+    const L=LEVELS[level];
+    needLeft=L.need;
+    const mid=Math.floor(SIZE/2);
+    snake=[];
+    for(let i=0;i<L.startLen;i++) snake.push({x:mid-i, y:mid});
+    dir={x:1,y:0}; pendingDir=null;
+    placeFood();
+    running=true;
+    $('level').textContent=level+1;
+    $('score').textContent=score;
+    $('len').textContent=snake.length;
+    $('need').textContent=needLeft;
+    render();
+    clearInterval(timer);
+    timer=setInterval(step, L.tick);
+  }
+  function placeFood(){
+    let x,y,ok,tries=0;
+    do{
+      x=Math.floor(Math.random()*SIZE); y=Math.floor(Math.random()*SIZE);
+      ok=!snake.some(s=>s.x===x&&s.y===y);
+      tries++;
+    }while(!ok && tries<80);
+    food={x,y};
+    foodIcon=ICONS[Math.floor(Math.random()*ICONS.length)];
+  }
+  function render(){
+    boardEl.innerHTML='';
+    boardEl.style.gridTemplateColumns=`repeat(${SIZE},1fr)`;
+    for(let y=0;y<SIZE;y++)for(let x=0;x<SIZE;x++){
+      const cell=document.createElement('div');
+      cell.className='cell';
+      if(food&&food.x===x&&food.y===y){
+        cell.textContent=foodIcon;
+        cell.style.background='#fff9c4';
+        cell.style.boxShadow='inset 0 0 0 2px #f9a825';
+      }
+      const si=snake.findIndex(s=>s.x===x&&s.y===y);
+      if(si===0){
+        cell.textContent='🟢';
+        cell.style.background='#1b5e20';
+        cell.style.boxShadow='0 0 0 2px #fff';
+      } else if(si>0){
+        cell.style.background= si%2===0 ? '#43a047' : '#66bb6a';
+        cell.style.boxShadow='inset 0 0 0 1px #2e7d32';
+      }
+      boardEl.appendChild(cell);
+    }
+  }
+  function step(){
+    if(!running||advancing)return;
+    if(pendingDir){dir=pendingDir;pendingDir=null;}
+    const head={x:snake[0].x+dir.x, y:snake[0].y+dir.y};
+    if(head.x<0||head.y<0||head.x>=SIZE||head.y>=SIZE){lose();return;}
+    if(snake.some(s=>s.x===head.x&&s.y===head.y)){lose();return;}
+    snake.unshift(head);
+    if(food&&head.x===food.x&&head.y===food.y){
+      score+=10+level*3;
+      needLeft--;
+      $('score').textContent=score;
+      $('len').textContent=snake.length;
+      $('need').textContent=Math.max(0,needLeft);
+      if(needLeft<=0){
+        advancing=true;
+        clearInterval(timer);
+        showConfetti();
+        if(level>=9){ win(); return; }
+        level++;
+        setTimeout(()=>{ loadLevel(); }, 900);
+        return;
+      }
+      placeFood();
+    } else {
+      snake.pop();
+    }
+    $('len').textContent=snake.length;
+    render();
+  }
+  function setDir(nx,ny){
+    if(dir.x===-nx&&dir.y===-ny)return;
+    if(dir.x===nx&&dir.y===ny)return;
+    pendingDir={x:nx,y:ny};
+  }
+  function lose(){
+    running=false; clearInterval(timer);
+    $('endStars').textContent='★★☆☆☆';
+    $('endTitle').textContent='Thua rồi!';
+    $('endMsg').textContent='Rắn đụng tường hoặc thân. Hãy chơi lại!';
+    $('finalScore').textContent=score;
+    $('playScreen').classList.add('hidden');
+    $('endScreen').classList.remove('hidden');
+    $('endScreen').classList.add('show');
+    $('endScreen').style.display='block';
+  }
+  function win(){
+    running=false; clearInterval(timer);
+    $('endStars').textContent='★★★★★';
+    $('endTitle').textContent='Thắng rồi!';
+    $('endMsg').textContent='Vượt cả 10 cửa – Rắn siêu cấp!';
+    $('finalScore').textContent=score;
+    $('playScreen').classList.add('hidden');
+    $('endScreen').classList.remove('hidden');
+    $('endScreen').classList.add('show');
+    $('endScreen').style.display='block';
+    showConfetti();
+  }
+  function showConfetti(){
+    const box=$('confetti');box.innerHTML='';
+    const colors=['#2e7d32','#66bb6a','#fbbf24','#42a5f5','#ab47bc'];
+    for(let i=0;i<50;i++){const s=document.createElement('span');s.style.left=Math.random()*100+'%';s.style.background=colors[i%5];s.style.animationDelay=Math.random()*.5+'s';box.appendChild(s);}
+    setTimeout(()=>box.innerHTML='',2200);
+  }
+  $('btnStart').onclick=start;
+  $('btnReplay').onclick=()=>{$('endScreen').classList.add('hidden');$('endScreen').classList.remove('show');$('endScreen').style.display='';start();};
+  $('btnUp').onclick=()=>setDir(0,-1);
+  $('btnDown').onclick=()=>setDir(0,1);
+  $('btnLeft').onclick=()=>setDir(-1,0);
+  $('btnRight').onclick=()=>setDir(1,0);
+  document.addEventListener('keydown',e=>{
+    if(e.key==='ArrowUp'){e.preventDefault();setDir(0,-1);}
+    if(e.key==='ArrowDown'){e.preventDefault();setDir(0,1);}
+    if(e.key==='ArrowLeft'){e.preventDefault();setDir(-1,0);}
+    if(e.key==='ArrowRight'){e.preventDefault();setDir(1,0);}
+  });
+  </script>
+</body>
+</html>

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Xếp gạch | Tin học Tiểu học</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Nunito',sans-serif;min-height:100vh;color:#263238;background:linear-gradient(160deg,#e3f2fd,#bbdefb,#e8eaf6)}
+    .topbar{background:#fff;box-shadow:0 2px 12px rgba(0,0,0,.06);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+    .topbar a{color:#1565c0;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+    .topbar h1{font-size:18px;font-weight:800;color:#1565c0}
+    .wrap{max-width:420px;margin:0 auto;padding:16px 12px 48px}
+    .hud{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;justify-content:center}
+    .hud-item{background:#fff;border-radius:12px;padding:8px 14px;box-shadow:0 4px 15px rgba(0,0,0,.08);font-weight:800;font-size:13px}
+    .game-card{background:#fff;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,.1);padding:16px;text-align:center}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:999px;font-weight:800;font-size:14px;border:none;cursor:pointer;font-family:inherit;background:linear-gradient(135deg,#1565c0,#42a5f5);color:#fff}
+    .btn-outline{background:#fff;border:2px solid #1565c0;color:#1565c0;text-decoration:none}
+    .btn-ctrl{padding:10px 16px;font-size:16px;min-width:44px;background:#e3f2fd;border:2px solid #1565c0;color:#1565c0}
+    .screen{display:none;text-align:center;padding:20px 8px}
+    .screen.show{display:block!important}
+    #board{display:grid;gap:2px;background:#0d47a1;padding:6px;border-radius:12px;margin:0 auto;border:3px solid #1565c0}
+    .cell{width:22px;height:22px;border-radius:4px;background:#e3f2fd}
+    @media(min-width:400px){.cell{width:26px;height:26px}}
+    .hidden{display:none!important}
+    .confetti{position:fixed;inset:0;pointer-events:none;z-index:100;overflow:hidden}
+    .confetti span{position:absolute;width:10px;height:10px;border-radius:2px;animation:fall 2s ease-out forwards}
+    @keyframes fall{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+    .stars{font-size:28px;color:#ffc107;letter-spacing:2px;margin:8px 0}
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <a href="hoc-ma-choi.html"><i class="fas fa-arrow-left"></i> Quay lại</a>
+    <h1><i class="fas fa-cubes"></i> Xếp gạch</h1>
+    <span style="width:80px"></span>
+  </div>
+  <div class="wrap">
+    <div class="screen show" id="startScreen">
+      <div class="game-card">
+        <h2 style="font-size:22px;font-weight:800;color:#1565c0;margin-bottom:8px">🧱 Xếp gạch</h2>
+        <p style="color:#546e7a;margin-bottom:14px;font-size:14px;line-height:1.5">
+          Xếp các khối gạch thành hàng ngang để xóa.<br>
+          Dùng phím ← → ↓ ↻ hoặc nút trên màn hình.<br>
+          <strong>10 cửa</strong> · tốc độ tăng dần · đầy bảng = <strong>thua</strong>.
+        </p>
+        <button class="btn" id="btnStart"><i class="fas fa-play"></i> Bắt đầu cửa 1</button>
+      </div>
+    </div>
+    <div id="playScreen" class="hidden">
+      <div class="hud">
+        <div class="hud-item">🚪 Cửa <span id="level">1</span>/10</div>
+        <div class="hud-item">⭐ <span id="score">0</span></div>
+        <div class="hud-item">📏 Hàng <span id="lines">0</span>/<span id="need">5</span></div>
+      </div>
+      <div class="game-card" style="padding:12px">
+        <div id="board"></div>
+        <div style="margin-top:12px;display:flex;flex-direction:column;align-items:center;gap:6px">
+          <button class="btn btn-ctrl" id="btnRot">↻</button>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-ctrl" id="btnLeft">←</button>
+            <button class="btn btn-ctrl" id="btnDown">↓</button>
+            <button class="btn btn-ctrl" id="btnRight">→</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="screen hidden" id="endScreen">
+      <div class="game-card">
+        <div class="stars" id="endStars">★★☆☆☆</div>
+        <h2 style="font-size:22px;font-weight:800;color:#1565c0" id="endTitle">Thua rồi!</h2>
+        <p style="color:#546e7a;margin:8px 0" id="endMsg"></p>
+        <p style="font-weight:800;font-size:18px;color:#1565c0">Điểm: <span id="finalScore">0</span></p>
+        <button class="btn" id="btnReplay" style="margin-top:12px"><i class="fas fa-redo"></i> Chơi lại</button>
+        <a href="hoc-ma-choi.html" class="btn btn-outline" style="margin-top:8px;display:inline-flex"><i class="fas fa-home"></i> Về Học mà chơi</a>
+      </div>
+    </div>
+  </div>
+  <div class="confetti" id="confetti"></div>
+  <script>
+  const COLS=10, ROWS=16;
+  const COLORS=['#e53935','#1e88e5','#43a047','#fdd835','#8e24aa','#00acc1','#fb8c00'];
+  const SHAPES=[
+    [[1,1,1,1]],
+    [[1,1],[1,1]],
+    [[0,1,0],[1,1,1]],
+    [[1,0,0],[1,1,1]],
+    [[0,0,1],[1,1,1]],
+    [[0,1,1],[1,1,0]],
+    [[1,1,0],[0,1,1]]
+  ];
+  const LEVELS=[
+    {need:4, tick:700},
+    {need:5, tick:600},
+    {need:6, tick:520},
+    {need:7, tick:450},
+    {need:8, tick:380},
+    {need:8, tick:320},
+    {need:9, tick:270},
+    {need:10, tick:230},
+    {need:10, tick:190},
+    {need:12, tick:160}
+  ];
+  let level=0,score=0,lines=0,grid=[],piece=null,px=0,py=0,running=false,timer=null,advancing=false;
+  const $=id=>document.getElementById(id);
+  const boardEl=$('board');
+
+  function start(){
+    level=0; score=0; advancing=false;
+    $('startScreen').classList.remove('show');
+    $('startScreen').style.display='none';
+    $('endScreen').classList.add('hidden');
+    $('endScreen').classList.remove('show');
+    $('endScreen').style.display='';
+    $('playScreen').classList.remove('hidden');
+    loadLevel();
+  }
+  function loadLevel(){
+    advancing=false;
+    const L=LEVELS[level];
+    lines=0; grid=Array.from({length:ROWS},()=>Array(COLS).fill(0));
+    running=true;
+    $('level').textContent=level+1;
+    $('score').textContent=score;
+    $('lines').textContent=0;
+    $('need').textContent=L.need;
+    spawn();
+    clearInterval(timer);
+    timer=setInterval(()=>{ if(running&&!advancing) softDrop(); }, L.tick);
+    render();
+  }
+  function spawn(){
+    const si=Math.floor(Math.random()*SHAPES.length);
+    piece={shape:SHAPES[si].map(r=>[...r]), color:COLORS[si]};
+    px=Math.floor((COLS-piece.shape[0].length)/2);
+    py=0;
+    if(collide(px,py,piece.shape)){lose();}
+  }
+  function collide(x,y,sh){
+    for(let r=0;r<sh.length;r++)for(let c=0;c<sh[r].length;c++){
+      if(!sh[r][c])continue;
+      const nx=x+c, ny=y+r;
+      if(nx<0||nx>=COLS||ny>=ROWS)return true;
+      if(ny>=0&&grid[ny][nx])return true;
+    }
+    return false;
+  }
+  function merge(){
+    for(let r=0;r<piece.shape.length;r++)for(let c=0;c<piece.shape[r].length;c++){
+      if(piece.shape[r][c]&&py+r>=0) grid[py+r][px+c]=piece.color;
+    }
+  }
+  function clearLines(){
+    let cleared=0;
+    for(let r=ROWS-1;r>=0;r--){
+      if(grid[r].every(c=>c)){
+        grid.splice(r,1);
+        grid.unshift(Array(COLS).fill(0));
+        cleared++;
+        r++;
+      }
+    }
+    if(cleared){
+      lines+=cleared;
+      score+=cleared*100*(level+1);
+      $('score').textContent=score;
+      $('lines').textContent=lines;
+      const L=LEVELS[level];
+      if(lines>=L.need){
+        advancing=true;
+        clearInterval(timer);
+        showConfetti();
+        if(level>=9){win();return true;}
+        level++;
+        setTimeout(loadLevel,800);
+        return true;
+      }
+    }
+    return false;
+  }
+  function softDrop(){
+    if(!running||!piece||advancing)return;
+    if(!collide(px,py+1,piece.shape)){py++;}
+    else{
+      merge();
+      if(clearLines())return;
+      spawn();
+    }
+    render();
+  }
+  function move(dx){
+    if(!running||!piece||advancing)return;
+    if(!collide(px+dx,py,piece.shape)){px+=dx;render();}
+  }
+  function rotate(){
+    if(!running||!piece||advancing)return;
+    const sh=piece.shape;
+    const rotated=sh[0].map((_,i)=>sh.map(row=>row[i]).reverse());
+    if(!collide(px,py,rotated)){piece.shape=rotated;render();}
+  }
+  function render(){
+    boardEl.innerHTML='';
+    boardEl.style.gridTemplateColumns=`repeat(${COLS},1fr)`;
+    const vis=grid.map(r=>[...r]);
+    if(piece){
+      for(let r=0;r<piece.shape.length;r++)for(let c=0;c<piece.shape[r].length;c++){
+        if(piece.shape[r][c]&&py+r>=0) vis[py+r][px+c]=piece.color;
+      }
+    }
+    for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
+      const cell=document.createElement('div');
+      cell.className='cell';
+      if(vis[r][c]){
+        cell.style.background=vis[r][c];
+        cell.style.boxShadow='inset 0 0 0 1px rgba(255,255,255,0.4)';
+      } else {
+        cell.style.background='#bbdefb';
+      }
+      boardEl.appendChild(cell);
+    }
+  }
+  function lose(){
+    running=false; clearInterval(timer);
+    $('endStars').textContent='★★☆☆☆';
+    $('endTitle').textContent='Thua rồi!';
+    $('endMsg').textContent='Gạch xếp đầy bảng. Hãy chơi lại!';
+    $('finalScore').textContent=score;
+    $('playScreen').classList.add('hidden');
+    $('endScreen').classList.remove('hidden');
+    $('endScreen').classList.add('show');
+    $('endScreen').style.display='block';
+  }
+  function win(){
+    running=false; clearInterval(timer);
+    $('endStars').textContent='★★★★★';
+    $('endTitle').textContent='Thắng rồi!';
+    $('endMsg').textContent='Vượt 10 cửa – Bậc thầy xếp gạch!';
+    $('finalScore').textContent=score;
+    $('playScreen').classList.add('hidden');
+    $('endScreen').classList.remove('hidden');
+    $('endScreen').classList.add('show');
+    $('endScreen').style.display='block';
+    showConfetti();
+  }
+  function showConfetti(){
+    const box=$('confetti');box.innerHTML='';
+    const colors=['#1565c0','#42a5f5','#fbbf24','#66bb6a','#ef5350'];
+    for(let i=0;i<50;i++){const s=document.createElement('span');s.style.left=Math.random()*100+'%';s.style.background=colors[i%5];s.style.animationDelay=Math.random()*.5+'s';box.appendChild(s);}
+    setTimeout(()=>box.innerHTML='',2200);
+  }
+  $('btnStart').onclick=start;
+  $('btnReplay').onclick=()=>{$('endScreen').classList.add('hidden');$('endScreen').classList.remove('show');$('endScreen').style.display='';start();};
+  $('btnLeft').onclick=()=>move(-1);
+  $('btnRight').onclick=()=>move(1);
+  $('btnDown').onclick=softDrop;
+  $('btnRot').onclick=rotate;
+  document.addEventListener('keydown',e=>{
+    if(e.key==='ArrowLeft'){e.preventDefault();move(-1);}
+    if(e.key==='ArrowRight'){e.preventDefault();move(1);}
+    if(e.key==='ArrowDown'){e.preventDefault();softDrop();}
+    if(e.key==='ArrowUp'||e.key===' '){e.preventDefault();rotate();}
+  });
+  </script>
+</body>
+</html>
