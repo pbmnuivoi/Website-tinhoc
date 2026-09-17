@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bắn vịt | Tin học Tiểu học</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Nunito',sans-serif;min-height:100vh;color:#263238;background:linear-gradient(160deg,#fff3e0,#ffe0b2,#ffecb3)}
+    .topbar{background:#fff;box-shadow:0 2px 12px rgba(0,0,0,.06);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+    .topbar a{color:#e65100;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+    .topbar h1{font-size:18px;font-weight:800;color:#e65100}
+    .wrap{max-width:640px;margin:0 auto;padding:16px 12px 48px}
+    .hud{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;justify-content:center}
+    .hud-item{background:#fff;border-radius:12px;padding:8px 14px;box-shadow:0 4px 15px rgba(0,0,0,.08);font-weight:800;font-size:13px}
+    .game-card{background:#fff;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,.1);padding:16px;text-align:center}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:999px;font-weight:800;font-size:14px;border:none;cursor:pointer;font-family:inherit;background:linear-gradient(135deg,#e65100,#ff9800);color:#fff}
+    .btn-outline{background:#fff;border:2px solid #e65100;color:#e65100;text-decoration:none}
+    .screen{display:none;text-align:center;padding:20px 8px}
+    .screen.show{display:block!important}
+    .hidden{display:none!important}
+    #arena{position:relative;width:100%;max-width:560px;height:340px;margin:0 auto;border-radius:16px;overflow:hidden;border:4px solid #e65100;cursor:crosshair;background:linear-gradient(180deg,#81d4fa,#e1f5fe 60%,#c8e6c9)}
+    @media(max-width:480px){#arena{height:280px}}
+    .target{position:absolute;font-size:36px;line-height:1;transform:translate(-50%,-50%);cursor:pointer;user-select:none;filter:drop-shadow(0 2px 3px rgba(0,0,0,.25));z-index:4;pointer-events:auto}
+    .bullet-fx{position:absolute;font-size:20px;pointer-events:none;z-index:6;animation:pop .35s ease-out forwards}
+    @keyframes pop{0%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.6)}}
+    .shooter{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);font-size:40px;z-index:5;pointer-events:none}
+    .stars{font-size:28px;color:#ffc107;letter-spacing:2px;margin:8px 0}
+    .confetti{position:fixed;inset:0;pointer-events:none;z-index:100;overflow:hidden}
+    .confetti span{position:absolute;width:10px;height:10px;border-radius:2px;animation:fall 2s ease-out forwards}
+    @keyframes fall{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <a href="hoc-ma-choi.html"><i class="fas fa-arrow-left"></i> Quay lại</a>
+    <h1><i class="fas fa-crosshairs"></i> Bắn vịt</h1>
+    <span style="width:80px"></span>
+  </div>
+  <div class="wrap">
+    <div class="screen show" id="startScreen">
+      <div class="game-card">
+        <h2 style="font-size:22px;font-weight:800;color:#e65100;margin-bottom:8px">🦆 Bắn vịt</h2>
+        <p style="color:#546e7a;margin-bottom:14px;font-size:14px;line-height:1.5">
+          Nháy chuột vào các <strong>con vịt</strong> đang bay để bắn trúng.<br>
+          Chỉ có icon vịt · <strong>5 cửa</strong> · tốc độ tăng vừa phải.<br>
+          Bỏ lỡ quá nhiều = thua.
+        </p>
+        <button class="btn" id="btnStart"><i class="fas fa-play"></i> Bắt đầu cửa 1</button>
+      </div>
+    </div>
+    <div id="playScreen" class="hidden">
+      <div class="hud">
+        <div class="hud-item">🚪 Cửa <span id="level">1</span>/5</div>
+        <div class="hud-item">⭐ <span id="score">0</span></div>
+        <div class="hud-item">🎯 <span id="hit">0</span>/<span id="need">8</span></div>
+        <div class="hud-item">💔 Bỏ lỡ <span id="miss">0</span>/<span id="maxMiss">5</span></div>
+      </div>
+      <div class="game-card" style="padding:12px">
+        <div id="arena"><div class="shooter" id="shooter">🎯</div></div>
+        <p style="margin-top:8px;font-size:13px;color:#888">Nháy chuột vào vịt để bắn!</p>
+      </div>
+    </div>
+    <div class="screen hidden" id="endScreen">
+      <div class="game-card">
+        <div class="stars" id="endStars">★★☆☆☆</div>
+        <h2 style="font-size:22px;font-weight:800;color:#e65100" id="endTitle">Thua rồi!</h2>
+        <p style="color:#546e7a;margin:8px 0" id="endMsg"></p>
+        <p style="font-weight:800;font-size:18px;color:#e65100">Điểm: <span id="finalScore">0</span></p>
+        <button class="btn" id="btnReplay" style="margin-top:12px"><i class="fas fa-redo"></i> Chơi lại</button>
+        <a href="hoc-ma-choi.html" class="btn btn-outline" style="margin-top:8px;display:inline-flex"><i class="fas fa-home"></i> Về Học mà chơi</a>
+      </div>
+    </div>
+  </div>
+  <div class="confetti" id="confetti"></div>
+  <script>
+  const DUCKS=['🦆','🐥','🐤','🦢','🐦'];
+  const SHOOTERS=['🎯','🦸','🧑‍🌾','🏹','🎖️'];
+  const BG=[
+    'linear-gradient(180deg,#81d4fa,#e1f5fe 60%,#c8e6c9)',
+    'linear-gradient(180deg,#4fc3f7,#b3e5fc 50%,#a5d6a7)',
+    'linear-gradient(180deg,#29b6f6,#e1f5fe 55%,#fff9c4)',
+    'linear-gradient(180deg,#0288d1,#81d4fa 50%,#c8e6c9)',
+    'linear-gradient(180deg,#0277bd,#4fc3f7 45%,#ffe082)'
+  ];
+  // 5 levels - speed capped so clicks never lock
+  const LEVELS=[
+    {need:6, speed:1.6, spawn:1000, maxMiss:5},
+    {need:8, speed:2.0, spawn:900, maxMiss:5},
+    {need:10, speed:2.4, spawn:800, maxMiss:4},
+    {need:12, speed:2.8, spawn:720, maxMiss:4},
+    {need:14, speed:3.2, spawn:650, maxMiss:4}
+  ];
+  let level=0,score=0,hit=0,miss=0,targets=[],running=false,spawnId=null,raf=null,advancing=false;
+  const arena=document.getElementById('arena');
+  const $=id=>document.getElementById(id);
+
+  function start(){
+    level=0;score=0;advancing=false;
+    $('startScreen').classList.remove('show');$('startScreen').style.display='none';
+    $('endScreen').classList.add('hidden');$('endScreen').classList.remove('show');$('endScreen').style.display='';
+    $('playScreen').classList.remove('hidden');
+    loadLevel();
+  }
+  function loadLevel(){
+    advancing=false;
+    const L=LEVELS[level];
+    hit=0; miss=0; targets=[]; running=true;
+    arena.style.background=BG[level];
+    arena.querySelectorAll('.target,.bullet-fx').forEach(e=>e.remove());
+    $('shooter').textContent=SHOOTERS[level];
+    $('level').textContent=level+1;
+    $('score').textContent=score;
+    $('hit').textContent=0;
+    $('need').textContent=L.need;
+    $('miss').textContent=0;
+    $('maxMiss').textContent=L.maxMiss;
+    clearTimeout(spawnId); cancelAnimationFrame(raf);
+    spawnLoop();
+    raf=requestAnimationFrame(tick);
+  }
+  function spawnLoop(){
+    if(!running||advancing)return;
+    spawnTarget();
+    const L=LEVELS[level];
+    spawnId=setTimeout(spawnLoop, Math.max(500, L.spawn+Math.random()*150));
+  }
+  function spawnTarget(){
+    if(!running||advancing)return;
+    const emoji=DUCKS[Math.floor(Math.random()*DUCKS.length)];
+    const el=document.createElement('div');
+    el.className='target';
+    el.textContent=emoji;
+    const fromLeft=Math.random()<0.5;
+    const y=0.12+Math.random()*0.55;
+    let x=fromLeft?-30:arena.clientWidth+30;
+    el.style.left=x+'px';
+    el.style.top=(y*arena.clientHeight)+'px';
+    arena.appendChild(el);
+    const L=LEVELS[level];
+    // Cap speed so targets stay clickable
+    const speed=Math.min(3.4, L.speed*(0.9+Math.random()*0.25))*(fromLeft?1:-1);
+    const t={el,x,y,speed,dead:false};
+    const onHit=(ev)=>{
+      if(ev) ev.stopPropagation();
+      if(t.dead||!running||advancing)return;
+      t.dead=true;
+      const fx=document.createElement('div');
+      fx.className='bullet-fx';
+      fx.textContent='💥';
+      fx.style.left=t.x+'px';
+      fx.style.top=(t.y*arena.clientHeight)+'px';
+      arena.appendChild(fx);
+      setTimeout(()=>fx.remove(),350);
+      try{el.remove();}catch(e){}
+      hit++; score+=10+level*3;
+      $('hit').textContent=hit;
+      $('score').textContent=score;
+      if(hit>=L.need){
+        advancing=true; clearTimeout(spawnId);
+        showConfetti();
+        if(level>=4){win();return;}
+        level++;
+        setTimeout(loadLevel,700);
+      }
+    };
+    el.addEventListener('click', onHit);
+    el.addEventListener('touchstart', (e)=>{e.preventDefault();onHit(e);},{passive:false});
+    targets.push(t);
+  }
+  function tick(){
+    if(!running||advancing)return;
+    const w=arena.clientWidth;
+    for(const t of targets){
+      if(t.dead)continue;
+      t.x+=t.speed;
+      t.el.style.left=t.x+'px';
+      if(t.x<-50||t.x>w+50){
+        t.dead=true;
+        try{t.el.remove();}catch(e){}
+        miss++;
+        $('miss').textContent=miss;
+        if(miss>=LEVELS[level].maxMiss){lose();return;}
+      }
+    }
+    targets=targets.filter(t=>!t.dead);
+    raf=requestAnimationFrame(tick);
+  }
+  function lose(){
+    running=false; clearTimeout(spawnId); cancelAnimationFrame(raf);
+    $('endStars').textContent='★★☆☆☆';
+    $('endTitle').textContent='Thua rồi!';
+    $('endMsg').textContent='Bỏ lỡ quá nhiều vịt. Hãy chơi lại!';
+    $('finalScore').textContent=score;
+    $('playScreen').classList.add('hidden');
+    $('endScreen').classList.remove('hidden');
+    $('endScreen').classList.add('show');
+    $('endScreen').style.display='block';
+  }
+  function win(){
+    running=false; clearTimeout(spawnId); cancelAnimationFrame(raf);
+    $('endStars').textContent='★★★★★';
+    $('endTitle').textContent='Thắng rồi!';
+    $('endMsg').textContent='Vượt 5 cửa – Thợ săn vịt siêu hạng!';
+    $('finalScore').textContent=score;
+    $('playScreen').classList.add('hidden');
+    $('endScreen').classList.remove('hidden');
+    $('endScreen').classList.add('show');
+    $('endScreen').style.display='block';
+    showConfetti();
+  }
+  function showConfetti(){
+    const box=$('confetti');box.innerHTML='';
+    const colors=['#e65100','#ff9800','#fbbf24','#66bb6a','#42a5f5'];
+    for(let i=0;i<50;i++){const s=document.createElement('span');s.style.left=Math.random()*100+'%';s.style.background=colors[i%5];s.style.animationDelay=Math.random()*.5+'s';box.appendChild(s);}
+    setTimeout(()=>box.innerHTML='',2200);
+  }
+  $('btnStart').onclick=start;
+  $('btnReplay').onclick=()=>{
+    $('endScreen').classList.add('hidden');
+    $('endScreen').classList.remove('show');
+    $('endScreen').style.display='';
+    start();
+  };
+  </script>
+</body>
+</html>

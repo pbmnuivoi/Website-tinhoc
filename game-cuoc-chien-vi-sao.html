@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cuộc chiến giữa các vì sao | Tin học Tiểu học</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Nunito',sans-serif;min-height:100vh;color:#e3f2fd;background:#0a0e27}
+    .topbar{background:#12183a;box-shadow:0 2px 12px rgba(0,0,0,.4);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+    .topbar a{color:#90caf9;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+    .topbar h1{font-size:16px;font-weight:800;color:#90caf9}
+    .wrap{max-width:480px;margin:0 auto;padding:16px 12px 48px}
+    .hud{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;justify-content:center}
+    .hud-item{background:#1a237e;border-radius:12px;padding:8px 14px;box-shadow:0 4px 15px rgba(0,0,0,.3);font-weight:800;font-size:13px;color:#e3f2fd}
+    .game-card{background:#12183a;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,.4);padding:16px;text-align:center;border:1px solid #283593}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:999px;font-weight:800;font-size:14px;border:none;cursor:pointer;font-family:inherit;background:linear-gradient(135deg,#1565c0,#42a5f5);color:#fff}
+    .btn-outline{background:transparent;border:2px solid #90caf9;color:#90caf9;text-decoration:none}
+    .screen{display:none;text-align:center;padding:20px 8px}
+    .screen.show{display:block!important}
+    .hidden{display:none!important}
+    #arena{position:relative;width:100%;max-width:400px;height:480px;margin:0 auto;border-radius:16px;overflow:hidden;border:3px solid #5c6bc0;background:#050816}
+    @media(max-width:400px){#arena{height:400px}}
+    .star{position:absolute;background:#fff;border-radius:50%;opacity:.7;pointer-events:none}
+    #ship{position:absolute;bottom:28px;font-size:40px;line-height:1;transform:translateX(-50%);z-index:6;filter:drop-shadow(0 0 8px #42a5f5)}
+    .enemy{position:absolute;font-size:30px;line-height:1;transform:translate(-50%,-50%);z-index:4;filter:drop-shadow(0 0 4px #ef5350)}
+    .bullet{position:absolute;width:6px;height:14px;background:linear-gradient(180deg,#fff,#42a5f5,#1565c0);border-radius:3px;transform:translateX(-50%);z-index:5;box-shadow:0 0 8px #42a5f5,0 0 14px #90caf9}
+    .explode{position:absolute;font-size:28px;transform:translate(-50%,-50%);z-index:7;animation:boom .4s ease-out forwards;pointer-events:none}
+    @keyframes boom{0%{opacity:1;transform:translate(-50%,-50%) scale(.6)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.6)}}
+    .keys-hint{margin-top:10px;font-size:13px;color:#90caf9}
+    .keys-hint kbd{display:inline-block;padding:4px 10px;background:#1a237e;border:2px solid #42a5f5;border-radius:8px;font-weight:800;color:#e3f2fd;margin:0 4px}
+    .stars{font-size:28px;color:#ffc107;letter-spacing:2px;margin:8px 0}
+    .confetti{position:fixed;inset:0;pointer-events:none;z-index:100;overflow:hidden}
+    .confetti span{position:absolute;width:10px;height:10px;border-radius:2px;animation:fall 2s ease-out forwards}
+    @keyframes fall{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <a href="hoc-ma-choi.html"><i class="fas fa-arrow-left"></i> Quay lại</a>
+    <h1><i class="fas fa-rocket"></i> Cuộc chiến giữa các vì sao</h1>
+    <span style="width:60px"></span>
+  </div>
+  <div class="wrap">
+    <div class="screen show" id="startScreen">
+      <div class="game-card">
+        <h2 style="font-size:22px;font-weight:800;color:#90caf9;margin-bottom:8px">🚀 Cuộc chiến giữa các vì sao</h2>
+        <p style="color:#b0bec5;margin-bottom:14px;font-size:14px;line-height:1.5">
+          Nền vũ trụ · tàu bắn đạn tiêu diệt quái vật.<br>
+          Phím <kbd style="padding:2px 8px;background:#1a237e;border:2px solid #42a5f5;border-radius:6px;font-weight:800;color:#e3f2fd">F</kbd> sang trái,
+          <kbd style="padding:2px 8px;background:#1a237e;border:2px solid #42a5f5;border-radius:6px;font-weight:800;color:#e3f2fd">J</kbd> sang phải.<br>
+          Giữ / nhấn <strong>phím Cách</strong> để bắn · F/J di chuyển · <strong>10 cửa</strong> · đổi tàu & màu đạn.
+        </p>
+        <button class="btn" id="btnStart"><i class="fas fa-play"></i> Bắt đầu cửa 1</button>
+      </div>
+    </div>
+    <div id="playScreen" class="hidden">
+      <div class="hud">
+        <div class="hud-item">🚪 Cửa <span id="level">1</span>/10</div>
+        <div class="hud-item">⭐ <span id="score">0</span></div>
+        <div class="hud-item">❤️ <span id="lives">3</span></div>
+        <div class="hud-item">💥 <span id="killed">0</span>/<span id="need">10</span></div>
+      </div>
+      <div class="game-card" style="padding:12px">
+        <div id="arena"><div id="ship">🚀</div></div>
+        <p class="keys-hint">Phím <kbd>F</kbd> = Trái &nbsp;|&nbsp; <kbd>J</kbd> = Phải &nbsp;|&nbsp; <kbd>Space</kbd> = Bắn</p>
+      </div>
+    </div>
+    <div class="screen hidden" id="endScreen">
+      <div class="game-card">
+        <div class="stars" id="endStars">★★☆☆☆</div>
+        <h2 style="font-size:22px;font-weight:800;color:#90caf9" id="endTitle">Thua rồi!</h2>
+        <p style="color:#b0bec5;margin:8px 0" id="endMsg"></p>
+        <p style="font-weight:800;font-size:18px;color:#90caf9">Điểm: <span id="finalScore">0</span></p>
+        <button class="btn" id="btnReplay" style="margin-top:12px"><i class="fas fa-redo"></i> Chơi lại</button>
+        <a href="hoc-ma-choi.html" class="btn btn-outline" style="margin-top:8px;display:inline-flex"><i class="fas fa-home"></i> Về Học mà chơi</a>
+      </div>
+    </div>
+  </div>
+  <div class="confetti" id="confetti"></div>
+  <script>
+  const SHIPS=['🚀','🛸','✈️','🛰️','🚁','🚂','🚢','🏎️','🛵','🏍️'];
+  const ENEMIES=['👽','👾','🛸','☄️','🌑','🦇','🐙','🦞','🦀','🦑'];
+  const LEVELS=[
+    {speed:1.4,spawn:900,fire:380,need:8,lives:3},
+    {speed:1.7,spawn:820,fire:360,need:10,lives:3},
+    {speed:2.0,spawn:750,fire:340,need:12,lives:3},
+    {speed:2.3,spawn:700,fire:320,need:12,lives:3},
+    {speed:2.6,spawn:650,fire:300,need:14,lives:2},
+    {speed:2.9,spawn:600,fire:280,need:14,lives:2},
+    {speed:3.2,spawn:560,fire:260,need:16,lives:2},
+    {speed:3.5,spawn:520,fire:250,need:16,lives:2},
+    {speed:3.8,spawn:480,fire:240,need:18,lives:2},
+    {speed:4.2,spawn:450,fire:230,need:20,lives:2}
+  ];
+  let level=0,score=0,lives=3,shipX=0.5,enemies=[],bullets=[],running=false,spawnId=null,fireId=null,raf=null,killed=0,need=10,advancing=false;
+  const arena=document.getElementById('arena');
+  const ship=document.getElementById('ship');
+  const $=id=>document.getElementById(id);
+
+  function makeStars(){
+    arena.querySelectorAll('.star').forEach(e=>e.remove());
+    for(let i=0;i<40;i++){
+      const s=document.createElement('div');
+      s.className='star';
+      const sz=1+Math.random()*2.5;
+      s.style.width=sz+'px';s.style.height=sz+'px';
+      s.style.left=Math.random()*100+'%';
+      s.style.top=Math.random()*100+'%';
+      s.style.opacity=0.3+Math.random()*0.7;
+      arena.appendChild(s);
+    }
+  }
+  function start(){
+    level=0;score=0;advancing=false;
+    $('startScreen').classList.remove('show');$('startScreen').style.display='none';
+    $('endScreen').classList.add('hidden');$('endScreen').classList.remove('show');$('endScreen').style.display='';
+    $('playScreen').classList.remove('hidden');
+    loadLevel();
+  }
+  function loadLevel(){
+    advancing=false;
+    const L=LEVELS[level];
+    lives=L.lives; shipX=0.5; enemies=[]; bullets=[]; killed=0; need=L.need; running=true;
+    arena.querySelectorAll('.enemy,.bullet,.explode').forEach(e=>e.remove());
+    ship.textContent=SHIPS[level];
+    makeStars();
+    $('level').textContent=level+1;
+    $('score').textContent=score;
+    $('lives').textContent=lives;
+    $('killed').textContent=0;
+    $('need').textContent=need;
+    placeShip();
+    clearTimeout(spawnId); clearTimeout(fireId); cancelAnimationFrame(raf);
+    spawnLoop();
+    raf=requestAnimationFrame(tick);
+  }
+  function placeShip(){
+    ship.style.left=(shipX*arena.clientWidth)+'px';
+  }
+  function spawnLoop(){
+    if(!running||advancing)return;
+    spawnEnemy();
+    spawnId=setTimeout(spawnLoop, LEVELS[level].spawn);
+  }
+  function spawnEnemy(){
+    if(!running||advancing)return;
+    const icon=ENEMIES[Math.floor(Math.random()*ENEMIES.length)];
+    const el=document.createElement('div');
+    el.className='enemy';
+    el.textContent=icon;
+    const x=0.1+Math.random()*0.8;
+    el.style.left=(x*arena.clientWidth)+'px';
+    el.style.top='-20px';
+    arena.appendChild(el);
+    const L=LEVELS[level];
+    enemies.push({el,x,y:-20,vy:L.speed*(0.8+Math.random()*0.4),dead:false});
+  }
+  const BULLET_COLORS=[
+    ['#fff','#42a5f5','#1565c0'],
+    ['#fff','#66bb6a','#2e7d32'],
+    ['#fff','#ffb74d','#ef6c00'],
+    ['#fff','#f48fb1','#c2185b'],
+    ['#fff','#ce93d8','#7b1fa2'],
+    ['#fff','#80deea','#00838f'],
+    ['#fff','#ffe082','#f9a825'],
+    ['#fff','#ef9a9a','#c62828'],
+    ['#fff','#a5d6a7','#1b5e20'],
+    ['#fff','#90caf9','#0d47a1']
+  ];
+  function fireBullet(){
+    if(!running||advancing)return;
+    const el=document.createElement('div');
+    el.className='bullet';
+    const cols=BULLET_COLORS[level%BULLET_COLORS.length];
+    el.style.background=`linear-gradient(180deg,${cols[0]},${cols[1]},${cols[2]})`;
+    el.style.boxShadow=`0 0 8px ${cols[1]},0 0 14px ${cols[1]}`;
+    const x=shipX;
+    el.style.left=(x*arena.clientWidth)+'px';
+    el.style.bottom='60px';
+    arena.appendChild(el);
+    bullets.push({el,x,y:arena.clientHeight-60,vy:-8,dead:false});
+  }
+  function boom(x,y){
+    const el=document.createElement('div');
+    el.className='explode';
+    el.textContent='💥';
+    el.style.left=(x*arena.clientWidth)+'px';
+    el.style.top=y+'px';
+    arena.appendChild(el);
+    setTimeout(()=>el.remove(),400);
+  }
+  function tick(){
+    if(!running||advancing)return;
+    const w=arena.clientWidth, h=arena.clientHeight;
+    const sx=shipX*w, sy=h-40;
+    // bullets
+    for(const b of bullets){
+      if(b.dead)continue;
+      b.y+=b.vy;
+      b.el.style.top=b.y+'px';
+      b.el.style.left=(b.x*w)+'px';
+      if(b.y<-20){b.dead=true;b.el.remove();}
+    }
+    // enemies
+    for(const e of enemies){
+      if(e.dead)continue;
+      e.y+=e.vy;
+      e.el.style.top=e.y+'px';
+      e.el.style.left=(e.x*w)+'px';
+      // hit ship
+      if(Math.abs(e.x*w-sx)<32 && Math.abs(e.y-sy)<32){
+        e.dead=true; e.el.remove();
+        boom(e.x,e.y);
+        lives--; score=Math.max(0,score-8);
+        $('lives').textContent=lives;
+        $('score').textContent=score;
+        if(lives<=0){lose();return;}
+        continue;
+      }
+      // hit by bullet
+      for(const b of bullets){
+        if(b.dead)continue;
+        if(Math.abs(b.x*w-e.x*w)<28 && Math.abs(b.y-e.y)<28){
+          b.dead=true; b.el.remove();
+          e.dead=true; e.el.remove();
+          boom(e.x,e.y);
+          killed++; score+=12+level*2;
+          $('killed').textContent=killed;
+          $('score').textContent=score;
+          if(killed>=need){
+            advancing=true;
+            clearTimeout(spawnId); clearTimeout(fireId);
+            showConfetti();
+            if(level>=9){win();return;}
+            level++;
+            setTimeout(loadLevel,800);
+            return;
+          }
+          break;
+        }
+      }
+      if(e.y>h+30){e.dead=true;e.el.remove();}
+    }
+    bullets=bullets.filter(b=>!b.dead);
+    enemies=enemies.filter(e=>!e.dead);
+    raf=requestAnimationFrame(tick);
+  }
+  function move(dx){
+    if(!running||advancing)return;
+    shipX=Math.max(0.08,Math.min(0.92,shipX+dx));
+    placeShip();
+  }
+  function lose(){
+    running=false; clearTimeout(spawnId); clearTimeout(fireId); cancelAnimationFrame(raf);
+    $('endStars').textContent='★★☆☆☆';
+    $('endTitle').textContent='Thua rồi!';
+    $('endMsg').textContent='Tàu bị quái vật đụng. Hãy chơi lại!';
+    $('finalScore').textContent=score;
+    $('playScreen').classList.add('hidden');
+    $('endScreen').classList.remove('hidden');
+    $('endScreen').classList.add('show');
+    $('endScreen').style.display='block';
+  }
+  function win(){
+    running=false; clearTimeout(spawnId); clearTimeout(fireId); cancelAnimationFrame(raf);
+    $('endStars').textContent='★★★★★';
+    $('endTitle').textContent='Thắng rồi!';
+    $('endMsg').textContent='Vượt 10 cửa – Chiến binh vũ trụ!';
+    $('finalScore').textContent=score;
+    $('playScreen').classList.add('hidden');
+    $('endScreen').classList.remove('hidden');
+    $('endScreen').classList.add('show');
+    $('endScreen').style.display='block';
+    showConfetti();
+  }
+  function showConfetti(){
+    const box=$('confetti');box.innerHTML='';
+    const colors=['#1565c0','#42a5f5','#fbbf24','#66bb6a','#ef5350'];
+    for(let i=0;i<50;i++){const s=document.createElement('span');s.style.left=Math.random()*100+'%';s.style.background=colors[i%5];s.style.animationDelay=Math.random()*.5+'s';box.appendChild(s);}
+    setTimeout(()=>box.innerHTML='',2200);
+  }
+  let spaceHeld=false, lastFire=0;
+  document.addEventListener('keydown',e=>{
+    if(e.key==='f'||e.key==='F'){e.preventDefault();move(-0.07);}
+    if(e.key==='j'||e.key==='J'){e.preventDefault();move(0.07);}
+    if(e.code==='Space'||e.key===' '){
+      e.preventDefault();
+      spaceHeld=true;
+      const now=performance.now();
+      const gap=LEVELS[level]?LEVELS[level].fire:300;
+      if(now-lastFire>=gap){ lastFire=now; fireBullet(); }
+    }
+  });
+  document.addEventListener('keyup',e=>{
+    if(e.code==='Space'||e.key===' '){ spaceHeld=false; }
+  });
+  // hold space continuous fire
+  setInterval(()=>{
+    if(!spaceHeld||!running||advancing)return;
+    const now=performance.now();
+    const gap=LEVELS[level]?LEVELS[level].fire:300;
+    if(now-lastFire>=gap){ lastFire=now; fireBullet(); }
+  }, 50);
+  $('btnStart').onclick=start;
+  $('btnReplay').onclick=()=>{
+    $('endScreen').classList.add('hidden');
+    $('endScreen').classList.remove('show');
+    $('endScreen').style.display='';
+    start();
+  };
+  </script>
+</body>
+</html>

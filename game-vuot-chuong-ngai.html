@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vượt chướng ngại vật | Tin học Tiểu học</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Nunito',sans-serif;min-height:100vh;color:#263238;background:linear-gradient(160deg,#e3f2fd,#bbdefb,#e8eaf6)}
+    .topbar{background:#fff;box-shadow:0 2px 12px rgba(0,0,0,.06);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+    .topbar a{color:#1565c0;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+    .topbar h1{font-size:18px;font-weight:800;color:#1565c0}
+    .wrap{max-width:420px;margin:0 auto;padding:16px 12px 48px}
+    .hud{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;justify-content:center}
+    .hud-item{background:#fff;border-radius:12px;padding:8px 14px;box-shadow:0 4px 15px rgba(0,0,0,.08);font-weight:800;font-size:13px}
+    .game-card{background:#fff;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,.1);padding:16px;text-align:center}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:999px;font-weight:800;font-size:14px;border:none;cursor:pointer;font-family:inherit;background:linear-gradient(135deg,#1565c0,#42a5f5);color:#fff}
+    .btn-outline{background:#fff;border:2px solid #1565c0;color:#1565c0;text-decoration:none}
+    .screen{display:none;text-align:center;padding:20px 8px}
+    .screen.show{display:block!important}
+    .hidden{display:none!important}
+    #arena{position:relative;width:100%;max-width:360px;height:480px;margin:0 auto;border-radius:16px;overflow:hidden;border:4px solid #1565c0}
+    @media(max-width:400px){#arena{height:400px}}
+    #plane{position:absolute;bottom:24px;font-size:40px;line-height:1;transform:translateX(-50%);filter:drop-shadow(0 2px 4px rgba(0,0,0,.3));z-index:5}
+    .obs{position:absolute;font-size:30px;line-height:1;transform:translate(-50%,-50%);z-index:3;filter:drop-shadow(0 2px 3px rgba(0,0,0,.2))}
+    .keys-hint{margin-top:10px;font-size:13px;color:#546e7a}
+    .keys-hint kbd{display:inline-block;padding:4px 10px;background:#e3f2fd;border:2px solid #1565c0;border-radius:8px;font-weight:800;color:#1565c0;margin:0 4px}
+    .stars{font-size:28px;color:#ffc107;letter-spacing:2px;margin:8px 0}
+    .confetti{position:fixed;inset:0;pointer-events:none;z-index:100;overflow:hidden}
+    .confetti span{position:absolute;width:10px;height:10px;border-radius:2px;animation:fall 2s ease-out forwards}
+    @keyframes fall{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <a href="hoc-ma-choi.html"><i class="fas fa-arrow-left"></i> Quay lại</a>
+    <h1><i class="fas fa-plane"></i> Vượt chướng ngại vật</h1>
+    <span style="width:80px"></span>
+  </div>
+  <div class="wrap">
+    <div class="screen show" id="startScreen">
+      <div class="game-card">
+        <h2 style="font-size:22px;font-weight:800;color:#1565c0;margin-bottom:8px">✈️ Vượt chướng ngại vật</h2>
+        <p style="color:#546e7a;margin-bottom:14px;font-size:14px;line-height:1.5">
+          Khung hình <strong>đứng</strong> · chướng ngại <strong>rơi từ trên xuống</strong>.<br>
+          Phím <kbd style="padding:2px 8px;background:#e3f2fd;border:2px solid #1565c0;border-radius:6px;font-weight:800">F</kbd> sang <strong>trái</strong>,
+          <kbd style="padding:2px 8px;background:#e3f2fd;border:2px solid #1565c0;border-radius:6px;font-weight:800">J</kbd> sang <strong>phải</strong>.<br>
+          <strong>10 cửa</strong> · tốc độ & nền tăng dần.
+        </p>
+        <button class="btn" id="btnStart"><i class="fas fa-play"></i> Bắt đầu cửa 1</button>
+      </div>
+    </div>
+    <div id="playScreen" class="hidden">
+      <div class="hud">
+        <div class="hud-item">🚪 Cửa <span id="level">1</span>/10</div>
+        <div class="hud-item">⭐ <span id="score">0</span></div>
+        <div class="hud-item">❤️ <span id="lives">3</span></div>
+        <div class="hud-item">🛡️ <span id="passed">0</span>/<span id="need">10</span></div>
+      </div>
+      <div class="game-card" style="padding:12px">
+        <div id="arena"><div id="plane">✈️</div></div>
+        <p class="keys-hint">Phím <kbd>F</kbd> = Trái &nbsp;|&nbsp; Phím <kbd>J</kbd> = Phải</p>
+      </div>
+    </div>
+    <div class="screen hidden" id="endScreen">
+      <div class="game-card">
+        <div class="stars" id="endStars">★★☆☆☆</div>
+        <h2 style="font-size:22px;font-weight:800;color:#1565c0" id="endTitle">Thua rồi!</h2>
+        <p style="color:#546e7a;margin:8px 0" id="endMsg"></p>
+        <p style="font-weight:800;font-size:18px;color:#1565c0">Điểm: <span id="finalScore">0</span></p>
+        <button class="btn" id="btnReplay" style="margin-top:12px"><i class="fas fa-redo"></i> Chơi lại</button>
+        <a href="hoc-ma-choi.html" class="btn btn-outline" style="margin-top:8px;display:inline-flex"><i class="fas fa-home"></i> Về Học mà chơi</a>
+      </div>
+    </div>
+  </div>
+  <div class="confetti" id="confetti"></div>
+  <script>
+  const BG=[
+    'linear-gradient(180deg,#87ceeb,#e0f7fa 50%,#c8e6c9)',
+    'linear-gradient(180deg,#4fc3f7,#81d4fa 40%,#fff9c4)',
+    'linear-gradient(180deg,#5c6bc0,#7986cb 40%,#ce93d8)',
+    'linear-gradient(180deg,#26a69a,#80cbc4 40%,#c8e6c9)',
+    'linear-gradient(180deg,#ef5350,#ffab91 40%,#ffe082)',
+    'linear-gradient(180deg,#7e57c2,#b39ddb 40%,#f8bbd0)',
+    'linear-gradient(180deg,#00897b,#4db6ac 40%,#a5d6a7)',
+    'linear-gradient(180deg,#fb8c00,#ffb74d 40%,#fff59d)',
+    'linear-gradient(180deg,#3949ab,#5c6bc0 40%,#90caf9)',
+    'linear-gradient(180deg,#c62828,#ef5350 40%,#ffcc80)'
+  ];
+  const OBS=['🪨','🌳','🏢','☁️','🦅','🗼','🌵','🧱','⚡','🌪️','🛸','💥','🚁','🎈','📦','🛢️','🛰️','🌙','⭐','☄️'];
+  const LEVELS=[
+    {speed:1.8,spawn:700,lives:3,need:10},
+    {speed:2.1,spawn:620,lives:3,need:12},
+    {speed:2.4,spawn:560,lives:3,need:14},
+    {speed:2.8,spawn:500,lives:3,need:15},
+    {speed:3.2,spawn:460,lives:2,need:16},
+    {speed:3.6,spawn:420,lives:2,need:18},
+    {speed:4.0,spawn:380,lives:2,need:18},
+    {speed:4.5,spawn:350,lives:2,need:20},
+    {speed:5.0,spawn:320,lives:2,need:20},
+    {speed:5.6,spawn:290,lives:2,need:22}
+  ];
+  let level=0,score=0,lives=3,planeX=0.5,obs=[],running=false,spawnId=null,raf=null,passed=0,need=10,advancing=false;
+  const arena=document.getElementById('arena');
+  const plane=document.getElementById('plane');
+  const $=id=>document.getElementById(id);
+
+  function start(){
+    level=0;score=0;advancing=false;
+    $('startScreen').classList.remove('show');$('startScreen').style.display='none';
+    $('endScreen').classList.add('hidden');$('endScreen').classList.remove('show');$('endScreen').style.display='';
+    $('playScreen').classList.remove('hidden');
+    loadLevel();
+  }
+  function loadLevel(){
+    advancing=false;
+    const L=LEVELS[level];
+    lives=L.lives; planeX=0.5; obs=[]; passed=0; need=L.need; running=true;
+    arena.style.background=BG[level];
+    arena.querySelectorAll('.obs').forEach(e=>e.remove());
+    $('level').textContent=level+1;
+    $('score').textContent=score;
+    $('lives').textContent=lives;
+    $('passed').textContent=0;
+    $('need').textContent=need;
+    placePlane();
+    clearTimeout(spawnId); cancelAnimationFrame(raf);
+    spawnLoop();
+    raf=requestAnimationFrame(tick);
+  }
+  function placePlane(){
+    plane.style.left=(planeX*arena.clientWidth)+'px';
+  }
+  function spawnLoop(){
+    if(!running||advancing)return;
+    // spawn 1-3 obstacles at once for denser feel
+    const n=1+Math.floor(Math.random()*2);
+    for(let i=0;i<n;i++) spawnObs();
+    spawnId=setTimeout(spawnLoop, LEVELS[level].spawn);
+  }
+  function spawnObs(){
+    if(!running||advancing)return;
+    const icon=OBS[Math.floor(Math.random()*OBS.length)];
+    const el=document.createElement('div');
+    el.className='obs';
+    el.textContent=icon;
+    const x=0.08+Math.random()*0.84;
+    el.style.left=(x*arena.clientWidth)+'px';
+    el.style.top='-20px';
+    arena.appendChild(el);
+    const L=LEVELS[level];
+    obs.push({el,x,y:-20,vy:L.speed*(0.85+Math.random()*0.4),dead:false});
+  }
+  function tick(){
+    if(!running||advancing)return;
+    const w=arena.clientWidth, h=arena.clientHeight;
+    const px=planeX*w, py=h-40;
+    for(const o of obs){
+      if(o.dead)continue;
+      o.y+=o.vy;
+      o.el.style.top=o.y+'px';
+      o.el.style.left=(o.x*w)+'px';
+      if(!o.hit && Math.abs(o.x*w-px)<34 && Math.abs(o.y-py)<34){
+        o.hit=true; o.dead=true; o.el.remove();
+        lives--; score=Math.max(0,score-5);
+        $('lives').textContent=lives;
+        $('score').textContent=score;
+        if(lives<=0){lose();return;}
+      }
+      if(o.y>h+30){
+        o.dead=true; o.el.remove();
+        if(!o.hit){
+          passed++; score+=3+level;
+          $('passed').textContent=passed;
+          $('score').textContent=score;
+          if(passed>=need){
+            advancing=true; clearTimeout(spawnId);
+            showConfetti();
+            if(level>=9){win();return;}
+            level++;
+            setTimeout(loadLevel,700);
+            return;
+          }
+        }
+      }
+    }
+    obs=obs.filter(o=>!o.dead);
+    raf=requestAnimationFrame(tick);
+  }
+  function move(dx){
+    if(!running||advancing)return;
+    planeX=Math.max(0.08,Math.min(0.92,planeX+dx));
+    placePlane();
+  }
+  function lose(){
+    running=false; clearTimeout(spawnId); cancelAnimationFrame(raf);
+    $('endStars').textContent='★★☆☆☆';
+    $('endTitle').textContent='Thua rồi!';
+    $('endMsg').textContent='Máy bay va chướng ngại vật. Hãy chơi lại!';
+    $('finalScore').textContent=score;
+    $('playScreen').classList.add('hidden');
+    $('endScreen').classList.remove('hidden');
+    $('endScreen').classList.add('show');
+    $('endScreen').style.display='block';
+  }
+  function win(){
+    running=false; clearTimeout(spawnId); cancelAnimationFrame(raf);
+    $('endStars').textContent='★★★★★';
+    $('endTitle').textContent='Thắng rồi!';
+    $('endMsg').textContent='Vượt 10 cửa – Phi công siêu hạng!';
+    $('finalScore').textContent=score;
+    $('playScreen').classList.add('hidden');
+    $('endScreen').classList.remove('hidden');
+    $('endScreen').classList.add('show');
+    $('endScreen').style.display='block';
+    showConfetti();
+  }
+  function showConfetti(){
+    const box=$('confetti');box.innerHTML='';
+    const colors=['#1565c0','#42a5f5','#fbbf24','#66bb6a','#ef5350'];
+    for(let i=0;i<50;i++){const s=document.createElement('span');s.style.left=Math.random()*100+'%';s.style.background=colors[i%5];s.style.animationDelay=Math.random()*.5+'s';box.appendChild(s);}
+    setTimeout(()=>box.innerHTML='',2200);
+  }
+  document.addEventListener('keydown',e=>{
+    if(e.key==='f'||e.key==='F'){e.preventDefault();move(-0.07);}
+    if(e.key==='j'||e.key==='J'){e.preventDefault();move(0.07);}
+  });
+  $('btnStart').onclick=start;
+  $('btnReplay').onclick=()=>{
+    $('endScreen').classList.add('hidden');
+    $('endScreen').classList.remove('show');
+    $('endScreen').style.display='';
+    start();
+  };
+  </script>
+</body>
+</html>

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Giải cứu công chúa | Tin học Tiểu học</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Nunito',sans-serif;min-height:100vh;color:#263238;background:linear-gradient(160deg,#fce4ec,#f8bbd0,#e1bee7)}
+    .topbar{background:#fff;box-shadow:0 2px 12px rgba(0,0,0,.06);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+    .topbar a{color:#c2185b;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+    .topbar h1{font-size:18px;font-weight:800;color:#c2185b}
+    .wrap{max-width:560px;margin:0 auto;padding:16px 12px 48px}
+    .hud{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;justify-content:center}
+    .hud-item{background:#fff;border-radius:12px;padding:8px 14px;box-shadow:0 4px 15px rgba(0,0,0,.08);font-weight:800;font-size:13px}
+    .game-card{background:#fff;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,.1);padding:16px;text-align:center}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:999px;font-weight:800;font-size:14px;border:none;cursor:pointer;font-family:inherit;background:linear-gradient(135deg,#c2185b,#f48fb1);color:#fff}
+    .btn-outline{background:#fff;border:2px solid #c2185b;color:#c2185b;text-decoration:none}
+    .screen{display:none;text-align:center;padding:20px 8px}
+    .screen.show{display:block!important}
+    .hidden{display:none!important}
+    #arena{position:relative;width:100%;max-width:480px;height:280px;margin:0 auto;border-radius:16px;overflow:hidden;border:4px solid #c2185b;background:linear-gradient(180deg,#b3e5fc 0%,#e1f5fe 45%,#c8e6c9 100%)}
+    .lane{position:absolute;left:0;right:0;height:50%;display:flex;align-items:center}
+    .lane-prince{top:0;background:rgba(129,199,132,0.25)}
+    .lane-monster{bottom:0;background:rgba(239,83,80,0.2)}
+    .char{position:absolute;font-size:36px;line-height:1;transform:translateX(-50%);transition:left .25s ease;z-index:4;filter:drop-shadow(0 2px 3px rgba(0,0,0,.25))}
+    #prince{top:18%}
+    #monster{top:68%}
+    #princess{right:12px;top:50%;transform:translateY(-50%);font-size:42px;position:absolute;z-index:3}
+    .key-box{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:10;text-align:center}
+    .key-box .letter{width:64px;height:64px;display:flex;align-items:center;justify-content:center;background:#fff;border:4px solid #c2185b;border-radius:14px;font-size:32px;font-weight:800;color:#c2185b;box-shadow:0 4px 12px rgba(0,0,0,.15);margin:0 auto}
+    .key-box .hint{margin-top:6px;font-size:12px;font-weight:700;color:#880e4f}
+    .timer-bar{height:8px;background:#fce4ec;border-radius:4px;margin-top:10px;overflow:hidden}
+    .timer-fill{height:100%;background:linear-gradient(90deg,#c2185b,#f48fb1);width:100%;transition:width .05s linear}
+    .stars{font-size:28px;color:#ffc107;letter-spacing:2px;margin:8px 0}
+    .confetti{position:fixed;inset:0;pointer-events:none;z-index:100;overflow:hidden}
+    .confetti span{position:absolute;width:10px;height:10px;border-radius:2px;animation:fall 2s ease-out forwards}
+    @keyframes fall{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+    .lane-label{position:absolute;left:6px;font-size:11px;font-weight:800;opacity:.7}
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <a href="hoc-ma-choi.html"><i class="fas fa-arrow-left"></i> Quay lại</a>
+    <h1><i class="fas fa-crown"></i> Giải cứu công chúa</h1>
+    <span style="width:80px"></span>
+  </div>
+  <div class="wrap">
+    <div class="screen show" id="startScreen">
+      <div class="game-card">
+        <h2 style="font-size:22px;font-weight:800;color:#c2185b;margin-bottom:8px">👸 Giải cứu công chúa</h2>
+        <p style="color:#546e7a;margin-bottom:14px;font-size:14px;line-height:1.5">
+          Có <strong>2 đường</strong>: Hoàng tử 🤴 và Quái vật 👹 cùng chạy tới công chúa.<br>
+          <strong>Bấm đúng</strong> phím → Hoàng tử tiến 1 bước.<br>
+          <strong>Bấm sai / hết giờ</strong> → Quái vật tiến 1 bước.<br>
+          Hoàng tử tới công chúa trước = qua cửa. <strong>26 cửa A–Z</strong>.
+        </p>
+        <button class="btn" id="btnStart"><i class="fas fa-play"></i> Bắt đầu cửa A</button>
+      </div>
+    </div>
+    <div id="playScreen" class="hidden">
+      <div class="hud">
+        <div class="hud-item">🚪 Cửa <span id="levelLetter">A</span> (<span id="level">1</span>/26)</div>
+        <div class="hud-item">⭐ <span id="score">0</span></div>
+        <div class="hud-item">🤴 <span id="pStep">0</span>/<span id="need">5</span></div>
+        <div class="hud-item">👹 <span id="mStep">0</span>/<span id="need2">5</span></div>
+      </div>
+      <div class="game-card" style="padding:12px">
+        <div id="arena">
+          <div class="lane lane-prince"><span class="lane-label" style="top:4px;color:#2e7d32">Hoàng tử</span></div>
+          <div class="lane lane-monster"><span class="lane-label" style="bottom:4px;color:#c62828">Quái vật</span></div>
+          <div class="char" id="prince">🤴</div>
+          <div class="char" id="monster">👹</div>
+          <div id="princess">👸</div>
+          <div class="key-box" id="keyBox">
+            <div class="letter" id="letter">A</div>
+            <div class="hint">Nhấn phím này!</div>
+          </div>
+        </div>
+        <div class="timer-bar"><div class="timer-fill" id="timerFill"></div></div>
+      </div>
+    </div>
+    <div class="screen hidden" id="endScreen">
+      <div class="game-card">
+        <div class="stars" id="endStars">★★☆☆☆</div>
+        <h2 style="font-size:22px;font-weight:800;color:#c2185b" id="endTitle">Thua rồi!</h2>
+        <p style="color:#546e7a;margin:8px 0" id="endMsg"></p>
+        <p style="font-weight:800;font-size:18px;color:#c2185b">Điểm: <span id="finalScore">0</span></p>
+        <button class="btn" id="btnReplay" style="margin-top:12px"><i class="fas fa-redo"></i> Chơi lại</button>
+        <a href="hoc-ma-choi.html" class="btn btn-outline" style="margin-top:8px;display:inline-flex"><i class="fas fa-home"></i> Về Học mà chơi</a>
+      </div>
+    </div>
+  </div>
+  <div class="confetti" id="confetti"></div>
+  <script>
+  const LETTERS='ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+  // steps needed to reach princess (same for both)
+  function needSteps(lv){ return 4 + Math.floor(lv/6); } // 4..8
+  // time limit suitable for elementary students (ms)
+  function timeFor(lv){ return Math.max(1800, 3800 - lv*70); }
+  let level=0,score=0,pStep=0,mStep=0,need=5,running=false,currentKey=null,raf=null,maxTime=3000,startT=0,advancing=false,waiting=false;
+  const $=id=>document.getElementById(id);
+  const prince=$('prince'), monster=$('monster');
+
+  function start(){
+    level=0;score=0;advancing=false;
+    $('startScreen').classList.remove('show');$('startScreen').style.display='none';
+    $('endScreen').classList.add('hidden');$('endScreen').classList.remove('show');$('endScreen').style.display='';
+    $('playScreen').classList.remove('hidden');
+    loadLevel();
+  }
+  function loadLevel(){
+    advancing=false; waiting=false;
+    pStep=0; mStep=0; need=needSteps(level); running=true; currentKey=null;
+    cancelAnimationFrame(raf);
+    $('levelLetter').textContent=LETTERS[level];
+    $('level').textContent=level+1;
+    $('score').textContent=score;
+    $('pStep').textContent=0;
+    $('mStep').textContent=0;
+    $('need').textContent=need;
+    $('need2').textContent=need;
+    $('timerFill').style.width='100%';
+    updatePositions();
+    nextKey();
+  }
+  function updatePositions(){
+    // start ~12% , end ~82% (before princess)
+    const start=12, end=82;
+    const pPct=start+(end-start)*(pStep/need);
+    const mPct=start+(end-start)*(mStep/need);
+    prince.style.left=pPct+'%';
+    monster.style.left=mPct+'%';
+  }
+  function nextKey(){
+    if(!running||advancing)return;
+    waiting=true;
+    // prefer level letter, mix nearby letters
+    const main=LETTERS[level];
+    currentKey = Math.random()<0.6 ? main : LETTERS[Math.floor(Math.random()*Math.min(level+4,26))];
+    $('letter').textContent=currentKey;
+    maxTime=timeFor(level);
+    startT=performance.now();
+    $('timerFill').style.width='100%';
+    function tick(now){
+      if(!running||advancing||!waiting)return;
+      const left=maxTime-(now-startT);
+      $('timerFill').style.width=Math.max(0,left/maxTime*100)+'%';
+      if(left<=0){
+        // timeout = monster advances
+        waiting=false; currentKey=null;
+        mStep++;
+        $('mStep').textContent=mStep;
+        updatePositions();
+        if(mStep>=need){lose();return;}
+        setTimeout(()=>{if(running&&!advancing)nextKey();},400);
+        return;
+      }
+      raf=requestAnimationFrame(tick);
+    }
+    raf=requestAnimationFrame(tick);
+  }
+  document.addEventListener('keydown',e=>{
+    if(!running||advancing||!waiting||!currentKey)return;
+    const k=e.key.toUpperCase();
+    if(k.length!==1||k<'A'||k>'Z')return;
+    e.preventDefault();
+    waiting=false;
+    cancelAnimationFrame(raf);
+    if(k===currentKey){
+      // prince advances
+      pStep++;
+      score+=10+level;
+      $('pStep').textContent=pStep;
+      $('score').textContent=score;
+      updatePositions();
+      currentKey=null;
+      if(pStep>=need){
+        // prince reached princess - pass level
+        advancing=true;
+        showConfetti();
+        if(level>=25){win();return;}
+        level++;
+        setTimeout(loadLevel,800);
+        return;
+      }
+      setTimeout(()=>{if(running&&!advancing)nextKey();},350);
+    } else {
+      // wrong - monster advances
+      mStep++;
+      $('mStep').textContent=mStep;
+      updatePositions();
+      currentKey=null;
+      if(mStep>=need){lose();return;}
+      setTimeout(()=>{if(running&&!advancing)nextKey();},400);
+    }
+  });
+  function lose(){
+    running=false; cancelAnimationFrame(raf); waiting=false;
+    $('endStars').textContent='★★☆☆☆';
+    $('endTitle').textContent='Thua rồi!';
+    $('endMsg').textContent='Quái vật đã đến công chúa trước. Hãy chơi lại!';
+    $('finalScore').textContent=score;
+    $('playScreen').classList.add('hidden');
+    $('endScreen').classList.remove('hidden');
+    $('endScreen').classList.add('show');
+    $('endScreen').style.display='block';
+  }
+  function win(){
+    running=false; cancelAnimationFrame(raf); waiting=false;
+    $('endStars').textContent='★★★★★';
+    $('endTitle').textContent='Thắng rồi!';
+    $('endMsg').textContent='Vượt 26 cửa A–Z – Đã giải cứu công chúa!';
+    $('finalScore').textContent=score;
+    $('playScreen').classList.add('hidden');
+    $('endScreen').classList.remove('hidden');
+    $('endScreen').classList.add('show');
+    $('endScreen').style.display='block';
+    showConfetti();
+  }
+  function showConfetti(){
+    const box=$('confetti');box.innerHTML='';
+    const colors=['#c2185b','#f48fb1','#fbbf24','#66bb6a','#42a5f5'];
+    for(let i=0;i<50;i++){const s=document.createElement('span');s.style.left=Math.random()*100+'%';s.style.background=colors[i%5];s.style.animationDelay=Math.random()*.5+'s';box.appendChild(s);}
+    setTimeout(()=>box.innerHTML='',2200);
+  }
+  $('btnStart').onclick=start;
+  $('btnReplay').onclick=()=>{
+    $('endScreen').classList.add('hidden');
+    $('endScreen').classList.remove('show');
+    $('endScreen').style.display='';
+    start();
+  };
+  </script>
+</body>
+</html>
