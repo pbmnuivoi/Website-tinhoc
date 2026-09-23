@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
@@ -206,6 +206,54 @@
       .section-block { padding: 18px; }
       .footer-content { flex-direction: column; text-align: center; }
     }
+
+    /* ===== AI FORM: GIÁO ÁN WORD / SLIDE PPT ===== */
+    .ai-create-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-top:18px}
+    .ai-create-card{background:#fff;border:1px solid var(--gray-200);border-radius:14px;padding:20px;box-shadow:var(--shadow);transition:var(--transition)}
+    .ai-create-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-hover)}
+    .ai-create-card h4{font-size:18px;color:var(--primary);margin-bottom:8px}
+    .ai-create-card p{font-size:13.5px;color:var(--gray-600);margin-bottom:14px}
+    .ai-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:14px;font-size:11px;font-weight:800;margin-bottom:10px}
+    .ai-badge.word{background:#e8f1ff;color:#1557b0}.ai-badge.ppt{background:#fff1e5;color:#d66b00}
+    .ai-form-wrap{margin-top:18px;background:#f8fbff;border:1px solid #dcecff;border-radius:14px;padding:18px}
+    .ai-form{display:none}
+    .ai-form.active{display:block}
+    .ai-form-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:15px}
+    .ai-form-title h4{margin:0;color:var(--gray-800);font-size:18px}
+    .ai-close{border:0;background:#eef3f8;width:34px;height:34px;border-radius:50%;cursor:pointer;color:var(--gray-600)}
+    .ai-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+    .ai-field{display:flex;flex-direction:column;gap:6px}.ai-field.full{grid-column:1/-1}
+    .ai-field label{font-size:12.5px;font-weight:800;color:var(--gray-800)}
+    .ai-field input,.ai-field select,.ai-field textarea{width:100%;border:1px solid #d7e0ea;border-radius:9px;background:#fff;padding:10px 11px;font-family:inherit;font-size:13px;outline:none}
+    .ai-field textarea{min-height:82px;resize:vertical}
+    .ai-field input:focus,.ai-field select:focus,.ai-field textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(26,115,232,.1)}
+    .ai-hint{font-size:11.5px;color:var(--gray-600);line-height:1.45}
+    .ai-source-box{background:#fff;border:1px dashed #b9cce0;border-radius:10px;padding:12px}
+    .ai-source-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:8px}
+    .ai-source-item{display:flex;align-items:center;gap:8px;font-size:12px;padding:7px 8px;border-radius:8px;background:#f5f8fb}
+    .ai-source-item input{width:auto}
+    .ai-quote{font-style:italic;color:#455a64}
+    .ai-suggest{display:none;background:#fff9e8;border:1px solid #ffe0a3;border-radius:9px;padding:10px 12px;font-size:12px;line-height:1.55;color:#6d4c00}
+    .ai-suggest.show{display:block}
+    .ai-guide{background:#fff9e8;border:1px solid #ffe0a3;border-radius:10px;padding:12px 15px;margin:12px 0 18px;color:#6d4c00;font-size:13px;line-height:1.6}
+    .ai-guide strong{display:block;margin-bottom:4px;color:#7a5600}
+    .ai-template-line{font-size:13px;line-height:1.8}
+    .ai-template-line > div{display:block;color:#263238}
+    .ai-template-line input,.ai-template-line textarea{display:inline-block;vertical-align:middle;min-width:180px;width:auto;max-width:100%;margin:2px 4px;padding:7px 9px;border:1px solid #d7e0ea;border-radius:8px;background:#fffef5}
+    .ai-template-line textarea{display:block;width:100%;min-height:75px;margin:5px 0 0}
+    .ai-template-line label{display:block;margin-bottom:3px}
+    .ppt-sections{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .ppt-sections>div{display:flex;align-items:center;gap:6px}
+    .ppt-sections span{font-weight:800}
+    .ppt-sections input{width:100%;min-width:0}
+    @media(max-width:800px){.ppt-sections{grid-template-columns:1fr}.ai-template-line input{width:100%}}
+    .ai-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:15px}
+    .ai-preview{display:none;margin-top:15px;background:#fff;border:1px solid #d9e2ec;border-radius:10px;padding:14px}
+    .ai-preview.show{display:block}
+    .ai-preview h5{margin-bottom:8px;color:var(--primary);font-size:14px}
+    .ai-preview pre{white-space:pre-wrap;word-break:break-word;font-family:inherit;font-size:12.5px;line-height:1.6;color:#263238;max-height:430px;overflow:auto}
+    .ai-file-note{font-size:11px;color:#607d8b;margin-top:5px}
+    @media(max-width:800px){.ai-create-grid,.ai-fields{grid-template-columns:1fr}.ai-source-list{grid-template-columns:1fr}.ai-field.full{grid-column:auto}}
   </style>
 </head>
 <body>
@@ -253,6 +301,163 @@
 
   <main class="main">
     <div class="container">
+
+      <!-- Tạo giáo án bằng AI -->
+      <div class="section-block" id="tao-giao-an-ai">
+        <h3><i class="fas fa-wand-magic-sparkles"></i> Tạo giáo án &amp; slide bằng AI</h3>
+        <div class="ai-guide">
+          <strong><i class="fas fa-lightbulb"></i> Hướng dẫn sử dụng</strong>
+          <div>Các nội dung đặt trong dấu <b>“ ”</b> của mẫu được chuyển thành <b>ô nhập</b> để bạn thay đổi trực tiếp.</div>
+          <div>Bạn chỉ cần nhập thông tin muốn thay thế, giữ nguyên các phần còn lại nếu không cần chỉnh.</div>
+          <div>Các nguồn gợi ý cho giáo án Word gồm: <b>CV 2345 – mẫu KHBD, CV 3456 – NLS, CV 3439 – AI, PPCT môn học, SGK tương ứng, Mẫu giáo án 1 tuần.</b></div>
+          <div>Sau khi điền xong, chọn <b>Xem trước</b> để kiểm tra hoặc <b>Copy</b> để sao chép toàn bộ yêu cầu đưa vào công cụ AI.</div>
+        </div>
+
+        <div class="ai-create-grid">
+          <div class="ai-create-card">
+            <span class="ai-badge word"><i class="fas fa-file-word"></i> WORD / DOCX</span>
+            <h4>Form tạo giáo án Word</h4>
+            <p>Biểu mẫu giữ nguyên nội dung yêu cầu bạn đã cung cấp.</p>
+            <button type="button" class="btn btn-primary" onclick="openAiForm('word')"><i class="fas fa-file-circle-plus"></i> Mở form tạo giáo án</button>
+          </div>
+          <div class="ai-create-card">
+            <span class="ai-badge ppt"><i class="fas fa-file-powerpoint"></i> PPT / SLIDE</span>
+            <h4>Form tạo Slide PPT</h4>
+            <p>Biểu mẫu giữ nguyên nội dung yêu cầu bạn đã cung cấp.</p>
+            <button type="button" class="btn btn-primary" style="background:#e67e22" onclick="openAiForm('ppt')"><i class="fas fa-file-powerpoint"></i> Mở form tạo Slide</button>
+          </div>
+        </div>
+
+        <div class="ai-form-wrap">
+          <!-- FORM WORD -->
+          <div class="ai-form" id="aiFormWord">
+            <div class="ai-form-title">
+              <h4><i class="fas fa-file-word" style="color:#1557b0"></i> Form tạo giáo án Word</h4>
+              <button type="button" class="ai-close" onclick="closeAiForm('word')" title="Đóng"><i class="fas fa-times"></i></button>
+            </div>
+
+            <div class="ai-fields">
+              <div class="ai-field full ai-template-line">
+                <label>1. VAI TRÒ</label>
+                <div>VAI TRÒ LÀ GIÁO VIÊN PHỤ TRÁCH MÔN <input id="wordRole" value="Tin học lớp 3">.</div>
+              </div>
+
+              <div class="ai-field full ai-template-line">
+                <label>2. NHIỆM VỤ</label>
+                <div>NHIỆM VỤ SOẠN GIÁO ÁN THEO TUẦN YÊU CẦU.</div>
+              </div>
+
+              <div class="ai-field full ai-template-line">
+                <label>3. YÊU CẦU SOẠN GIÁO ÁN</label>
+                <div>TỪ NGUỒN TÔI ĐÃ GỬI. TẠO GIÚP TÔI GIÁO ÁN DẠY HỌC <input id="wordWeek" value="TUẦN 11"> ĐÚNG MẪU VÀ HÌNH THỨC VĂN BẢN <input id="wordSampleWeek" value="TUẦN 1"></div>
+              </div>
+
+              <div class="ai-field full">
+                <label>Nguồn sử dụng</label>
+                <div class="ai-source-box">
+                  <div class="ai-source-list">
+                    <label class="ai-source-item"><input type="checkbox" value="CV 2345 – mẫu KHBD"> CV 2345 – mẫu KHBD</label>
+                    <label class="ai-source-item"><input type="checkbox" checked value="CV 3456 – NLS"> CV 3456 – NLS</label>
+                    <label class="ai-source-item"><input type="checkbox" checked value="CV 3439 – AI"> CV 3439 – AI</label>
+                    <label class="ai-source-item"><input type="checkbox" checked value="PPCT môn học"> PPCT môn học</label>
+                    <label class="ai-source-item"><input type="checkbox" checked value="SGK tương ứng"> SGK tương ứng</label>
+                    <label class="ai-source-item"><input type="checkbox" checked value="Mẫu giáo án tuần 1"> Mẫu giáo án tuần 1</label>
+                  </div>
+                  <input type="text" id="wordOtherSources" placeholder="Thêm nguồn khác nếu có...">
+                </div>
+              </div>
+
+              <div class="ai-field full ai-template-line">
+                <label>4. YÊU CẦU VỀ NỘI DUNG</label>
+                <textarea id="wordContent">Không tự ý thêm bớt nội dung, bám sát sách giáo khoa, và đúng tiết của phân phối chương trình của tuần.</textarea>
+              </div>
+
+              <div class="ai-field full ai-template-line">
+                <label>5. SỐ TIẾT VÀ HÌNH THỨC</label>
+                <textarea id="wordFormat">Nếu bài học có nhiều hơn 1 tiết, thì phải ghi tiết dưới tên bài học. Phù hợp với tuần tương ứng. Không tự ý thay đổi hoặc thêm bớt điều chỉnh hình thức văn bản của mẫu.</textarea>
+              </div>
+
+              <div class="ai-field full ai-template-line">
+                <label>6. TÍCH HỢP NĂNG LỰC SỐ</label>
+                <div>ĐƯA CÁC NỘI DUNG TÍCH HỢP VÀO <input id="wordNlsArea" value="Năng lực đặc thù &gt; Định hướng năng lực số"> VÀ TỪNG <input id="wordNlsActivity" value="Hoạt động của học sinh">.</div>
+              </div>
+
+              <div class="ai-field full ai-template-line">
+                <label>7. KIỂM TRA</label>
+                <textarea id="wordCheck">Kiểm tra đầy đủ yêu cầu đúng trình bày bài từ thể thức của tuần giáo án mẫu, đúng số tiết của tuần, đúng nội dung yêu cầu, đầy đủ nội dung tích hợp của bài.</textarea>
+              </div>
+
+              <div class="ai-field full ai-template-line">
+                <label>8. ĐẦU RA</label>
+                <div>TRẢ VỀ FILE GIÁO ÁN MỚI VỪA TẠO DƯỚI DẠNG FILE WORD (<input id="wordOutput" value="DOCX hoặc DOC">).</div>
+              </div>
+            </div>
+
+            <div class="ai-actions">
+              <button type="button" class="btn btn-primary" onclick="previewAi('word')"><i class="fas fa-eye"></i> Xem trước</button>
+              <button type="button" class="btn btn-outline" onclick="copyAi('word')"><i class="fas fa-copy"></i> Copy</button>
+            </div>
+            <div class="ai-preview" id="wordPreview"><h5><i class="fas fa-eye"></i> Nội dung yêu cầu xem trước</h5><pre id="wordPreviewText"></pre></div>
+          </div>
+
+          <!-- FORM PPT -->
+          <div class="ai-form" id="aiFormPpt">
+            <div class="ai-form-title">
+              <h4><i class="fas fa-file-powerpoint" style="color:#e67e22"></i> Form tạo Slide PPT</h4>
+              <button type="button" class="ai-close" onclick="closeAiForm('ppt')" title="Đóng"><i class="fas fa-times"></i></button>
+            </div>
+
+            <div class="ai-fields">
+              <div class="ai-field full ai-template-line">
+                <label>1. VAI TRÒ</label>
+                <div>VAI TRÒ LÀ GIÁO VIÊN PHỤ TRÁCH MÔN <input id="pptRole" value="Tin học">.</div>
+              </div>
+
+              <div class="ai-field full ai-template-line">
+                <label>2. NHIỆM VỤ</label>
+                <textarea id="pptTask">NHIỆM VỤ CỦA TÔI LÀ THIẾT KẾ BÀI TRÌNH CHIẾU SLIDE DẠY HỌC.</textarea>
+              </div>
+
+              <div class="ai-field full ai-template-line">
+                <label>3. NGUỒN VÀ YÊU CẦU</label>
+                <textarea id="pptSource">TỪ NGUỒN MÀ TÔI CUNG CẤP SOẠN GIÚP TÔI CÁC SLIDE BÀI GIẢNG TƯƠNG ỨNG CÓ ĐẦY ĐỦ CÁC PHẦN NỘI DUNG.</textarea>
+              </div>
+
+              <div class="ai-field full ai-template-line">
+                <label>CẤU TRÚC BẮT BUỘC</label>
+                <div class="ppt-sections">
+                  <div><span>1.</span><input id="pptKhoiDong" value="KHỞI ĐỘNG"></div>
+                  <div><span>2.</span><input id="pptKhamPha" value="KHÁM PHÁ (HÌNH THÀNH KIẾN THỨC)"></div>
+                  <div><span>3.</span><input id="pptLuyenTap" value="LUYỆN TẬP"></div>
+                  <div><span>4.</span><input id="pptVanDung" value="VẬN DỤNG"></div>
+                </div>
+              </div>
+
+              <div class="ai-field full ai-template-line">
+                <label>4. YÊU CẦU NỘI DUNG</label>
+                <textarea id="pptContent">KHÔNG TỰ Ý THÊM BỚT NỘI DUNG. NỘI DUNG SLIDE PHẢI PHÙ HỢP VỚI HỌC SINH TIỂU HỌC, CÓ TÍNH TƯƠNG TÁC CAO.</textarea>
+              </div>
+
+              <div class="ai-field full ai-template-line">
+                <label>5. SỐ LƯỢNG SLIDE</label>
+                <div>SOẠN KHOẢNG <input id="pptCount" value="15-18"> SLIDE PHÙ HỢP VỚI TIẾT DẠY.</div>
+              </div>
+
+              <div class="ai-field full ai-template-line">
+                <label>6. KIỂM TRA VÀ ĐẦU RA</label>
+                <div>KIỂM TRA LẠI NỘI DUNG VÀ ĐÚNG NHỮNG GÌ TÔI YÊU CẦU KHI HOÀN THÀNH FILE VÀ GỬI CHO TÔI. TRẢ VỀ FILE <input id="pptOutput" value="PPTX">.</div>
+              </div>
+            </div>
+
+            <div class="ai-actions">
+              <button type="button" class="btn btn-primary" style="background:#e67e22" onclick="previewAi('ppt')"><i class="fas fa-eye"></i> Xem trước</button>
+              <button type="button" class="btn btn-outline" style="border-color:#e67e22;color:#e67e22" onclick="copyAi('ppt')"><i class="fas fa-copy"></i> Copy</button>
+            </div>
+            <div class="ai-preview" id="pptPreview"><h5><i class="fas fa-eye"></i> Nội dung yêu cầu xem trước</h5><pre id="pptPreviewText"></pre></div>
+          </div>
+        </div>
+      </div>
+
       <!-- Công cụ tiện ích -->
       <div class="section-block" id="congcu">
         <h3><i class="fas fa-toolbox"></i> Công cụ tiện ích</h3>
@@ -362,25 +567,25 @@
             <div class="icon-wrap orange"><i class="fas fa-file-alt"></i></div>
             <h4>Giáo án tham khảo Lớp 1 – 5</h4>
             <p>Bộ giáo án mẫu theo từng lớp, có thể tải về chỉnh sửa phù hợp với lớp mình phụ trách.</p>
-            <a href="https://script.google.com/macros/s/AKfycbyj5MhUVpP2tJ9QkyylrDVszYoGhzSA0Dt5lS4JURERb1CMdEHGOQL-Rvl1jIqhlyrZ/exec?page=teacher" target="_blank" rel="noopener" class="btn btn-sm"><i class="fas fa-external-link-alt"></i> Truy cập</a>
+            <a href="404.html" target="_blank" rel="noopener" class="btn btn-sm"><i class="fas fa-external-link-alt"></i> Truy cập</a>
           </div>
           <div class="resource-card">
             <div class="icon-wrap blue"><i class="fas fa-question-circle"></i></div>
             <h4>Câu hỏi ôn tập tham khảo</h4>
             <p>Ngân hàng câu hỏi trắc nghiệm và tự luận theo chủ đề Tin học các lớp 1–5.</p>
-            <a href="https://script.google.com/macros/s/AKfycbyj5MhUVpP2tJ9QkyylrDVszYoGhzSA0Dt5lS4JURERb1CMdEHGOQL-Rvl1jIqhlyrZ/exec?page=teacher" class="btn btn-sm"><i class="fas fa-external-link-alt"></i> Truy cập</a>
+            <a href="404.html" class="btn btn-sm"><i class="fas fa-external-link-alt"></i> Truy cập</a>
           </div>
           <div class="resource-card">
             <div class="icon-wrap green"><i class="fas fa-clipboard-check"></i></div>
             <h4>Phiếu đánh giá Quiz</h4>
             <p>Mẫu phiếu quiz, bài kiểm tra ngắn và rubric đánh giá kỹ năng tin học của học sinh.</p>
-            <a href="https://script.google.com/macros/s/AKfycbyj5MhUVpP2tJ9QkyylrDVszYoGhzSA0Dt5lS4JURERb1CMdEHGOQL-Rvl1jIqhlyrZ/exec?page=teacher" target="_blank" rel="noopener" class="btn btn-sm"><i class="fas fa-external-link-alt"></i> Truy cập</a>
+            <a href="404.html" target="_blank" rel="noopener" class="btn btn-sm"><i class="fas fa-external-link-alt"></i> Truy cập</a>
           </div>
           <div class="resource-card">
             <div class="icon-wrap purple"><i class="fas fa-book"></i></div>
             <h4>Tài liệu tham khảo</h4>
             <p>Sách điện tử, bài viết chuyên môn và hướng dẫn phương pháp dạy Tin học tiểu học.</p>
-            <a href="https://script.google.com/macros/s/AKfycbyj5MhUVpP2tJ9QkyylrDVszYoGhzSA0Dt5lS4JURERb1CMdEHGOQL-Rvl1jIqhlyrZ/exec?page=teacher" target="_blank" rel="noopener" class="btn btn-sm"><i class="fas fa-external-link-alt"></i> Truy cập</a>
+            <a href="404.html" target="_blank" rel="noopener" class="btn btn-sm"><i class="fas fa-external-link-alt"></i> Truy cập</a>
           </div>
         </div>
       </div>
@@ -389,8 +594,8 @@
       <div class="section-block" style="text-align:center;padding:20px">
         <p style="margin-bottom:14px;color:var(--gray-600);font-size:14px;">Truy cập hệ thống quản lý bài tập & tài khoản</p>
         <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
-          <a href="https://script.google.com/macros/s/AKfycbyfq6ZTZ5RpixmagpskfbmJh8xj-LwqPxQB-5WIWXlUSzSr4DDnm4RJWKsaKbdXoPN4/exec?page=admin" target="_blank" rel="noopener" class="btn btn-sm" style="background:#546e7a"><i class="fas fa-user-shield"></i> Quản trị</a>
-          <a href="https://script.google.com/macros/s/AKfycbyfq6ZTZ5RpixmagpskfbmJh8xj-LwqPxQB-5WIWXlUSzSr4DDnm4RJWKsaKbdXoPN4/exec?page=teacher" target="_blank" rel="noopener" class="btn btn-sm"><i class="fas fa-chalkboard-teacher"></i> Giáo viên</a>
+          <a href="404.html" target="_blank" rel="noopener" class="btn btn-sm" style="background:#546e7a"><i class="fas fa-user-shield"></i> Quản trị</a>
+          <a href="404.html" target="_blank" rel="noopener" class="btn btn-sm"><i class="fas fa-chalkboard-teacher"></i> Giáo viên</a>
         </div>
       </div>
     </div>
@@ -414,6 +619,103 @@
     </div>
   </footer>
   <script>
+
+    /* ===== AI FORM FUNCTIONS ===== */
+    function openAiForm(type){
+      document.querySelectorAll('.ai-form').forEach(el=>el.classList.remove('active'));
+      const el=document.getElementById(type==='word'?'aiFormWord':'aiFormPpt');
+      if(el){el.classList.add('active'); el.scrollIntoView({behavior:'smooth',block:'start'});}
+    }
+    function closeAiForm(type){
+      const el=document.getElementById(type==='word'?'aiFormWord':'aiFormPpt');
+      if(el) el.classList.remove('active');
+    }
+    function toggleSuggest(id){
+      const el=document.getElementById(id);
+      if(el) el.classList.toggle('show');
+    }
+    function val(id){ const el=document.getElementById(id); return el ? el.value.trim() : ''; }
+    function checkedSources(){
+      return Array.from(document.querySelectorAll('#aiFormWord .ai-source-item input:checked')).map(x=>x.value)
+        .concat(val('wordOtherSources') ? [val('wordOtherSources')] : []);
+    }
+    function buildWordPrompt(){
+      return `FORM TẠO GIÁO ÁN WORD
+
+1. VAI TRÒ
+VAI TRÒ LÀ GIÁO VIÊN PHỤ TRÁCH MÔN "${val('wordRole')}".
+
+2. NHIỆM VỤ
+NHIỆM VỤ SOẠN GIÁO ÁN THEO TUẦN YÊU CẦU.
+
+3. YÊU CẦU SOẠN GIÁO ÁN
+TỪ NGUỒN TÔI ĐÃ GỬI. TẠO GIÚP TÔI GIÁO ÁN DẠY HỌC "${val('wordWeek')}" ĐÚNG MẪU VÀ HÌNH THỨC VĂN BẢN "${val('wordSampleWeek')}".
+
+NGUỒN SỬ DỤNG
+- ${checkedSources().join('\n- ')}
+
+4. YÊU CẦU VỀ NỘI DUNG
+"${val('wordContent')}"
+
+5. SỐ TIẾT VÀ HÌNH THỨC
+"${val('wordFormat')}"
+
+6. TÍCH HỢP NĂNG LỰC SỐ
+ĐƯA CÁC NỘI DUNG TÍCH HỢP VÀO "${val('wordNlsArea')}" VÀ "${val('wordNlsActivity')}".
+
+7. KIỂM TRA
+"${val('wordCheck')}"
+
+8. ĐẦU RA
+TRẢ VỀ FILE GIÁO ÁN MỚI VỪA TẠO DƯỚI DẠNG FILE WORD ("${val('wordOutput')}").`;
+    }
+    function buildPptPrompt(){
+      return `FORM TẠO SLIDE PPT
+
+1. VAI TRÒ
+VAI TRÒ LÀ GIÁO VIÊN PHỤ TRÁCH MÔN "${val('pptRole')}".
+
+2. NHIỆM VỤ
+"${val('pptTask')}"
+
+3. NGUỒN VÀ YÊU CẦU
+"${val('pptSource')}"
+
+CÁC PHẦN NỘI DUNG
+- "${val('pptKhoiDong')}"
+- "${val('pptKhamPha')}"
+- "${val('pptLuyenTap')}"
+- "${val('pptVanDung')}"
+
+4. YÊU CẦU NỘI DUNG
+"${val('pptContent')}"
+
+5. SỐ LƯỢNG SLIDE
+SOẠN KHOẢNG "${val('pptCount')}" SLIDE PHÙ HỢP VỚI TIẾT DẠY.
+
+6. KIỂM TRA VÀ ĐẦU RA
+KIỂM TRA LẠI NỘI DUNG VÀ ĐÚNG NHỮNG GÌ TÔI YÊU CẦU KHI HOÀN THÀNH FILE VÀ GỬI CHO TÔI. TRẢ VỀ FILE "${val('pptOutput')}".`;
+    }
+    function previewAi(type){
+      const prompt=type==='word'?buildWordPrompt():buildPptPrompt();
+      const box=document.getElementById(type==='word'?'wordPreview':'pptPreview');
+      const out=document.getElementById(type==='word'?'wordPreviewText':'pptPreviewText');
+      out.textContent=prompt;
+      box.classList.add('show');
+      box.scrollIntoView({behavior:'smooth',block:'nearest'});
+    }
+    async function copyAi(type){
+      const prompt=type==='word'?buildWordPrompt():buildPptPrompt();
+      try{
+        await navigator.clipboard.writeText(prompt);
+        alert('Đã copy toàn bộ yêu cầu. Bạn có thể dán vào công cụ AI để tạo giáo án/slide.');
+      }catch(e){
+        const ta=document.createElement('textarea'); ta.value=prompt; document.body.appendChild(ta);
+        ta.select(); document.execCommand('copy'); ta.remove();
+        alert('Đã copy toàn bộ yêu cầu.');
+      }
+    }
+
     const mobileMenuBtn = document.getElementById('mobileMenuBtn');
     const mainNav = document.getElementById('mainNav');
     if (mobileMenuBtn && mainNav) {
