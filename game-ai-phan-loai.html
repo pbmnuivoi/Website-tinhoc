@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
-    :root { --blue:#0b5fff; --green:#00a86b; --orange:#ff7a00; --purple:#7c3aed; }
+    :root { --blue:#0b5fff; --green:#00a86b; --orange:#ff7a00; --red:#ef4444; }
     * { margin:0; padding:0; box-sizing:border-box; }
     body { font-family:'Be Vietnam Pro',system-ui,sans-serif; background:linear-gradient(160deg,#ecfdf5,#e0f2fe,#fef3c7); min-height:100vh; color:#0f172a; }
     .topbar { background:#fff; box-shadow:0 2px 12px rgba(0,0,0,.06); padding:12px 20px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:50; }
@@ -32,35 +32,52 @@
     }
     .bin.over { border-color:var(--blue); background:#eef4ff; }
     .bin h4 { font-size:13px; font-weight:800; text-align:center; margin-bottom:10px; padding:6px; border-radius:8px; color:#fff; }
-    .bin .drop { display:flex; flex-wrap:wrap; gap:6px; min-height:60px; }
-    .bin .drop .item { cursor:pointer; font-size:13px; padding:6px 10px; }
-    .btn { display:inline-flex; align-items:center; gap:8px; padding:12px 22px; border-radius:999px; font-weight:700; font-size:14px; border:0; cursor:pointer; background:var(--blue); color:#fff; font-family:inherit; margin:8px 4px 0; }
+    .bin .drop { display:flex; flex-wrap:wrap; gap:8px; min-height:60px; align-content:flex-start; }
+    .chip {
+      display:inline-flex; align-items:center; gap:6px; padding:8px 10px; border-radius:12px;
+      font-weight:700; font-size:13px; border:2px solid #e2e8f0; background:#fff; position:relative;
+    }
+    .chip.ok { border-color:var(--green); background:#ecfdf5; color:#065f46; }
+    .chip.bad { border-color:var(--red); background:#fef2f2; color:#991b1b; }
+    .chip .mark { font-size:14px; font-weight:900; }
+    .chip .rm {
+      width:22px; height:22px; border-radius:50%; border:0; background:#ef4444; color:#fff;
+      font-size:11px; font-weight:800; cursor:pointer; display:grid; place-items:center; line-height:1;
+    }
+    .chip.ok .rm { display:none; }
+    .btn {
+      display:inline-flex; align-items:center; gap:8px; padding:12px 22px; border-radius:999px;
+      font-weight:700; font-size:14px; border:0; cursor:pointer; color:#fff; font-family:inherit; margin:6px 4px;
+    }
     .btn-success { background:var(--green); }
-    .result { margin-top:14px; padding:14px; border-radius:12px; font-weight:600; font-size:14px; display:none; text-align:center; }
+    .btn-gray { background:#64748b; }
+    .result { margin-top:14px; padding:14px; border-radius:12px; text-align:center; font-weight:700; display:none; }
     .result.show { display:block; }
     .result.ok { background:#ecfdf5; color:#065f46; }
     .result.partial { background:#fffbeb; color:#92400e; }
+    .hint { font-size:12px; color:#64748b; text-align:center; margin-top:8px; }
   </style>
 </head>
 <body>
   <div class="topbar">
     <a href="lam-quen-voi-ai.html" id="backLink"><i class="fas fa-arrow-left"></i> Làm quen với AI</a>
     <h1><i class="fas fa-sitemap"></i> AI Phân loại</h1>
-    <span style="width:90px"></span>
+    <span style="width:80px"></span>
   </div>
   <div class="wrap">
     <div class="hero">
       <h2>📦 Đưa về đúng nhóm</h2>
-      <p>AI học cách phân loại đồ vật. Em hãy kéo từng món vào nhóm đúng!</p>
+      <p>Kéo món vào nhóm · Đúng hiện ✅ · Sai hiện ❌ và bấm X để xóa</p>
     </div>
     <div class="card">
       <p style="font-weight:700;margin-bottom:10px;text-align:center">Kéo các món bên dưới vào đúng nhóm:</p>
       <div class="item-pool" id="pool"></div>
       <div class="bins" id="bins"></div>
-      <div style="text-align:center">
-        <button class="btn btn-success" id="checkBtn"><i class="fas fa-check"></i> Kiểm tra</button>
-        <button class="btn" id="resetBtn" style="background:#64748b"><i class="fas fa-redo"></i> Làm lại</button>
+      <div style="text-align:center;margin-top:14px">
+        <button class="btn btn-success" id="checkBtn"><i class="fas fa-check"></i> Kiểm tra tất cả</button>
+        <button class="btn btn-gray" id="resetBtn"><i class="fas fa-redo"></i> Làm lại</button>
       </div>
+      <p class="hint">Món sai: bấm nút <strong>✕</strong> trên món đó để đưa về lại. Món đúng: có dấu ✅.</p>
       <div class="result" id="result"></div>
     </div>
   </div>
@@ -68,90 +85,95 @@
     const sets = [
       {
         bins: [
-          { id:'animal', name:'🐾 Con vật', color:'#00a86b' },
-          { id:'plant', name:'🌿 Cây cối', color:'#16a34a' },
-          { id:'object', name:'📦 Đồ vật', color:'#0b5fff' }
+          { id:'fruit', label:'🍎 Trái cây', color:'#ef4444' },
+          { id:'animal', label:'🐶 Con vật', color:'#f59e0b' },
+          { id:'school', label:'📚 Đồ dùng học', color:'#3b82f6' }
         ],
         items: [
-          { id:'dog', label:'🐶 Chó', bin:'animal' },
-          { id:'cat', label:'🐱 Mèo', bin:'animal' },
-          { id:'bird', label:'🐦 Chim', bin:'animal' },
-          { id:'tree', label:'🌳 Cây', bin:'plant' },
-          { id:'flower', label:'🌸 Hoa', bin:'plant' },
-          { id:'grass', label:'🌱 Cỏ', bin:'plant' },
-          { id:'book', label:'📚 Sách', bin:'object' },
-          { id:'phone', label:'📱 Điện thoại', bin:'object' },
-          { id:'chair', label:'🪑 Ghế', bin:'object' }
+          { id:'a1', label:'🍌 Chuối', bin:'fruit' },
+          { id:'a2', label:'🐱 Mèo', bin:'animal' },
+          { id:'a3', label:'✏️ Bút', bin:'school' },
+          { id:'a4', label:'🍎 Táo', bin:'fruit' },
+          { id:'a5', label:'🐶 Chó', bin:'animal' },
+          { id:'a6', label:'📖 Sách', bin:'school' }
         ]
       },
       {
         bins: [
-          { id:'fruit', name:'🍎 Trái cây', color:'#ef4444' },
-          { id:'veg', name:'🥕 Rau củ', color:'#f59e0b' },
-          { id:'food', name:'🍞 Đồ ăn khác', color:'#8b5cf6' }
+          { id:'live', label:'🌱 Sinh vật', color:'#22c55e' },
+          { id:'tech', label:'💻 Công nghệ', color:'#6366f1' },
+          { id:'food', label:'🍲 Đồ ăn', color:'#f97316' }
         ],
         items: [
-          { id:'apple', label:'🍎 Táo', bin:'fruit' },
-          { id:'banana', label:'🍌 Chuối', bin:'fruit' },
-          { id:'orange', label:'🍊 Cam', bin:'fruit' },
-          { id:'carrot', label:'🥕 Cà rốt', bin:'veg' },
-          { id:'broccoli', label:'🥦 Bông cải', bin:'veg' },
-          { id:'corn', label:'🌽 Ngô', bin:'veg' },
-          { id:'bread', label:'🍞 Bánh mì', bin:'food' },
-          { id:'pizza', label:'🍕 Pizza', bin:'food' },
-          { id:'cake', label:'🎂 Bánh kem', bin:'food' }
+          { id:'b1', label:'🌳 Cây', bin:'live' },
+          { id:'b2', label:'📱 Điện thoại', bin:'tech' },
+          { id:'b3', label:'🍕 Pizza', bin:'food' },
+          { id:'b4', label:'🐟 Cá', bin:'live' },
+          { id:'b5', label:'💻 Laptop', bin:'tech' },
+          { id:'b6', label:'🍞 Bánh mì', bin:'food' }
+        ]
+      },
+      {
+        bins: [
+          { id:'ai', label:'🤖 Có AI', color:'#7c3aed' },
+          { id:'noai', label:'📦 Không AI', color:'#64748b' },
+          { id:'maybe', label:'🤔 Có thể AI', color:'#0ea5e9' }
+        ],
+        items: [
+          { id:'c1', label:'🎙️ Loa thông minh', bin:'ai' },
+          { id:'c2', label:'🪑 Ghế gỗ', bin:'noai' },
+          { id:'c3', label:'📷 Camera an ninh', bin:'maybe' },
+          { id:'c4', label:'📱 Điện thoại', bin:'ai' },
+          { id:'c5', label:'📚 Sách giấy', bin:'noai' },
+          { id:'c6', label:'🚗 Xe tự lái', bin:'ai' }
         ]
       }
     ];
+
     let setIdx = 0;
-    let placed = {};
+    let placed = {}; // id -> binId
 
     function render() {
-      const set = sets[setIdx];
       placed = {};
+      const set = sets[setIdx];
       const pool = document.getElementById('pool');
-      pool.innerHTML = set.items.map(it =>
+      const bins = document.getElementById('bins');
+      const shuffled = set.items.slice().sort(() => Math.random() - 0.5);
+      pool.innerHTML = shuffled.map(it =>
         `<div class="item" draggable="true" data-id="${it.id}" data-bin="${it.bin}">${it.label}</div>`
       ).join('');
-
-      const bins = document.getElementById('bins');
       bins.innerHTML = set.bins.map(b =>
         `<div class="bin" data-bin="${b.id}">
-          <h4 style="background:${b.color}">${b.name}</h4>
+          <h4 style="background:${b.color}">${b.label}</h4>
           <div class="drop" data-bin="${b.id}"></div>
         </div>`
       ).join('');
-
       document.getElementById('result').className = 'result';
+      bindDrag();
+    }
 
-      // Drag events
-      pool.querySelectorAll('.item').forEach(el => {
+    function bindDrag() {
+      document.querySelectorAll('#pool .item').forEach(el => {
         el.addEventListener('dragstart', e => {
           e.dataTransfer.setData('text/plain', el.dataset.id);
           e.dataTransfer.effectAllowed = 'move';
         });
+        el.addEventListener('click', () => {
+          if (el.classList.contains('used')) return;
+          const binsList = sets[setIdx].bins.map(b => b.id);
+          const cur = placed[el.dataset.id];
+          const next = cur ? binsList[(binsList.indexOf(cur)+1)%binsList.length] : binsList[0];
+          placeItem(el.dataset.id, next);
+        });
       });
-
-      bins.querySelectorAll('.bin').forEach(bin => {
+      document.querySelectorAll('.bin').forEach(bin => {
         bin.addEventListener('dragover', e => { e.preventDefault(); bin.classList.add('over'); });
         bin.addEventListener('dragleave', () => bin.classList.remove('over'));
         bin.addEventListener('drop', e => {
           e.preventDefault();
           bin.classList.remove('over');
           const id = e.dataTransfer.getData('text/plain');
-          placeItem(id, bin.dataset.bin);
-        });
-      });
-
-      // Also click-to-cycle for mobile
-      pool.querySelectorAll('.item').forEach(el => {
-        el.addEventListener('click', () => {
-          if (el.classList.contains('used')) return;
-          // place into first empty-looking or cycle
-          const binsList = set.bins.map(b => b.id);
-          const cur = placed[el.dataset.id];
-          const next = cur ? binsList[(binsList.indexOf(cur)+1)%binsList.length] : binsList[0];
-          placeItem(el.dataset.id, next);
+          if (id) placeItem(id, bin.dataset.bin);
         });
       });
     }
@@ -161,8 +183,7 @@
       const item = set.items.find(x => x.id === id);
       if (!item) return;
 
-      // remove from previous
-      document.querySelectorAll('.drop .item').forEach(el => {
+      document.querySelectorAll('.drop .chip').forEach(el => {
         if (el.dataset.id === id) el.remove();
       });
       document.querySelectorAll('#pool .item').forEach(el => {
@@ -170,56 +191,88 @@
       });
 
       placed[id] = binId;
+      const isOk = item.bin === binId;
       const drop = document.querySelector(`.drop[data-bin="${binId}"]`);
       const chip = document.createElement('div');
-      chip.className = 'item';
+      chip.className = 'chip ' + (isOk ? 'ok' : 'bad');
       chip.dataset.id = id;
-      chip.textContent = item.label;
-      chip.onclick = () => {
-        // return to pool
-        delete placed[id];
-        chip.remove();
-        document.querySelectorAll('#pool .item').forEach(el => {
-          if (el.dataset.id === id) el.classList.remove('used');
-        });
-      };
+      chip.innerHTML =
+        (isOk ? '<span class="mark">✅</span>' : '<span class="mark">❌</span>') +
+        '<span>' + item.label + '</span>' +
+        (isOk ? '' : '<button type="button" class="rm" title="Xóa khỏi nhóm">✕</button>');
+
+      const rm = chip.querySelector('.rm');
+      if (rm) {
+        rm.onclick = (e) => {
+          e.stopPropagation();
+          removeItem(id, chip);
+        };
+      }
+      // click chip when wrong also removes
+      if (!isOk) {
+        chip.style.cursor = 'pointer';
+        chip.onclick = () => removeItem(id, chip);
+      }
       drop.appendChild(chip);
+      updateResultLive();
+    }
+
+    function removeItem(id, chip) {
+      delete placed[id];
+      if (chip) chip.remove();
+      document.querySelectorAll('#pool .item').forEach(el => {
+        if (el.dataset.id === id) el.classList.remove('used');
+      });
+      updateResultLive();
+    }
+
+    function updateResultLive() {
+      const set = sets[setIdx];
+      const total = set.items.length;
+      const placedCount = Object.keys(placed).length;
+      const correct = set.items.filter(it => placed[it.id] === it.bin).length;
+      const el = document.getElementById('result');
+      if (placedCount === 0) {
+        el.className = 'result';
+        return;
+      }
+      if (correct === total && placedCount === total) {
+        el.className = 'result show ok';
+        el.innerHTML = `🎉 Tuyệt vời! Đúng cả ${total} món — giống cách AI học phân loại!`;
+      } else {
+        el.className = 'result show partial';
+        el.innerHTML = `Đúng ${correct}/${total} · Đã xếp ${placedCount}/${total}. Món ❌ bấm ✕ để xóa rồi kéo lại.`;
+      }
     }
 
     document.getElementById('checkBtn').onclick = () => {
       const set = sets[setIdx];
-      let correct = 0;
+      // re-render feedback on all placed
       set.items.forEach(it => {
-        if (placed[it.id] === it.bin) correct++;
+        if (placed[it.id]) placeItem(it.id, placed[it.id]);
       });
+      const correct = set.items.filter(it => placed[it.id] === it.bin).length;
       const total = set.items.length;
       const el = document.getElementById('result');
       if (correct === total) {
         el.className = 'result show ok';
-        el.innerHTML = `🎉 Tuyệt vời! Em phân loại đúng cả ${total} món — giống cách AI học phân loại!`;
-        // auto next set after short delay
+        el.innerHTML = `🎉 Tuyệt vời! Em phân loại đúng cả ${total} món!`;
         setTimeout(() => {
           setIdx = (setIdx + 1) % sets.length;
           render();
-        }, 1800);
+        }, 1600);
       } else {
         el.className = 'result show partial';
-        el.innerHTML = `Em đúng ${correct}/${total} món. Thử kéo lại các món còn sai nhé!`;
+        el.innerHTML = `Đúng ${correct}/${total}. Các món ❌ hãy bấm ✕ để xóa rồi xếp lại nhóm đúng.`;
       }
     };
 
     document.getElementById('resetBtn').onclick = render;
     render();
-  </script>
-
-  <script>
-    (function(){
-      try {
-        var g = localStorage.getItem('ai_grade') || '1';
-        var a = document.getElementById('backLink');
-        if (a) a.href = 'lam-quen-voi-ai.html#lop' + g;
-      } catch(e) {}
-    })();
+    try {
+      const g = localStorage.getItem('ai_grade') || '1';
+      document.getElementById('backLink').href = 'lam-quen-voi-ai.html#lop' + g;
+    } catch (e) {}
   </script>
 </body>
 </html>
