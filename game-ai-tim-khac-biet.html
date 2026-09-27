@@ -93,9 +93,9 @@
         drawB(ctx) { sky(ctx,'#e0f2fe'); ground(ctx,'#86efac'); sun(ctx); house(ctx,120,150); }
       },
       {
-        q: 'Ảnh nào trông thật hơn?',
+        q: 'Ảnh nào không đúng sự thật?',
         fake: 'B',
-        why: 'Ảnh B có chó với 2 cái đuôi. AI đôi khi vẽ thừa bộ phận. Ảnh A chỉ có 1 đuôi — đúng hơn.',
+        why: 'Ảnh B có chó với 2 cái đuôi (AI vẽ thừa). Ảnh A chỉ có 1 đuôi — đúng sự thật.',
         drawA(ctx) { sky(ctx,'#fde68a'); ground(ctx,'#a3e635'); dog(ctx,160,160,1); },
         drawB(ctx) { sky(ctx,'#fde68a'); ground(ctx,'#a3e635'); dog(ctx,160,160,2); }
       },
@@ -187,7 +187,9 @@
       if(done) return;
       done=true;
       const L=levels[i];
-      const ok = which===L.fake;
+      // correct target: explicit L.answer, else the fake image (câu hỏi kiểu "ảnh nào sai")
+      const target = L.answer || L.fake;
+      const ok = which===target;
       const boxA=document.getElementById('boxA'), boxB=document.getElementById('boxB');
       if(ok){
         score+=10;
@@ -197,7 +199,7 @@
         document.getElementById('fb').innerHTML='<i class="fas fa-check-circle"></i> '+L.why;
       } else {
         (which==='A'?boxA:boxB).classList.add('wrong');
-        (L.fake==='A'?boxA:boxB).classList.add('correct');
+        ((L.answer||L.fake)==='A'?boxA:boxB).classList.add('correct');
         document.getElementById('fb').className='fb show err';
         document.getElementById('fb').innerHTML='<i class="fas fa-info-circle"></i> '+L.why;
       }
