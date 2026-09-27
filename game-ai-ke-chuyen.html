@@ -33,6 +33,7 @@
     .btn:disabled { opacity:.5; cursor:not-allowed; }
     .btn-outline { background:#fff; border:2px solid var(--purple); color:var(--purple); }
   </style>
+  <script src="https://code.responsivevoice.org/responsivevoice.js"></script>
 </head>
 <body>
   <div class="topbar">
@@ -143,25 +144,14 @@
 
     let ttsAudio = null;
     let lastStory = '';
-    let voiceList = [];
-    let femaleFailed = false; // Google TTS nữ không dùng được (vd. GitHub Pages)
-
-    function loadVoices() {
-      if (!('speechSynthesis' in window)) return [];
-      voiceList = speechSynthesis.getVoices() || [];
-      return voiceList;
-    }
-    if ('speechSynthesis' in window) {
-      loadVoices();
-      speechSynthesis.onvoiceschanged = loadVoices;
-    }
+    let femaleFailed = false;
 
     function showVoiceWarn(msg) {
       let el = document.getElementById('voiceWarn');
       if (!el) {
         el = document.createElement('div');
         el.id = 'voiceWarn';
-        el.style.cssText = 'position:fixed;right:12px;bottom:12px;max-width:280px;z-index:9999;background:#fffbeb;border:2px solid #f59e0b;color:#92400e;padding:10px 12px;border-radius:12px;font-size:12px;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,.12);display:none';
+        el.style.cssText = 'position:fixed;right:12px;bottom:12px;max-width:300px;z-index:9999;background:#fffbeb;border:2px solid #f59e0b;color:#92400e;padding:10px 12px;border-radius:12px;font-size:12px;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,.12);display:none';
         document.body.appendChild(el);
       }
       if (!msg) { el.style.display = 'none'; el.innerHTML = ''; return; }
@@ -170,84 +160,96 @@
     }
 
     function stopSpeak() {
-      if (ttsAudio) { try { ttsAudio.pause(); ttsAudio.src = ''; } catch(e) {} ttsAudio = null; }
+      try {
+        if (typeof responsiveVoice !== 'undefined' && responsiveVoice.isPlaying()) responsiveVoice.cancel();
+      } catch (e) {}
+      if (ttsAudio) { try { ttsAudio.pause(); ttsAudio.src = ''; } catch (e) {} ttsAudio = null; }
       if ('speechSynthesis' in window) speechSynthesis.cancel();
     }
 
-    /** Giọng hệ thống — chỉ khi người dùng chủ động bấm nghe sau khi TTS nữ lỗi */
-    function speakSystemSlow(text) {
-      if (!('speechSynthesis' in window)) return;
-      speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(text);
-      u.lang = 'vi-VN';
-      u.rate = 0.75; // chậm
-      u.pitch = 1.0;
-      u.volume = 1;
-      const list = loadVoices();
-      const vi = list.find(v => /vi/i.test(v.lang));
-      if (vi) { u.voice = vi; u.lang = vi.lang; }
-      speechSynthesis.speak(u);
-      showVoiceWarn('⚠️ Lỗi giọng nữ online. Đang dùng <b>âm thanh hệ thống</b> (có thể là giọng nam), đọc chậm tạm thời.');
+    /** ResponsiveVoice — giọng nữ Việt, chạy được trên GitHub Pages (không cần giọng máy) */
+    function speakResponsive(text) {
+      return new Promise((resolve, reject) => {
+        if (typeof responsiveVoice === 'undefined' || !responsiveVoice.voiceSupport()) {
+          reject(new Error('no-rv'));
+          return;
+        }
+        try {
+          responsiveVoice.speak(text, 'Vietnamese Female', {
+            rate: 0.9,
+            pitch: 1,
+            volume: 1,
+            onend: resolve,
+            onerror: reject
+          });
+        } catch (e) { reject(e); }
+      });
+    }
+
+    /** Google TTS nữ (local / một số host vẫn được) */
+    function speakGoogleChunks(text) {
+      return new Promise((resolve, reject) => {
+        const parts = text.match(/[^.?!:;…]+[.?!:;…]*/g) || [text];
+        const chunks = [];
+        let buf = '';
+        parts.forEach(p => {
+          const s = p.trim();
+          if (!s) return;
+          if ((buf + ' ' + s).length <= 180) buf = (buf ? buf + ' ' : '') + s;
+          else { if (buf) chunks.push(buf); buf = s.slice(0, 180); }
+        });
+        if (buf) chunks.push(buf);
+        let i = 0;
+        let failed = false;
+        function fail() {
+          if (failed) return;
+          failed = true;
+          reject(new Error('google-fail'));
+        }
+        function next() {
+          if (failed) return;
+          if (i >= chunks.length) { resolve(); return; }
+          const chunk = chunks[i++].trim();
+          if (!chunk) { next(); return; }
+          const url = 'https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=vi&q=' + encodeURIComponent(chunk);
+          const a = new Audio(url);
+          a.volume = 1;
+          ttsAudio = a;
+          a.onended = next;
+          a.onerror = fail;
+          const timer = setTimeout(fail, 5000);
+          a.play().then(() => clearTimeout(timer)).catch(fail);
+        }
+        next();
+      });
     }
 
     /**
-     * Giọng nữ Google TTS (bản trước).
-     * - Thành công: đọc nữ, không cảnh báo
-     * - Thất bại (GitHub…): TẮT âm, hiện cảnh báo; chỉ đọc hệ thống khi bấm "Nghe lại"
+     * Ưu tiên: ResponsiveVoice (nữ, OK trên GitHub) → Google TTS nữ.
+     * Không dùng giọng hệ thống. Lỗi → tắt âm + cảnh báo.
      */
-    function speakFemaleVi(text, forceSystem) {
+    async function speakFemaleVi(text) {
       lastStory = (text || lastStory || '').trim();
       if (!lastStory) return;
       stopSpeak();
+      showVoiceWarn('');
 
-      if (forceSystem) {
-        speakSystemSlow(lastStory);
+      // 1) ResponsiveVoice Vietnamese Female (không cần giọng máy)
+      try {
+        await speakResponsive(lastStory);
+        femaleFailed = false;
         return;
-      }
+      } catch (e) {}
 
-      // Nếu đã biết nữ online lỗi → không tự phát, chỉ báo
-      if (femaleFailed) {
-        showVoiceWarn('⚠️ Không lấy được giọng nữ. Bấm <b>Nghe lại</b> nếu muốn dùng giọng hệ thống (chậm).');
+      // 2) Google TTS
+      try {
+        await speakGoogleChunks(lastStory);
+        femaleFailed = false;
         return;
-      }
+      } catch (e) {}
 
-      const parts = lastStory.match(/[^.?!:;…]+[.?!:;…]*/g) || [lastStory];
-      const chunks = [];
-      let buf = '';
-      parts.forEach(p => {
-        const s = p.trim();
-        if (!s) return;
-        if ((buf + ' ' + s).length <= 180) buf = (buf ? buf + ' ' : '') + s;
-        else { if (buf) chunks.push(buf); buf = s.slice(0, 180); }
-      });
-      if (buf) chunks.push(buf);
-
-      let i = 0;
-      let failed = false;
-      function failFemale() {
-        if (failed) return;
-        failed = true;
-        femaleFailed = true;
-        stopSpeak();
-        showVoiceWarn('⚠️ Lỗi âm thanh giọng nữ (thường gặp trên GitHub). Đã <b>tắt âm</b>. Bấm <b>Nghe lại</b> để dùng giọng hệ thống chậm.');
-      }
-      function playNext() {
-        if (failed || i >= chunks.length) {
-          if (!failed) showVoiceWarn(''); // clear on success end
-          return;
-        }
-        const chunk = chunks[i++].trim();
-        if (!chunk) { playNext(); return; }
-        const url = 'https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=vi&q=' + encodeURIComponent(chunk);
-        const a = new Audio(url);
-        a.volume = 1;
-        ttsAudio = a;
-        a.onended = playNext;
-        a.onerror = failFemale;
-        const timer = setTimeout(failFemale, 5000);
-        a.play().then(() => clearTimeout(timer)).catch(failFemale);
-      }
-      playNext();
+      femaleFailed = true;
+      showVoiceWarn('⚠️ Không phát được giọng nữ online. Đã <b>tắt âm thanh</b> (không dùng giọng hệ thống). Thử lại sau hoặc mở bằng mạng ổn định hơn.');
     }
 
     let sel = { char: null, place: null, event: null };
@@ -296,7 +298,7 @@
     renderOpts('events', events, 'event');
     const btnSpeak = document.getElementById('btnSpeak');
     const btnStop = document.getElementById('btnStop');
-    if (btnSpeak) btnSpeak.onclick = () => speakFemaleVi(lastStory || document.getElementById('story').textContent, femaleFailed);
+    if (btnSpeak) btnSpeak.onclick = () => speakFemaleVi(lastStory || document.getElementById('story').textContent);
     if (btnStop) btnStop.onclick = stopSpeak;
   </script>
 

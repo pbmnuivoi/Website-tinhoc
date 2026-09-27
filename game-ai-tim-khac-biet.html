@@ -93,13 +93,6 @@
         drawB(ctx) { sky(ctx,'#e0f2fe'); ground(ctx,'#86efac'); sun(ctx); house(ctx,120,150); }
       },
       {
-        q: 'Ảnh nào không đúng sự thật?',
-        fake: 'B',
-        why: 'Ảnh B có chó với 2 cái đuôi (AI vẽ thừa). Ảnh A chỉ có 1 đuôi — đúng sự thật.',
-        drawA(ctx) { sky(ctx,'#fde68a'); ground(ctx,'#a3e635'); dog(ctx,160,160,1); },
-        drawB(ctx) { sky(ctx,'#fde68a'); ground(ctx,'#a3e635'); dog(ctx,160,160,2); }
-      },
-      {
         q: 'Ảnh nào có điều không thể xảy ra?',
         fake: 'A',
         why: 'Ảnh A có ô tô đang lơ lửng trên mây. Xe không bay được như vậy trong đời thật!',
