@@ -57,7 +57,9 @@
 
       <div style="text-align:center">
         <button class="btn" id="genBtn" disabled><i class="fas fa-magic"></i> AI kể chuyện</button>
-        <button class="btn btn-outline" id="resetBtn"><i class="fas fa-redo"></i> Chọn lại</button>
+        <button class="btn btn-outline" id="btnSpeak" disabled style="background:#7c3aed;color:#fff;margin-left:6px"><i class="fas fa-volume-up"></i> Nghe lại (giọng nữ)</button>
+        <button class="btn" id="btnStop" disabled style="background:#64748b"><i class="fas fa-stop"></i> Dừng</button>
+        <button class="btn" id="resetBtn"><i class="fas fa-redo"></i> Chọn lại</button>
       </div>
 
       <div class="step-title" style="margin-top:20px"><i class="fas fa-scroll" style="color:var(--pink)"></i> Câu chuyện của em</div>
@@ -136,45 +138,87 @@
 
 
     let ttsAudio = null;
+    let lastStory = '';
+    let voiceList = [];
+
+    function loadVoices() {
+      if (!('speechSynthesis' in window)) return;
+      voiceList = speechSynthesis.getVoices() || [];
+    }
+    if ('speechSynthesis' in window) {
+      loadVoices();
+      speechSynthesis.onvoiceschanged = loadVoices;
+    }
+
+    function pickFemaleVi() {
+      loadVoices();
+      const vi = voiceList.filter(v => /vi/i.test(v.lang));
+      // Ưu tiên giọng nữ / Google / Microsoft HoaiMy / Linh
+      const preferNames = /female|nữ|hoaimy|hoai my|linh|my|google|natural|neural/i;
+      const avoidMale = /male|nam|minh|male/i;
+      return vi.find(v => preferNames.test(v.name) && !avoidMale.test(v.name))
+        || vi.find(v => !avoidMale.test(v.name))
+        || vi[0]
+        || null;
+    }
+
+    /** Giọng nữ êm tiếng Việt — Google TTS (nữ mặc định) rồi mới speechSynthesis */
     function speakFemaleVi(text) {
-      if (ttsAudio) { try { ttsAudio.pause(); } catch(e) {} ttsAudio = null; }
+      lastStory = text || lastStory;
+      if (!lastStory) return;
+      if (ttsAudio) { try { ttsAudio.pause(); ttsAudio.src = ''; } catch(e) {} ttsAudio = null; }
       if ('speechSynthesis' in window) speechSynthesis.cancel();
-      // Chia câu ngắn để Google TTS đọc giọng nữ êm
-      const parts = text.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [text];
+
+      // Cắt câu ngắn (Google TTS giới hạn ~200 ký tự)
+      const parts = lastStory.match(/[^.?!:;…]+[.?!:;…]*/g) || [lastStory];
+      const chunks = [];
+      let buf = '';
+      parts.forEach(p => {
+        const s = p.trim();
+        if (!s) return;
+        if ((buf + ' ' + s).length <= 180) buf = (buf ? buf + ' ' : '') + s;
+        else { if (buf) chunks.push(buf); buf = s.slice(0, 180); }
+      });
+      if (buf) chunks.push(buf);
+
       let i = 0;
+      let failed = false;
       function playNext() {
-        if (i >= parts.length) return;
-        const chunk = parts[i].trim();
-        i++;
+        if (failed || i >= chunks.length) return;
+        const chunk = chunks[i++].trim();
         if (!chunk) { playNext(); return; }
-        const url = 'https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=vi&q=' + encodeURIComponent(chunk.slice(0, 200));
+        // client=gtx + tl=vi → giọng nữ tiếng Việt của Google
+        const url = 'https://translate.google.com/translate_tts?ie=UTF-8&client=gtx&tl=vi&q=' + encodeURIComponent(chunk);
         const a = new Audio(url);
         a.volume = 1;
         ttsAudio = a;
         a.onended = playNext;
-        a.onerror = function() { speakLocalFemale(text); };
-        a.play().catch(function() { speakLocalFemale(text); });
+        a.onerror = function() {
+          if (!failed) { failed = true; speakLocalFemale(lastStory); }
+        };
+        a.play().catch(function() {
+          if (!failed) { failed = true; speakLocalFemale(lastStory); }
+        });
       }
       playNext();
     }
+
     function speakLocalFemale(text) {
       if (!('speechSynthesis' in window)) return;
       speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(text);
       u.lang = 'vi-VN';
-      u.rate = 0.88;
-      u.pitch = 1.25;
+      u.rate = 0.85;   // chậm êm
+      u.pitch = 1.35;  // cao hơn → nghe nữ
       u.volume = 1;
-      const voices = speechSynthesis.getVoices();
-      const prefer = voices.find(v => /vi/i.test(v.lang) && /female|nữ|linh|my|hoai|google/i.test(v.name))
-        || voices.find(v => /vi/i.test(v.lang) && !/male|nam/i.test(v.name))
-        || voices.find(v => /vi/i.test(v.lang));
-      if (prefer) u.voice = prefer;
+      const v = pickFemaleVi();
+      if (v) u.voice = v;
       speechSynthesis.speak(u);
     }
-    if ('speechSynthesis' in window) {
-      speechSynthesis.getVoices();
-      speechSynthesis.onvoiceschanged = function() { speechSynthesis.getVoices(); };
+
+    function stopSpeak() {
+      if (ttsAudio) { try { ttsAudio.pause(); ttsAudio.src = ''; } catch(e) {} ttsAudio = null; }
+      if ('speechSynthesis' in window) speechSynthesis.cancel();
     }
 
     let sel = { char: null, place: null, event: null };
@@ -201,12 +245,17 @@
     document.getElementById('genBtn').onclick = () => {
       const story = buildStory(sel.char, sel.place, sel.event);
       document.getElementById('story').textContent = story;
-      // Optional TTS
-      // Giọng nữ êm: ưu tiên Google TTS tiếng Việt, dự phòng speechSynthesis
+      lastStory = story;
+      const bs = document.getElementById('btnSpeak');
+      const bp = document.getElementById('btnStop');
+      if (bs) bs.disabled = false;
+      if (bp) bp.disabled = false;
+      // Giọng nữ êm tiếng Việt
       speakFemaleVi(story);
     };
 
     document.getElementById('resetBtn').onclick = () => {
+      if (typeof stopSpeak === 'function') stopSpeak();
       sel = { char: null, place: null, event: null };
       document.querySelectorAll('.opt').forEach(o => o.classList.remove('selected'));
       document.getElementById('story').innerHTML = '<em>Chọn đủ 3 phần rồi bấm “AI kể chuyện”…</em>';
@@ -216,6 +265,10 @@
     renderOpts('chars', chars, 'char');
     renderOpts('places', places, 'place');
     renderOpts('events', events, 'event');
+    const btnSpeak = document.getElementById('btnSpeak');
+    const btnStop = document.getElementById('btnStop');
+    if (btnSpeak) btnSpeak.onclick = () => speakFemaleVi(lastStory || document.getElementById('story').textContent);
+    if (btnStop) btnStop.onclick = stopSpeak;
   </script>
 
   <script>
