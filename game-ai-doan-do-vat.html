@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Đoán Đồ Vật | Làm quen với AI</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --blue: #0b5fff; --green: #00a86b; --orange: #ff7a00; --purple: #7c3aed;
+      --bg: #f0f4ff; --card: #fff; --text: #0f172a; --muted: #64748b;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+      background: linear-gradient(160deg, #e0e7ff 0%, #fce7f3 50%, #ecfdf5 100%);
+      min-height: 100vh; color: var(--text);
+    }
+    .topbar {
+      background: #fff; box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      padding: 12px 20px; display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 50;
+    }
+    .topbar a { color: var(--blue); font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; font-size: 14px; }
+    .topbar h1 { font-size: 17px; font-weight: 800; color: var(--purple); }
+    .wrap { max-width: 900px; margin: 0 auto; padding: 20px 16px 48px; }
+
+    .hero-card {
+      background: linear-gradient(135deg, #7c3aed, #e11d8b);
+      color: #fff; border-radius: 20px; padding: 24px; margin-bottom: 20px; text-align: center;
+    }
+    .hero-card h2 { font-size: 22px; margin-bottom: 6px; }
+    .hero-card p { opacity: 0.9; font-size: 14px; }
+
+    .card {
+      background: var(--card); border-radius: 18px; box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+      padding: 20px; margin-bottom: 16px;
+    }
+    .card h3 { font-size: 16px; font-weight: 800; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+
+    .video-box {
+      position: relative; width: 100%; max-width: 640px; margin: 0 auto;
+      border-radius: 16px; overflow: hidden; background: #0f172a;
+      aspect-ratio: 4/3;
+    }
+    #webcam, #canvas {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+    }
+    #canvas { position: absolute; left: 0; top: 0; pointer-events: none; }
+
+    .controls {
+      display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 16px;
+    }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 22px; border-radius: 999px; font-weight: 700; font-size: 14px;
+      border: 0; cursor: pointer; transition: 0.2s; font-family: inherit;
+    }
+    .btn-primary { background: var(--blue); color: #fff; }
+    .btn-primary:hover { background: #0842b3; transform: translateY(-1px); }
+    .btn-success { background: var(--green); color: #fff; }
+    .btn-success:hover { filter: brightness(1.1); }
+    .btn-outline { background: #fff; border: 2px solid var(--blue); color: var(--blue); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .status {
+      text-align: center; padding: 12px; border-radius: 12px; font-weight: 600; font-size: 14px;
+      margin-top: 12px; background: #f1f5f9; color: var(--muted);
+    }
+    .status.loading { background: #e0e7ff; color: #4338ca; }
+    .status.ready { background: #ecfdf5; color: #065f46; }
+    .status.error { background: #fef2f2; color: #991b1b; }
+
+    .results {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin-top: 14px;
+    }
+    .result-item {
+      background: linear-gradient(135deg, #f0f4ff, #fdf2f8);
+      border-radius: 12px; padding: 12px; text-align: center; border: 2px solid transparent;
+      transition: 0.2s;
+    }
+    .result-item.highlight { border-color: var(--green); background: #ecfdf5; }
+    .result-item .emoji { font-size: 28px; }
+    .result-item .label { font-weight: 700; font-size: 13px; margin-top: 4px; text-transform: capitalize; }
+    .result-item .score { font-size: 11px; color: var(--muted); }
+
+    .tips {
+      background: #fffbeb; border: 1px solid #fde68a; border-radius: 12px; padding: 14px; font-size: 13px;
+    }
+    .tips strong { color: #92400e; }
+    .tips ul { margin: 8px 0 0 18px; color: #78350f; }
+    .tips li { margin-bottom: 4px; }
+
+    .mode-tabs { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+    .mode-tab {
+      padding: 8px 16px; border-radius: 999px; border: 2px solid #e2e8f0;
+      background: #f8fafc; font-weight: 700; font-size: 13px; cursor: pointer;
+    }
+    .mode-tab.active { background: var(--purple); color: #fff; border-color: var(--purple); }
+
+    .upload-zone {
+      border: 2px dashed #cbd5e1; border-radius: 16px; padding: 32px; text-align: center;
+      cursor: pointer; transition: 0.2s; background: #f8fafc;
+    }
+    .upload-zone:hover, .upload-zone.drag { border-color: var(--blue); background: #eef4ff; }
+    .upload-zone i { font-size: 36px; color: var(--blue); margin-bottom: 8px; }
+    #fileInput { display: none; }
+    #previewImg { max-width: 100%; max-height: 360px; border-radius: 12px; display: none; margin: 0 auto; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <a href="lam-quen-voi-ai.html" id="backLink"><i class="fas fa-arrow-left"></i> Làm quen với AI</a>
+    <h1><i class="fas fa-eye"></i> AI Đoán Đồ Vật</h1>
+    <span style="width:100px"></span>
+  </div>
+
+  <div class="wrap">
+    <div class="hero-card">
+      <h2>🤖 AI nhìn thấy gì?</h2>
+      <p>Dùng camera hoặc ảnh — mô hình máy học (COCO-SSD) sẽ nhận diện đồ vật giúp em!</p>
+    </div>
+
+    <div class="card">
+      <div class="mode-tabs">
+        <button class="mode-tab active" data-mode="camera"><i class="fas fa-video"></i> Camera</button>
+        <button class="mode-tab" data-mode="upload"><i class="fas fa-image"></i> Tải ảnh lên</button>
+      </div>
+
+      <!-- Camera mode -->
+      <div id="mode-camera">
+        <div class="video-box">
+          <video id="webcam" autoplay playsinline muted></video>
+          <canvas id="canvas"></canvas>
+        </div>
+        <div class="controls">
+          <button class="btn btn-primary" id="btnStart"><i class="fas fa-play"></i> Bật camera</button>
+          <button class="btn btn-success" id="btnDetect" disabled><i class="fas fa-search"></i> AI đoán ngay</button>
+          <button class="btn btn-outline" id="btnStop" disabled><i class="fas fa-stop"></i> Tắt</button>
+        </div>
+      </div>
+
+      <!-- Upload mode -->
+      <div id="mode-upload" style="display:none">
+        <div class="upload-zone" id="dropZone">
+          <i class="fas fa-cloud-upload-alt"></i>
+          <p style="font-weight:700;margin-bottom:4px">Kéo thả ảnh hoặc bấm để chọn</p>
+          <p style="font-size:12px;color:var(--muted)">JPG, PNG · Ảnh rõ nét, đồ vật rõ ràng</p>
+          <input type="file" id="fileInput" accept="image/*">
+        </div>
+        <div style="text-align:center;margin-top:12px;position:relative">
+          <img id="previewImg" alt="Preview">
+          <canvas id="canvasUpload" style="position:absolute;left:0;top:0;max-width:100%;pointer-events:none"></canvas>
+        </div>
+        <div class="controls">
+          <button class="btn btn-success" id="btnDetectUpload" disabled><i class="fas fa-search"></i> AI đoán ảnh này</button>
+        </div>
+      </div>
+
+      <div class="status" id="status">Đang tải mô hình máy học… vui lòng chờ</div>
+      <div class="results" id="results"></div>
+    </div>
+
+    <div class="card tips">
+      <strong><i class="fas fa-lightbulb"></i> Mẹo cho học sinh & giáo viên</strong>
+      <ul>
+        <li>Đưa đồ vật quen thuộc vào khung hình: bàn, ghế, điện thoại, sách, chai nước, người, chó, mèo…</li>
+        <li>Ánh sáng đủ, đồ vật lớn và rõ ràng → AI đoán chính xác hơn.</li>
+        <li>AI có thể sai! Đây chính là bài học “AI không phải lúc nào cũng đúng”.</li>
+        <li>Mô hình: <strong>COCO-SSD</strong> (TensorFlow.js) — nhận diện ~80 loại đồ vật phổ biến.</li>
+      </ul>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.17.0/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.3/dist/coco-ssd.min.js"></script>
+  <script>
+    const statusEl = document.getElementById('status');
+    const resultsEl = document.getElementById('results');
+    const video = document.getElementById('webcam');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    let model = null;
+    let stream = null;
+    let detecting = false;
+
+    // Vietnamese labels for common COCO classes
+    const viLabels = {
+      person: 'Người', bicycle: 'Xe đạp', car: 'Ô tô', motorcycle: 'Xe máy', airplane: 'Máy bay',
+      bus: 'Xe buýt', train: 'Tàu hỏa', truck: 'Xe tải', boat: 'Thuyền',
+      'traffic light': 'Đèn giao thông', 'fire hydrant': 'Trụ cứu hỏa', 'stop sign': 'Biển stop',
+      'parking meter': 'Đồng hồ đỗ xe', bench: 'Ghế dài', bird: 'Chim', cat: 'Mèo', dog: 'Chó',
+      horse: 'Ngựa', sheep: 'Cừu', cow: 'Bò', elephant: 'Voi', bear: 'Gấu', zebra: 'Ngựa vằn',
+      giraffe: 'Hươu cao cổ', backpack: 'Ba lô', umbrella: 'Ô / dù', handbag: 'Túi xách',
+      tie: 'Cà vạt', suitcase: 'Vali', frisbee: 'Đĩa bay', skis: 'Ván trượt tuyết',
+      snowboard: 'Ván trượt tuyết', 'sports ball': 'Bóng', kite: 'Diều', 'baseball bat': 'Gậy bóng chày',
+      'baseball glove': 'Găng bóng chày', skateboard: 'Ván trượt', surfboard: 'Ván lướt sóng',
+      'tennis racket': 'Vợt tennis', bottle: 'Chai', 'wine glass': 'Ly rượu', cup: 'Cốc',
+      fork: 'Nĩa', knife: 'Dao', spoon: 'Thìa', bowl: 'Bát', banana: 'Chuối', apple: 'Táo',
+      sandwich: 'Bánh sandwich', orange: 'Cam', broccoli: 'Bông cải xanh', carrot: 'Cà rốt',
+      'hot dog': 'Xúc xích', pizza: 'Pizza', donut: 'Bánh donut', cake: 'Bánh ngọt',
+      chair: 'Ghế', couch: 'Ghế sofa', 'potted plant': 'Cây cảnh', bed: 'Giường',
+      'dining table': 'Bàn ăn', toilet: 'Bồn cầu', tv: 'TV', laptop: 'Máy tính xách tay',
+      mouse: 'Chuột máy tính', remote: 'Điều khiển', keyboard: 'Bàn phím', 'cell phone': 'Điện thoại',
+      microwave: 'Lò vi sóng', oven: 'Lò nướng', toaster: 'Máy nướng bánh', sink: 'Bồn rửa',
+      refrigerator: 'Tủ lạnh', book: 'Sách', clock: 'Đồng hồ', vase: 'Bình hoa',
+      scissors: 'Kéo', 'teddy bear': 'Gấu bông', 'hair drier': 'Máy sấy tóc', toothbrush: 'Bàn chải đánh răng'
+    };
+
+    const emojiMap = {
+      person: '👤', cat: '🐱', dog: '🐶', bird: '🐦', horse: '🐴', sheep: '🐑', cow: '🐄',
+      elephant: '🐘', bear: '🐻', zebra: '🦓', giraffe: '🦒', bicycle: '🚲', car: '🚗',
+      motorcycle: '🏍️', bus: '🚌', truck: '🚚', airplane: '✈️', boat: '⛵',
+      bottle: '🍾', cup: '☕', banana: '🍌', apple: '🍎', orange: '🍊', pizza: '🍕',
+      cake: '🎂', chair: '🪑', couch: '🛋️', bed: '🛏️', 'dining table': '🪑',
+      tv: '📺', laptop: '💻', 'cell phone': '📱', book: '📚', clock: '🕐',
+      backpack: '🎒', umbrella: '☂️', 'teddy bear': '🧸', keyboard: '⌨️', mouse: '🖱️'
+    };
+
+    async function loadModel() {
+      try {
+        statusEl.className = 'status loading';
+        statusEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang tải mô hình COCO-SSD…';
+        model = await cocoSsd.load({ base: 'lite_mobilenet_v2' });
+        statusEl.className = 'status ready';
+        statusEl.innerHTML = '<i class="fas fa-check-circle"></i> Mô hình sẵn sàng! Bật camera hoặc tải ảnh lên.';
+        document.getElementById('btnStart').disabled = false;
+      } catch (e) {
+        statusEl.className = 'status error';
+        statusEl.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Lỗi tải mô hình. Kiểm tra kết nối mạng.';
+        console.error(e);
+      }
+    }
+
+    async function startCamera() {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'environment', width: { ideal: 640 }, height: { ideal: 480 } },
+          audio: false
+        });
+        video.srcObject = stream;
+        await video.play();
+        canvas.width = video.videoWidth || 640;
+        canvas.height = video.videoHeight || 480;
+        document.getElementById('btnDetect').disabled = false;
+        document.getElementById('btnStop').disabled = false;
+        document.getElementById('btnStart').disabled = true;
+        statusEl.className = 'status ready';
+        statusEl.innerHTML = '<i class="fas fa-video"></i> Camera đang bật — đưa đồ vật vào khung hình rồi bấm “AI đoán ngay”';
+      } catch (e) {
+        statusEl.className = 'status error';
+        statusEl.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Không mở được camera. Cho phép quyền camera hoặc dùng chế độ tải ảnh.';
+      }
+    }
+
+    function stopCamera() {
+      if (stream) {
+        stream.getTracks().forEach(t => t.stop());
+        stream = null;
+      }
+      video.srcObject = null;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      document.getElementById('btnDetect').disabled = true;
+      document.getElementById('btnStop').disabled = true;
+      document.getElementById('btnStart').disabled = false;
+      statusEl.className = 'status';
+      statusEl.textContent = 'Camera đã tắt.';
+    }
+
+    async function detectFromVideo() {
+      if (!model || !stream || detecting) return;
+      detecting = true;
+      statusEl.className = 'status loading';
+      statusEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> AI đang quan sát…';
+      try {
+        const predictions = await model.detect(video);
+        drawPredictions(predictions, canvas, video.videoWidth, video.videoHeight);
+        showResults(predictions);
+        statusEl.className = 'status ready';
+        statusEl.innerHTML = predictions.length
+          ? `<i class="fas fa-check-circle"></i> AI tìm thấy ${predictions.length} đối tượng!`
+          : '<i class="fas fa-info-circle"></i> AI chưa nhận ra đồ vật nào. Thử đưa gần hơn hoặc đổi góc.';
+      } catch (e) {
+        statusEl.className = 'status error';
+        statusEl.textContent = 'Lỗi khi đoán. Thử lại.';
+        console.error(e);
+      }
+      detecting = false;
+    }
+
+    function drawPredictions(predictions, cnv, w, h) {
+      cnv.width = w;
+      cnv.height = h;
+      const c = cnv.getContext('2d');
+      c.clearRect(0, 0, w, h);
+      predictions.forEach(p => {
+        if (p.score < 0.4) return;
+        const [x, y, width, height] = p.bbox;
+        c.strokeStyle = '#00a86b';
+        c.lineWidth = 3;
+        c.strokeRect(x, y, width, height);
+        c.fillStyle = 'rgba(0,168,107,0.85)';
+        const label = (viLabels[p.class] || p.class) + ' ' + Math.round(p.score * 100) + '%';
+        c.font = 'bold 14px Be Vietnam Pro, sans-serif';
+        const tw = c.measureText(label).width;
+        c.fillRect(x, y - 22, tw + 10, 22);
+        c.fillStyle = '#fff';
+        c.fillText(label, x + 5, y - 6);
+      });
+    }
+
+    function showResults(predictions) {
+      const filtered = predictions.filter(p => p.score >= 0.35).slice(0, 8);
+      if (!filtered.length) {
+        resultsEl.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--muted);font-size:14px">Chưa có kết quả rõ ràng.</p>';
+        return;
+      }
+      resultsEl.innerHTML = filtered.map((p, i) => {
+        const name = viLabels[p.class] || p.class;
+        const em = emojiMap[p.class] || '📦';
+        return `<div class="result-item ${i === 0 ? 'highlight' : ''}">
+          <div class="emoji">${em}</div>
+          <div class="label">${name}</div>
+          <div class="score">${Math.round(p.score * 100)}% chắc chắn</div>
+        </div>`;
+      }).join('');
+    }
+
+    // Upload mode
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const previewImg = document.getElementById('previewImg');
+    const canvasUpload = document.getElementById('canvasUpload');
+    let uploadImg = null;
+
+    dropZone.addEventListener('click', () => fileInput.click());
+    dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag'));
+    dropZone.addEventListener('drop', e => {
+      e.preventDefault();
+      dropZone.classList.remove('drag');
+      if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+    });
+    fileInput.addEventListener('change', () => { if (fileInput.files[0]) handleFile(fileInput.files[0]); });
+
+    function handleFile(file) {
+      if (!file.type.startsWith('image/')) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        previewImg.src = ev.target.result;
+        previewImg.style.display = 'block';
+        previewImg.onload = () => {
+          uploadImg = previewImg;
+          document.getElementById('btnDetectUpload').disabled = false;
+          statusEl.className = 'status ready';
+          statusEl.innerHTML = '<i class="fas fa-image"></i> Ảnh đã sẵn sàng — bấm “AI đoán ảnh này”';
+        };
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function detectFromImage() {
+      if (!model || !uploadImg || detecting) return;
+      detecting = true;
+      statusEl.className = 'status loading';
+      statusEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> AI đang phân tích ảnh…';
+      try {
+        const predictions = await model.detect(uploadImg);
+        const w = uploadImg.naturalWidth;
+        const h = uploadImg.naturalHeight;
+        canvasUpload.width = w;
+        canvasUpload.height = h;
+        canvasUpload.style.width = previewImg.clientWidth + 'px';
+        canvasUpload.style.height = previewImg.clientHeight + 'px';
+        drawPredictions(predictions, canvasUpload, w, h);
+        showResults(predictions);
+        statusEl.className = 'status ready';
+        statusEl.innerHTML = predictions.length
+          ? `<i class="fas fa-check-circle"></i> AI tìm thấy ${predictions.length} đối tượng!`
+          : '<i class="fas fa-info-circle"></i> AI chưa nhận ra đồ vật rõ ràng trong ảnh này.';
+      } catch (e) {
+        statusEl.className = 'status error';
+        statusEl.textContent = 'Lỗi khi đoán ảnh.';
+        console.error(e);
+      }
+      detecting = false;
+    }
+
+    // Mode switch
+    document.querySelectorAll('.mode-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        const mode = tab.dataset.mode;
+        document.getElementById('mode-camera').style.display = mode === 'camera' ? 'block' : 'none';
+        document.getElementById('mode-upload').style.display = mode === 'upload' ? 'block' : 'none';
+        if (mode === 'upload') stopCamera();
+      });
+    });
+
+    document.getElementById('btnStart').addEventListener('click', startCamera);
+    document.getElementById('btnStop').addEventListener('click', stopCamera);
+    document.getElementById('btnDetect').addEventListener('click', detectFromVideo);
+    document.getElementById('btnDetectUpload').addEventListener('click', detectFromImage);
+
+    loadModel();
+  </script>
+
+  <script>
+    (function(){
+      try {
+        var g = localStorage.getItem('ai_grade') || '1';
+        var a = document.getElementById('backLink');
+        if (a) a.href = 'lam-quen-voi-ai.html#lop' + g;
+      } catch(e) {}
+    })();
+  </script>
+</body>
+</html>

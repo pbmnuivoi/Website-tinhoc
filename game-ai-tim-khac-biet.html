@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tìm điểm khác biệt | Làm quen với AI</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --blue:#0b5fff; --green:#00a86b; --red:#ef4444; --orange:#f59e0b; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Be Vietnam Pro',system-ui,sans-serif; background:linear-gradient(160deg,#e0e7ff,#fef3c7,#fce7f3); min-height:100vh; color:#0f172a; }
+    .topbar { background:#fff; box-shadow:0 2px 12px rgba(0,0,0,.06); padding:12px 20px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:50; }
+    .topbar a { color:var(--blue); font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:6px; font-size:14px; }
+    .topbar h1 { font-size:16px; font-weight:800; color:var(--orange); }
+    .wrap { max-width:800px; margin:0 auto; padding:20px 16px 48px; }
+    .hero { background:linear-gradient(135deg,#f59e0b,#ef4444); color:#fff; border-radius:20px; padding:20px; text-align:center; margin-bottom:16px; }
+    .card { background:#fff; border-radius:18px; box-shadow:0 4px 24px rgba(0,0,0,.08); padding:18px; margin-bottom:14px; }
+    .pair { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px; }
+    @media(max-width:560px){ .pair { grid-template-columns:1fr; } }
+    .img-box { border-radius:14px; overflow:hidden; border:3px solid #e2e8f0; text-align:center; background:#f8fafc; position:relative; }
+    .img-box.picked { border-color:var(--blue); box-shadow:0 0 0 3px rgba(11,95,255,.2); }
+    .img-box.correct { border-color:var(--green); }
+    .img-box.wrong { border-color:var(--red); }
+    .img-box canvas { width:100%; display:block; cursor:pointer; }
+    .img-box .tag { position:absolute; top:8px; left:8px; background:rgba(0,0,0,.6); color:#fff; font-size:11px; font-weight:700; padding:4px 10px; border-radius:999px; }
+    .q { font-weight:800; font-size:15px; text-align:center; margin-bottom:12px; }
+    .fb { margin-top:12px; padding:12px; border-radius:12px; font-size:13px; font-weight:600; display:none; text-align:center; }
+    .fb.show { display:block; }
+    .fb.ok { background:#ecfdf5; color:#065f46; }
+    .fb.err { background:#fef2f2; color:#991b1b; }
+    .btn { display:inline-flex; align-items:center; gap:8px; padding:12px 22px; border-radius:999px; font-weight:700; font-size:14px; border:0; cursor:pointer; background:var(--blue); color:#fff; margin-top:10px; font-family:inherit; }
+    .score { display:flex; justify-content:space-between; font-weight:700; font-size:14px; margin-bottom:12px; background:#f8fafc; padding:10px 14px; border-radius:10px; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <a href="lam-quen-voi-ai.html" id="backLink"><i class="fas fa-arrow-left"></i> Quay lại</a>
+    <h1><i class="fas fa-search"></i> Tìm điểm khác biệt</h1>
+    <span style="width:80px"></span>
+  </div>
+  <div class="wrap">
+    <div class="hero">
+      <h2>🔍 Ảnh nào không đúng sự thật?</h2>
+      <p>So sánh 2 ảnh — tìm ảnh AI tạo ra hoặc ảnh có chi tiết sai.</p>
+    </div>
+    <div class="card">
+      <div class="score">
+        <span>Câu <strong id="num">1</strong>/<span id="total">6</span></span>
+        <span>Điểm: <strong id="score" style="color:var(--green)">0</strong></span>
+      </div>
+      <p class="q" id="question">Ảnh nào có điều kỳ lạ, không đúng với đời thật?</p>
+      <div class="pair">
+        <div class="img-box" id="boxA"><span class="tag">Ảnh A</span><canvas id="cA" width="320" height="240"></canvas></div>
+        <div class="img-box" id="boxB"><span class="tag">Ảnh B</span><canvas id="cB" width="320" height="240"></canvas></div>
+      </div>
+      <div class="fb" id="fb"></div>
+      <div style="text-align:center">
+        <button class="btn" id="next" style="display:none">Câu tiếp <i class="fas fa-arrow-right"></i></button>
+        <button class="btn" id="restart" style="display:none;background:#7c3aed"><i class="fas fa-redo"></i> Chơi lại</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Each item: draw normal vs weird (fake/AI-like mistake)
+    const levels = [
+      {
+        q: 'Ảnh nào có điều kỳ lạ, không đúng với đời thật?',
+        fake: 'B',
+        why: 'Ảnh B có cá đang bay trên trời — điều không xảy ra trong đời thật. AI đôi khi vẽ ra những thứ kỳ lạ!',
+        drawA(ctx) { sky(ctx,'#7dd3fc'); ground(ctx,'#22c55e'); fish(ctx,160,180,false); sun(ctx); },
+        drawB(ctx) { sky(ctx,'#7dd3fc'); ground(ctx,'#22c55e'); fish(ctx,160,80,true); sun(ctx); }
+      },
+      {
+        q: 'Ảnh nào trông như do AI tạo ra (có chi tiết sai)?',
+        fake: 'A',
+        why: 'Ảnh A có người với 3 tay — AI đôi khi vẽ sai số tay chân. Ảnh B bình thường hơn.',
+        drawA(ctx) { sky(ctx,'#bae6fd'); ground(ctx,'#86efac'); person(ctx,160,130,3); },
+        drawB(ctx) { sky(ctx,'#bae6fd'); ground(ctx,'#86efac'); person(ctx,160,130,2); }
+      },
+      {
+        q: 'Ảnh nào không đúng sự thật?',
+        fake: 'B',
+        why: 'Ảnh B có cây mọc ngược (lá dưới đất, gốc trên trời). Trong đời thật cây không mọc như vậy.',
+        drawA(ctx) { sky(ctx,'#a5f3fc'); ground(ctx,'#4ade80'); tree(ctx,160,200,false); sun(ctx); },
+        drawB(ctx) { sky(ctx,'#a5f3fc'); ground(ctx,'#4ade80'); tree(ctx,160,200,true); sun(ctx); }
+      },
+      {
+        q: 'Ảnh nào có chi tiết do AI “bịa” ra?',
+        fake: 'A',
+        why: 'Ảnh A có mặt trời màu xanh lá — mặt trời thật có màu vàng/cam. Ảnh B đúng hơn.',
+        drawA(ctx) { sky(ctx,'#e0f2fe'); ground(ctx,'#86efac'); ctx.fillStyle='#22c55e'; ctx.beginPath(); ctx.arc(260,60,35,0,Math.PI*2); ctx.fill(); house(ctx,120,150); },
+        drawB(ctx) { sky(ctx,'#e0f2fe'); ground(ctx,'#86efac'); sun(ctx); house(ctx,120,150); }
+      },
+      {
+        q: 'Ảnh nào trông thật hơn?',
+        fake: 'B',
+        why: 'Ảnh B có chó với 2 cái đuôi. AI đôi khi vẽ thừa bộ phận. Ảnh A chỉ có 1 đuôi — đúng hơn.',
+        drawA(ctx) { sky(ctx,'#fde68a'); ground(ctx,'#a3e635'); dog(ctx,160,160,1); },
+        drawB(ctx) { sky(ctx,'#fde68a'); ground(ctx,'#a3e635'); dog(ctx,160,160,2); }
+      },
+      {
+        q: 'Ảnh nào có điều không thể xảy ra?',
+        fake: 'A',
+        why: 'Ảnh A có ô tô đang lơ lửng trên mây. Xe không bay được như vậy trong đời thật!',
+        drawA(ctx) { sky(ctx,'#93c5fd'); ground(ctx,'#78716c'); car(ctx,160,70); },
+        drawB(ctx) { sky(ctx,'#93c5fd'); ground(ctx,'#78716c'); car(ctx,160,180); }
+      }
+    ];
+
+    function sky(ctx,c){ ctx.fillStyle=c; ctx.fillRect(0,0,320,240); }
+    function ground(ctx,c){ ctx.fillStyle=c; ctx.fillRect(0,170,320,70); }
+    function sun(ctx){ ctx.fillStyle='#fde047'; ctx.beginPath(); ctx.arc(270,50,28,0,Math.PI*2); ctx.fill(); }
+    function fish(ctx,x,y,flying){
+      ctx.fillStyle='#38bdf8';
+      ctx.beginPath(); ctx.ellipse(x,y,30,16,0,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(x-30,y); ctx.lineTo(x-48,y-12); ctx.lineTo(x-48,y+12); ctx.fill();
+      ctx.fillStyle='#0f172a'; ctx.beginPath(); ctx.arc(x+18,y-4,4,0,Math.PI*2); ctx.fill();
+      if(flying){ ctx.strokeStyle='#94a3b8'; ctx.setLineDash([4,4]); ctx.beginPath(); ctx.moveTo(x,y+20); ctx.lineTo(x,y+50); ctx.stroke(); ctx.setLineDash([]); }
+    }
+    function person(ctx,x,y,arms){
+      ctx.fillStyle='#fbbf24'; ctx.beginPath(); ctx.arc(x,y,20,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#3b82f6'; ctx.fillRect(x-15,y+20,30,45);
+      ctx.strokeStyle='#1e40af'; ctx.lineWidth=6; ctx.lineCap='round';
+      ctx.beginPath(); ctx.moveTo(x-15,y+30); ctx.lineTo(x-35,y+55); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x+15,y+30); ctx.lineTo(x+35,y+55); ctx.stroke();
+      if(arms>=3){ ctx.beginPath(); ctx.moveTo(x,y+30); ctx.lineTo(x+10,y+60); ctx.stroke(); }
+      ctx.beginPath(); ctx.moveTo(x-8,y+65); ctx.lineTo(x-8,y+95); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x+8,y+65); ctx.lineTo(x+8,y+95); ctx.stroke();
+    }
+    function tree(ctx,x,y,upside){
+      if(!upside){
+        ctx.fillStyle='#854d0e'; ctx.fillRect(x-8,y-40,16,50);
+        ctx.fillStyle='#16a34a'; ctx.beginPath(); ctx.arc(x,y-55,35,0,Math.PI*2); ctx.fill();
+      } else {
+        ctx.fillStyle='#16a34a'; ctx.beginPath(); ctx.arc(x,y+10,35,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='#854d0e'; ctx.fillRect(x-8,y-50,16,50);
+      }
+    }
+    function house(ctx,x,y){
+      ctx.fillStyle='#f97316'; ctx.fillRect(x,y,80,60);
+      ctx.fillStyle='#b91c1c'; ctx.beginPath(); ctx.moveTo(x-10,y); ctx.lineTo(x+40,y-35); ctx.lineTo(x+90,y); ctx.fill();
+      ctx.fillStyle='#38bdf8'; ctx.fillRect(x+30,y+20,20,25);
+    }
+    function dog(ctx,x,y,tails){
+      ctx.fillStyle='#d97706';
+      ctx.beginPath(); ctx.ellipse(x,y,40,25,0,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(x+35,y-15,20,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#0f172a'; ctx.beginPath(); ctx.arc(x+42,y-18,4,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle='#d97706'; ctx.lineWidth=8; ctx.lineCap='round';
+      ctx.beginPath(); ctx.moveTo(x-35,y); ctx.quadraticCurveTo(x-55,y-20,x-50,y-35); ctx.stroke();
+      if(tails>=2){ ctx.beginPath(); ctx.moveTo(x-35,y+5); ctx.quadraticCurveTo(x-60,y+15,x-55,y+30); ctx.stroke(); }
+    }
+    function car(ctx,x,y){
+      ctx.fillStyle='#ef4444';
+      ctx.fillRect(x-40,y,80,30);
+      ctx.fillRect(x-20,y-20,50,20);
+      ctx.fillStyle='#0f172a';
+      ctx.beginPath(); ctx.arc(x-25,y+30,12,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(x+25,y+30,12,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#7dd3fc'; ctx.fillRect(x-10,y-15,30,12);
+    }
+
+    let i=0, score=0, done=false;
+    const total = levels.length;
+
+    function load(){
+      done=false;
+      document.getElementById('num').textContent=i+1;
+      document.getElementById('total').textContent=total;
+      document.getElementById('question').textContent=levels[i].q;
+      document.getElementById('fb').className='fb';
+      document.getElementById('next').style.display='none';
+      ['boxA','boxB'].forEach(id=>{
+        const el=document.getElementById(id);
+        el.className='img-box';
+      });
+      const L=levels[i];
+      const cA=document.getElementById('cA'), cB=document.getElementById('cB');
+      cA.getContext('2d').clearRect(0,0,320,240);
+      cB.getContext('2d').clearRect(0,0,320,240);
+      L.drawA(cA.getContext('2d'));
+      L.drawB(cB.getContext('2d'));
+    }
+
+    function pick(which){
+      if(done) return;
+      done=true;
+      const L=levels[i];
+      const ok = which===L.fake;
+      const boxA=document.getElementById('boxA'), boxB=document.getElementById('boxB');
+      if(ok){
+        score+=10;
+        document.getElementById('score').textContent=score;
+        (which==='A'?boxA:boxB).classList.add('correct');
+        document.getElementById('fb').className='fb show ok';
+        document.getElementById('fb').innerHTML='<i class="fas fa-check-circle"></i> '+L.why;
+      } else {
+        (which==='A'?boxA:boxB).classList.add('wrong');
+        (L.fake==='A'?boxA:boxB).classList.add('correct');
+        document.getElementById('fb').className='fb show err';
+        document.getElementById('fb').innerHTML='<i class="fas fa-info-circle"></i> '+L.why;
+      }
+      if(i<total-1) document.getElementById('next').style.display='inline-flex';
+      else {
+        document.getElementById('restart').style.display='inline-flex';
+        document.getElementById('fb').innerHTML+='<br><br>🎉 Xong! Điểm: <strong>'+score+'</strong>/'+(total*10);
+      }
+    }
+
+    document.getElementById('boxA').onclick=()=>pick('A');
+    document.getElementById('boxB').onclick=()=>pick('B');
+    document.getElementById('next').onclick=()=>{i++;load();};
+    document.getElementById('restart').onclick=()=>{i=0;score=0;document.getElementById('score').textContent='0';document.getElementById('restart').style.display='none';load();};
+    try{ const g=localStorage.getItem('ai_grade')||'2'; document.getElementById('backLink').href='lam-quen-voi-ai.html#lop'+g; }catch(e){}
+    load();
+  </script>
+</body>
+</html>

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Phân loại | Làm quen với AI</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --blue:#0b5fff; --green:#00a86b; --orange:#ff7a00; --purple:#7c3aed; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Be Vietnam Pro',system-ui,sans-serif; background:linear-gradient(160deg,#ecfdf5,#e0f2fe,#fef3c7); min-height:100vh; color:#0f172a; }
+    .topbar { background:#fff; box-shadow:0 2px 12px rgba(0,0,0,.06); padding:12px 20px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:50; }
+    .topbar a { color:var(--blue); font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:6px; font-size:14px; }
+    .topbar h1 { font-size:17px; font-weight:800; color:var(--green); }
+    .wrap { max-width:800px; margin:0 auto; padding:20px 16px 48px; }
+    .hero { background:linear-gradient(135deg,#00a86b,#0b5fff); color:#fff; border-radius:20px; padding:22px; text-align:center; margin-bottom:18px; }
+    .card { background:#fff; border-radius:18px; box-shadow:0 4px 24px rgba(0,0,0,.08); padding:20px; margin-bottom:16px; }
+    .item-pool { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; min-height:70px; padding:12px; background:#f8fafc; border-radius:14px; margin-bottom:16px; }
+    .item {
+      padding:10px 14px; border-radius:12px; background:#fff; border:2px solid #e2e8f0;
+      font-weight:700; font-size:14px; cursor:grab; user-select:none; transition:.15s;
+      box-shadow:0 2px 6px rgba(0,0,0,.06);
+    }
+    .item:active { cursor:grabbing; }
+    .item.used { opacity:.35; pointer-events:none; }
+    .bins { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+    @media(max-width:560px){ .bins{grid-template-columns:1fr;} }
+    .bin {
+      min-height:140px; border:3px dashed #cbd5e1; border-radius:16px; padding:12px;
+      background:#fafafa; transition:.2s;
+    }
+    .bin.over { border-color:var(--blue); background:#eef4ff; }
+    .bin h4 { font-size:13px; font-weight:800; text-align:center; margin-bottom:10px; padding:6px; border-radius:8px; color:#fff; }
+    .bin .drop { display:flex; flex-wrap:wrap; gap:6px; min-height:60px; }
+    .bin .drop .item { cursor:pointer; font-size:13px; padding:6px 10px; }
+    .btn { display:inline-flex; align-items:center; gap:8px; padding:12px 22px; border-radius:999px; font-weight:700; font-size:14px; border:0; cursor:pointer; background:var(--blue); color:#fff; font-family:inherit; margin:8px 4px 0; }
+    .btn-success { background:var(--green); }
+    .result { margin-top:14px; padding:14px; border-radius:12px; font-weight:600; font-size:14px; display:none; text-align:center; }
+    .result.show { display:block; }
+    .result.ok { background:#ecfdf5; color:#065f46; }
+    .result.partial { background:#fffbeb; color:#92400e; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <a href="lam-quen-voi-ai.html" id="backLink"><i class="fas fa-arrow-left"></i> Làm quen với AI</a>
+    <h1><i class="fas fa-sitemap"></i> AI Phân loại</h1>
+    <span style="width:90px"></span>
+  </div>
+  <div class="wrap">
+    <div class="hero">
+      <h2>📦 Đưa về đúng nhóm</h2>
+      <p>AI học cách phân loại đồ vật. Em hãy kéo từng món vào nhóm đúng!</p>
+    </div>
+    <div class="card">
+      <p style="font-weight:700;margin-bottom:10px;text-align:center">Kéo các món bên dưới vào đúng nhóm:</p>
+      <div class="item-pool" id="pool"></div>
+      <div class="bins" id="bins"></div>
+      <div style="text-align:center">
+        <button class="btn btn-success" id="checkBtn"><i class="fas fa-check"></i> Kiểm tra</button>
+        <button class="btn" id="resetBtn" style="background:#64748b"><i class="fas fa-redo"></i> Làm lại</button>
+      </div>
+      <div class="result" id="result"></div>
+    </div>
+  </div>
+  <script>
+    const sets = [
+      {
+        bins: [
+          { id:'animal', name:'🐾 Con vật', color:'#00a86b' },
+          { id:'plant', name:'🌿 Cây cối', color:'#16a34a' },
+          { id:'object', name:'📦 Đồ vật', color:'#0b5fff' }
+        ],
+        items: [
+          { id:'dog', label:'🐶 Chó', bin:'animal' },
+          { id:'cat', label:'🐱 Mèo', bin:'animal' },
+          { id:'bird', label:'🐦 Chim', bin:'animal' },
+          { id:'tree', label:'🌳 Cây', bin:'plant' },
+          { id:'flower', label:'🌸 Hoa', bin:'plant' },
+          { id:'grass', label:'🌱 Cỏ', bin:'plant' },
+          { id:'book', label:'📚 Sách', bin:'object' },
+          { id:'phone', label:'📱 Điện thoại', bin:'object' },
+          { id:'chair', label:'🪑 Ghế', bin:'object' }
+        ]
+      },
+      {
+        bins: [
+          { id:'fruit', name:'🍎 Trái cây', color:'#ef4444' },
+          { id:'veg', name:'🥕 Rau củ', color:'#f59e0b' },
+          { id:'food', name:'🍞 Đồ ăn khác', color:'#8b5cf6' }
+        ],
+        items: [
+          { id:'apple', label:'🍎 Táo', bin:'fruit' },
+          { id:'banana', label:'🍌 Chuối', bin:'fruit' },
+          { id:'orange', label:'🍊 Cam', bin:'fruit' },
+          { id:'carrot', label:'🥕 Cà rốt', bin:'veg' },
+          { id:'broccoli', label:'🥦 Bông cải', bin:'veg' },
+          { id:'corn', label:'🌽 Ngô', bin:'veg' },
+          { id:'bread', label:'🍞 Bánh mì', bin:'food' },
+          { id:'pizza', label:'🍕 Pizza', bin:'food' },
+          { id:'cake', label:'🎂 Bánh kem', bin:'food' }
+        ]
+      }
+    ];
+    let setIdx = 0;
+    let placed = {};
+
+    function render() {
+      const set = sets[setIdx];
+      placed = {};
+      const pool = document.getElementById('pool');
+      pool.innerHTML = set.items.map(it =>
+        `<div class="item" draggable="true" data-id="${it.id}" data-bin="${it.bin}">${it.label}</div>`
+      ).join('');
+
+      const bins = document.getElementById('bins');
+      bins.innerHTML = set.bins.map(b =>
+        `<div class="bin" data-bin="${b.id}">
+          <h4 style="background:${b.color}">${b.name}</h4>
+          <div class="drop" data-bin="${b.id}"></div>
+        </div>`
+      ).join('');
+
+      document.getElementById('result').className = 'result';
+
+      // Drag events
+      pool.querySelectorAll('.item').forEach(el => {
+        el.addEventListener('dragstart', e => {
+          e.dataTransfer.setData('text/plain', el.dataset.id);
+          e.dataTransfer.effectAllowed = 'move';
+        });
+      });
+
+      bins.querySelectorAll('.bin').forEach(bin => {
+        bin.addEventListener('dragover', e => { e.preventDefault(); bin.classList.add('over'); });
+        bin.addEventListener('dragleave', () => bin.classList.remove('over'));
+        bin.addEventListener('drop', e => {
+          e.preventDefault();
+          bin.classList.remove('over');
+          const id = e.dataTransfer.getData('text/plain');
+          placeItem(id, bin.dataset.bin);
+        });
+      });
+
+      // Also click-to-cycle for mobile
+      pool.querySelectorAll('.item').forEach(el => {
+        el.addEventListener('click', () => {
+          if (el.classList.contains('used')) return;
+          // place into first empty-looking or cycle
+          const binsList = set.bins.map(b => b.id);
+          const cur = placed[el.dataset.id];
+          const next = cur ? binsList[(binsList.indexOf(cur)+1)%binsList.length] : binsList[0];
+          placeItem(el.dataset.id, next);
+        });
+      });
+    }
+
+    function placeItem(id, binId) {
+      const set = sets[setIdx];
+      const item = set.items.find(x => x.id === id);
+      if (!item) return;
+
+      // remove from previous
+      document.querySelectorAll('.drop .item').forEach(el => {
+        if (el.dataset.id === id) el.remove();
+      });
+      document.querySelectorAll('#pool .item').forEach(el => {
+        if (el.dataset.id === id) el.classList.add('used');
+      });
+
+      placed[id] = binId;
+      const drop = document.querySelector(`.drop[data-bin="${binId}"]`);
+      const chip = document.createElement('div');
+      chip.className = 'item';
+      chip.dataset.id = id;
+      chip.textContent = item.label;
+      chip.onclick = () => {
+        // return to pool
+        delete placed[id];
+        chip.remove();
+        document.querySelectorAll('#pool .item').forEach(el => {
+          if (el.dataset.id === id) el.classList.remove('used');
+        });
+      };
+      drop.appendChild(chip);
+    }
+
+    document.getElementById('checkBtn').onclick = () => {
+      const set = sets[setIdx];
+      let correct = 0;
+      set.items.forEach(it => {
+        if (placed[it.id] === it.bin) correct++;
+      });
+      const total = set.items.length;
+      const el = document.getElementById('result');
+      if (correct === total) {
+        el.className = 'result show ok';
+        el.innerHTML = `🎉 Tuyệt vời! Em phân loại đúng cả ${total} món — giống cách AI học phân loại!`;
+        // auto next set after short delay
+        setTimeout(() => {
+          setIdx = (setIdx + 1) % sets.length;
+          render();
+        }, 1800);
+      } else {
+        el.className = 'result show partial';
+        el.innerHTML = `Em đúng ${correct}/${total} món. Thử kéo lại các món còn sai nhé!`;
+      }
+    };
+
+    document.getElementById('resetBtn').onclick = render;
+    render();
+  </script>
+
+  <script>
+    (function(){
+      try {
+        var g = localStorage.getItem('ai_grade') || '1';
+        var a = document.getElementById('backLink');
+        if (a) a.href = 'lam-quen-voi-ai.html#lop' + g;
+      } catch(e) {}
+    })();
+  </script>
+</body>
+</html>

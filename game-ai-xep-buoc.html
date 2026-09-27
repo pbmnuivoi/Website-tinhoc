@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Sắp xếp bước | Làm quen với AI</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --blue:#0b5fff; --green:#00a86b; --purple:#7c3aed; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Be Vietnam Pro',system-ui,sans-serif; background:linear-gradient(160deg,#ecfdf5,#e0e7ff,#fef3c7); min-height:100vh; color:#0f172a; }
+    .topbar { background:#fff; box-shadow:0 2px 12px rgba(0,0,0,.06); padding:12px 20px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:50; }
+    .topbar a { color:var(--blue); font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:6px; font-size:14px; }
+    .topbar h1 { font-size:16px; font-weight:800; color:var(--green); }
+    .wrap { max-width:640px; margin:0 auto; padding:20px 16px 48px; }
+    .hero { background:linear-gradient(135deg,#00a86b,#0b5fff); color:#fff; border-radius:20px; padding:20px; text-align:center; margin-bottom:16px; }
+    .card { background:#fff; border-radius:18px; box-shadow:0 4px 24px rgba(0,0,0,.08); padding:18px; margin-bottom:14px; }
+    .q { font-weight:800; font-size:15px; margin-bottom:12px; text-align:center; }
+    .pool, .slots { display:flex; flex-direction:column; gap:8px; min-height:40px; }
+    .step-item {
+      padding:14px 16px; border-radius:12px; background:#f1f5f9; border:2px solid #e2e8f0;
+      font-weight:700; font-size:14px; cursor:grab; user-select:none; display:flex; align-items:center; gap:10px;
+    }
+    .step-item .num { width:28px; height:28px; border-radius:50%; background:var(--blue); color:#fff; display:grid; place-items:center; font-size:13px; flex-shrink:0; }
+    .step-item.dragging { opacity:.5; }
+    .slot {
+      min-height:52px; border-radius:12px; border:2px dashed #cbd5e1; background:#fafafa;
+      padding:6px; transition:.15s;
+    }
+    .slot.over { border-color:var(--blue); background:#eef4ff; }
+    .slot .step-item { margin:0; cursor:grab; }
+    .btn { display:inline-flex; align-items:center; gap:8px; padding:12px 22px; border-radius:999px; font-weight:700; font-size:14px; border:0; cursor:pointer; background:var(--blue); color:#fff; font-family:inherit; margin:8px 4px; }
+    .fb { margin-top:12px; padding:12px; border-radius:12px; font-size:13px; font-weight:600; text-align:center; display:none; }
+    .fb.show { display:block; }
+    .fb.ok { background:#ecfdf5; color:#065f46; }
+    .fb.err { background:#fef2f2; color:#991b1b; }
+    .label-row { font-size:12px; font-weight:700; color:#64748b; margin:10px 0 6px; text-transform:uppercase; letter-spacing:.04em; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <a href="lam-quen-voi-ai.html" id="backLink"><i class="fas fa-arrow-left"></i> Quay lại</a>
+    <h1><i class="fas fa-list-ol"></i> AI sắp xếp bước</h1>
+    <span style="width:80px"></span>
+  </div>
+  <div class="wrap">
+    <div class="hero">
+      <h2>📋 Xếp đúng thứ tự</h2>
+      <p>Kéo các bước vào đúng vị trí 1 → 2 → 3… AI sẽ kiểm tra giúp em!</p>
+    </div>
+    <div class="card">
+      <p class="q" id="question">Đề bài</p>
+      <div class="label-row">Các bước (kéo thả)</div>
+      <div class="pool" id="pool"></div>
+      <div class="label-row">Thứ tự đúng</div>
+      <div class="slots" id="slots"></div>
+      <div style="text-align:center;margin-top:12px">
+        <button class="btn" id="checkBtn"><i class="fas fa-check"></i> AI kiểm tra</button>
+        <button class="btn" id="nextBtn" style="display:none;background:#7c3aed"><i class="fas fa-arrow-right"></i> Bài tiếp</button>
+      </div>
+      <div class="fb" id="fb"></div>
+    </div>
+  </div>
+  <script>
+    const tasks = [
+      {
+        q: 'Để AI học nhận diện Bút, cần làm theo thứ tự nào?',
+        steps: ['Chuẩn bị ảnh mẫu Bút', 'Cho AI học ảnh mẫu', 'Đưa bút thật vào camera', 'Xem AI đoán và % chắc chắn'],
+        correct: [0,1,2,3]
+      },
+      {
+        q: 'Khi dùng AI an toàn, em nên làm gì theo thứ tự?',
+        steps: ['Nghĩ xem có nên chia sẻ không', 'Không đưa tên / địa chỉ / số điện thoại', 'Hỏi người lớn nếu chưa chắc', 'Chỉ dùng AI để học tập'],
+        correct: [0,1,2,3]
+      },
+      {
+        q: 'Cách nhờ AI kể chuyện hay?',
+        steps: ['Chọn nhân vật', 'Chọn nơi xảy ra', 'Chọn sự việc chính', 'Nghe AI kể và sửa nếu cần'],
+        correct: [0,1,2,3]
+      },
+      {
+        q: 'Khi AI trả lời sai, em nên làm gì?',
+        steps: ['Đọc kỹ câu trả lời của AI', 'So sánh với sách / kiến thức đã học', 'Phát hiện chỗ sai', 'Sửa lại hoặc hỏi lại rõ hơn'],
+        correct: [0,1,2,3]
+      },
+      {
+        q: 'Các bước tạo tranh cùng AI?',
+        steps: ['Chọn nhân vật trong tranh', 'Chọn màu trời', 'Chọn nơi vui chơi', 'Bấm để AI vẽ'],
+        correct: [0,1,2,3]
+      },
+      {
+        q: 'Thứ tự khi kiểm chứng thông tin từ AI?',
+        steps: ['Đọc thông tin AI đưa', 'Tìm nguồn khác (sách, giáo viên)', 'So sánh giống / khác', 'Kết luận đúng hay sai'],
+        correct: [0,1,2,3]
+      }
+    ];
+
+    let ti=0, dragEl=null;
+
+    function shuffle(a){ const b=[...a]; for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];} return b; }
+
+    function load() {
+      const T = tasks[ti];
+      document.getElementById('question').textContent = T.q;
+      document.getElementById('fb').className='fb';
+      document.getElementById('nextBtn').style.display='none';
+      document.getElementById('checkBtn').style.display='inline-flex';
+
+      const order = shuffle(T.steps.map((_,i)=>i));
+      const pool = document.getElementById('pool');
+      const slots = document.getElementById('slots');
+      pool.innerHTML = '';
+      slots.innerHTML = '';
+      order.forEach((si, pos) => {
+        const el = document.createElement('div');
+        el.className = 'step-item';
+        el.draggable = true;
+        el.dataset.idx = si;
+        el.innerHTML = '<span class="num">'+(pos+1)+'</span><span>'+T.steps[si]+'</span>';
+        pool.appendChild(el);
+      });
+      T.steps.forEach((_,i) => {
+        const s = document.createElement('div');
+        s.className = 'slot';
+        s.dataset.slot = i;
+        s.innerHTML = '<span style="color:#94a3b8;font-size:12px;padding:8px">Ô '+(i+1)+'</span>';
+        slots.appendChild(s);
+      });
+      bindDrag();
+    }
+
+    function bindDrag() {
+      document.querySelectorAll('.step-item').forEach(el => {
+        el.ondragstart = e => { dragEl = el; el.classList.add('dragging'); e.dataTransfer.effectAllowed='move'; };
+        el.ondragend = () => { el.classList.remove('dragging'); dragEl=null; };
+      });
+      document.querySelectorAll('.slot, #pool').forEach(zone => {
+        zone.ondragover = e => { e.preventDefault(); zone.classList.add('over'); };
+        zone.ondragleave = () => zone.classList.remove('over');
+        zone.ondrop = e => {
+          e.preventDefault();
+          zone.classList.remove('over');
+          if (!dragEl) return;
+          // clear placeholder text in slot
+          if (zone.classList.contains('slot')) {
+            const old = zone.querySelector('.step-item');
+            if (old) document.getElementById('pool').appendChild(old);
+            zone.innerHTML = '';
+            zone.appendChild(dragEl);
+          } else {
+            zone.appendChild(dragEl);
+          }
+          // renumber pool visual only
+        };
+      });
+    }
+
+    document.getElementById('checkBtn').onclick = () => {
+      const T = tasks[ti];
+      const slots = [...document.querySelectorAll('.slot')];
+      const placed = slots.map(s => {
+        const item = s.querySelector('.step-item');
+        return item ? +item.dataset.idx : -1;
+      });
+      const ok = placed.every((v,i) => v === T.correct[i]);
+      const fb = document.getElementById('fb');
+      if (ok) {
+        fb.className = 'fb show ok';
+        fb.innerHTML = '<i class="fas fa-check-circle"></i> Đúng rồi! Em đã xếp đúng thứ tự mà AI / người cần làm.';
+        document.getElementById('checkBtn').style.display='none';
+        document.getElementById('nextBtn').style.display='inline-flex';
+      } else {
+        fb.className = 'fb show err';
+        fb.innerHTML = '<i class="fas fa-info-circle"></i> Chưa đúng hết. Thử kéo lại — bước nào phải làm trước?';
+      }
+    };
+    document.getElementById('nextBtn').onclick = () => {
+      ti = (ti+1) % tasks.length;
+      load();
+    };
+    try {
+      const g = localStorage.getItem('ai_grade')||'3';
+      document.getElementById('backLink').href='lam-quen-voi-ai.html#lop'+g;
+    } catch(e){}
+    load();
+  </script>
+</body>
+</html>

@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Màu sắc & Hình dạng | Làm quen với AI</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --blue:#0b5fff; --green:#00a86b; --red:#ef4444; --orange:#ff7a00; --purple:#7c3aed; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Be Vietnam Pro',system-ui,sans-serif; background:linear-gradient(160deg,#fef3c7,#e0e7ff,#fce7f3); min-height:100vh; color:#0f172a; }
+    .topbar { background:#fff; box-shadow:0 2px 12px rgba(0,0,0,.06); padding:12px 20px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:50; }
+    .topbar a { color:var(--blue); font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:6px; font-size:14px; }
+    .topbar h1 { font-size:17px; font-weight:800; color:var(--orange); }
+    .wrap { max-width:820px; margin:0 auto; padding:20px 16px 48px; }
+    .hero { background:linear-gradient(135deg,#f59e0b,#7c3aed); color:#fff; border-radius:20px; padding:22px; text-align:center; margin-bottom:18px; }
+    .card { background:#fff; border-radius:18px; box-shadow:0 4px 24px rgba(0,0,0,.08); padding:20px; margin-bottom:16px; }
+    .ai-status {
+      text-align:center; padding:12px 16px; border-radius:12px; font-weight:700; font-size:14px;
+      margin-bottom:16px; background:#f1f5f9; color:#64748b; min-height:48px;
+      display:flex; align-items:center; justify-content:center; gap:8px; transition:.3s;
+    }
+    .ai-status.ok { background:#ecfdf5; color:#065f46; }
+    .ai-status.err { background:#fef2f2; color:#991b1b; }
+    .ai-status.think { background:#eef2ff; color:#4338ca; }
+    .pool {
+      display:flex; flex-wrap:wrap; gap:12px; justify-content:center; min-height:80px;
+      padding:14px; background:#f8fafc; border-radius:14px; margin-bottom:18px;
+    }
+    .shape-item {
+      width:64px; height:64px; cursor:grab; user-select:none; transition:.15s;
+      display:flex; align-items:center; justify-content:center; position:relative;
+    }
+    .shape-item:active { cursor:grabbing; }
+    .shape-item.used { opacity:.3; pointer-events:none; }
+    .shape-item svg { width:56px; height:56px; filter:drop-shadow(0 2px 4px rgba(0,0,0,.15)); }
+    .bins { display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:12px; }
+    .bin {
+      min-height:150px; border:3px dashed #cbd5e1; border-radius:16px; padding:12px;
+      background:#fafafa; transition:.2s; text-align:center;
+    }
+    .bin.over { border-color:var(--blue); background:#eef4ff; transform:scale(1.02); }
+    .bin h4 { font-size:13px; font-weight:800; margin-bottom:10px; padding:6px 8px; border-radius:8px; color:#fff; }
+    .bin .slot { display:flex; flex-wrap:wrap; gap:6px; justify-content:center; min-height:60px; align-items:flex-start; }
+    .bin .slot .shape-item { width:48px; height:48px; cursor:pointer; }
+    .bin .slot .shape-item svg { width:42px; height:42px; }
+    .check-mark, .x-mark {
+      position:absolute; top:-6px; right:-6px; width:22px; height:22px; border-radius:50%;
+      display:grid; place-items:center; font-size:11px; color:#fff; font-weight:800;
+      box-shadow:0 2px 6px rgba(0,0,0,.2);
+    }
+    .check-mark { background:var(--green); }
+    .x-mark { background:var(--red); }
+    .btn {
+      display:inline-flex; align-items:center; gap:8px; padding:12px 22px; border-radius:999px;
+      font-weight:700; font-size:14px; border:0; cursor:pointer; font-family:inherit; margin:6px 4px;
+    }
+    .btn-check { background:var(--blue); color:#fff; }
+    .btn-reset { background:#64748b; color:#fff; }
+    .score { text-align:center; font-weight:800; font-size:15px; margin-top:12px; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <a href="lam-quen-voi-ai.html" id="backLink"><i class="fas fa-arrow-left"></i> Làm quen với AI</a>
+    <h1><i class="fas fa-shapes"></i> Săn màu – săn hình</h1>
+    <span style="width:90px"></span>
+  </div>
+  <div class="wrap">
+    <div class="hero">
+      <h2>🎯 AI phân tích màu & hình</h2>
+      <p>Kéo đúng nhóm → AI hiện ✅ xanh. Kéo sai → AI hiện ❌ đỏ.</p>
+    </div>
+    <div class="card">
+      <div class="ai-status" id="aiStatus">
+        <i class="fas fa-robot"></i> AI đang chờ… Hãy kéo các hình vào đúng nhóm màu hoặc hình dạng!
+      </div>
+      <p style="text-align:center;font-weight:700;margin-bottom:10px;font-size:14px" id="taskLabel">Nhiệm vụ: Phân loại theo <strong>MÀU SẮC</strong></p>
+      <div class="pool" id="pool"></div>
+      <div class="bins" id="bins"></div>
+      <div style="text-align:center;margin-top:14px">
+        <button class="btn btn-check" id="checkBtn"><i class="fas fa-search"></i> AI kiểm tra</button>
+        <button class="btn btn-reset" id="resetBtn"><i class="fas fa-redo"></i> Làm lại</button>
+        <button class="btn" id="modeBtn" style="background:var(--purple);color:#fff"><i class="fas fa-exchange-alt"></i> Đổi: Hình dạng</button>
+      </div>
+      <div class="score" id="score"></div>
+    </div>
+  </div>
+  <script>
+    // Items: shape + color
+    const items = [
+      { id:'r-c', shape:'circle', color:'red', label:'Tròn đỏ' },
+      { id:'r-s', shape:'square', color:'red', label:'Vuông đỏ' },
+      { id:'r-t', shape:'triangle', color:'red', label:'Tam giác đỏ' },
+      { id:'b-c', shape:'circle', color:'blue', label:'Tròn xanh' },
+      { id:'b-s', shape:'square', color:'blue', label:'Vuông xanh' },
+      { id:'b-t', shape:'triangle', color:'blue', label:'Tam giác xanh' },
+      { id:'g-c', shape:'circle', color:'green', label:'Tròn lục' },
+      { id:'g-s', shape:'square', color:'green', label:'Vuông lục' },
+      { id:'g-t', shape:'triangle', color:'green', label:'Tam giác lục' },
+      { id:'y-c', shape:'circle', color:'yellow', label:'Tròn vàng' },
+      { id:'y-s', shape:'square', color:'yellow', label:'Vuông vàng' },
+      { id:'y-t', shape:'triangle', color:'yellow', label:'Tam giác vàng' }
+    ];
+
+    const colorBins = [
+      { id:'red', name:'🔴 Đỏ', bg:'#ef4444' },
+      { id:'blue', name:'🔵 Xanh dương', bg:'#3b82f6' },
+      { id:'green', name:'🟢 Xanh lá', bg:'#22c55e' },
+      { id:'yellow', name:'🟡 Vàng', bg:'#eab308' }
+    ];
+    const shapeBins = [
+      { id:'circle', name:'⭕ Hình tròn', bg:'#8b5cf6' },
+      { id:'square', name:'⬜ Hình vuông', bg:'#0b5fff' },
+      { id:'triangle', name:'🔺 Tam giác', bg:'#f59e0b' }
+    ];
+
+    let mode = 'color'; // or 'shape'
+    let placed = {}; // id -> binId
+
+    const colorHex = { red:'#ef4444', blue:'#3b82f6', green:'#22c55e', yellow:'#eab308' };
+
+    function svgFor(shape, color) {
+      const c = colorHex[color];
+      if (shape === 'circle') return `<svg viewBox="0 0 56 56"><circle cx="28" cy="28" r="24" fill="${c}" stroke="#fff" stroke-width="2"/></svg>`;
+      if (shape === 'square') return `<svg viewBox="0 0 56 56"><rect x="6" y="6" width="44" height="44" rx="4" fill="${c}" stroke="#fff" stroke-width="2"/></svg>`;
+      return `<svg viewBox="0 0 56 56"><polygon points="28,4 52,50 4,50" fill="${c}" stroke="#fff" stroke-width="2"/></svg>`;
+    }
+
+    function render() {
+      placed = {};
+      document.getElementById('aiStatus').className = 'ai-status';
+      document.getElementById('aiStatus').innerHTML = '<i class="fas fa-robot"></i> AI đang chờ… Hãy kéo các hình vào đúng nhóm!';
+      document.getElementById('score').textContent = '';
+      document.getElementById('taskLabel').innerHTML = mode === 'color'
+        ? 'Nhiệm vụ: Phân loại theo <strong>MÀU SẮC</strong>'
+        : 'Nhiệm vụ: Phân loại theo <strong>HÌNH DẠNG</strong>';
+
+      const pool = document.getElementById('pool');
+      const shuffled = [...items].sort(() => Math.random() - 0.5);
+      pool.innerHTML = shuffled.map(it =>
+        `<div class="shape-item" draggable="true" data-id="${it.id}" title="${it.label}">${svgFor(it.shape, it.color)}</div>`
+      ).join('');
+
+      const binsData = mode === 'color' ? colorBins : shapeBins;
+      const bins = document.getElementById('bins');
+      bins.innerHTML = binsData.map(b =>
+        `<div class="bin" data-bin="${b.id}">
+          <h4 style="background:${b.bg}">${b.name}</h4>
+          <div class="slot" data-bin="${b.id}"></div>
+        </div>`
+      ).join('');
+
+      // Drag
+      pool.querySelectorAll('.shape-item').forEach(el => {
+        el.addEventListener('dragstart', e => {
+          e.dataTransfer.setData('text/plain', el.dataset.id);
+        });
+        // Mobile: tap cycles through bins
+        el.addEventListener('click', () => {
+          if (el.classList.contains('used')) return;
+          const list = binsData.map(b => b.id);
+          const cur = placed[el.dataset.id];
+          const next = cur ? list[(list.indexOf(cur) + 1) % list.length] : list[0];
+          place(el.dataset.id, next);
+        });
+      });
+
+      bins.querySelectorAll('.bin').forEach(bin => {
+        bin.addEventListener('dragover', e => { e.preventDefault(); bin.classList.add('over'); });
+        bin.addEventListener('dragleave', () => bin.classList.remove('over'));
+        bin.addEventListener('drop', e => {
+          e.preventDefault();
+          bin.classList.remove('over');
+          place(e.dataTransfer.getData('text/plain'), bin.dataset.bin);
+        });
+      });
+    }
+
+    function place(id, binId) {
+      const it = items.find(x => x.id === id);
+      if (!it) return;
+      // remove old
+      document.querySelectorAll('.slot .shape-item').forEach(el => {
+        if (el.dataset.id === id) el.remove();
+      });
+      document.querySelectorAll('#pool .shape-item').forEach(el => {
+        if (el.dataset.id === id) el.classList.add('used');
+      });
+      placed[id] = binId;
+
+      const slot = document.querySelector(`.slot[data-bin="${binId}"]`);
+      const chip = document.createElement('div');
+      chip.className = 'shape-item';
+      chip.dataset.id = id;
+      chip.innerHTML = svgFor(it.shape, it.color);
+      chip.title = it.label;
+      chip.onclick = () => {
+        delete placed[id];
+        chip.remove();
+        document.querySelectorAll('#pool .shape-item').forEach(el => {
+          if (el.dataset.id === id) el.classList.remove('used');
+        });
+        // clear marks
+        document.getElementById('aiStatus').className = 'ai-status';
+        document.getElementById('aiStatus').innerHTML = '<i class="fas fa-robot"></i> AI đang chờ…';
+        document.querySelectorAll('.check-mark, .x-mark').forEach(m => m.remove());
+      };
+      slot.appendChild(chip);
+
+      // Live feedback from "AI"
+      liveCheck(chip, it, binId);
+    }
+
+    function liveCheck(chip, it, binId) {
+      // Remove old marks on this chip
+      chip.querySelectorAll('.check-mark, .x-mark').forEach(m => m.remove());
+      const correct = mode === 'color' ? (it.color === binId) : (it.shape === binId);
+      const mark = document.createElement('div');
+      if (correct) {
+        mark.className = 'check-mark';
+        mark.innerHTML = '✓';
+        document.getElementById('aiStatus').className = 'ai-status ok';
+        document.getElementById('aiStatus').innerHTML = `<i class="fas fa-check-circle"></i> AI: Đúng rồi! “${it.label}” thuộc nhóm này.`;
+      } else {
+        mark.className = 'x-mark';
+        mark.innerHTML = '✗';
+        document.getElementById('aiStatus').className = 'ai-status err';
+        document.getElementById('aiStatus').innerHTML = `<i class="fas fa-times-circle"></i> AI: Sai rồi! “${it.label}” không thuộc nhóm này.`;
+      }
+      chip.style.position = 'relative';
+      chip.appendChild(mark);
+    }
+
+    document.getElementById('checkBtn').onclick = () => {
+      const total = items.length;
+      let correct = 0;
+      items.forEach(it => {
+        const bin = placed[it.id];
+        if (!bin) return;
+        const ok = mode === 'color' ? (it.color === bin) : (it.shape === bin);
+        if (ok) correct++;
+      });
+      const placedCount = Object.keys(placed).length;
+      const st = document.getElementById('aiStatus');
+      if (placedCount < total) {
+        st.className = 'ai-status think';
+        st.innerHTML = `<i class="fas fa-robot"></i> AI: Em còn ${total - placedCount} hình chưa xếp. Hãy kéo hết nhé!`;
+      } else if (correct === total) {
+        st.className = 'ai-status ok';
+        st.innerHTML = `<i class="fas fa-check-circle"></i> AI: Xuất sắc! Em phân loại đúng cả ${total} hình!`;
+        document.getElementById('score').textContent = `🎉 ${correct}/${total} — Hoàn hảo!`;
+      } else {
+        st.className = 'ai-status err';
+        st.innerHTML = `<i class="fas fa-exclamation-triangle"></i> AI: Đúng ${correct}/${total}. Các hình có dấu ✗ hãy kéo sang nhóm khác!`;
+        document.getElementById('score').textContent = `Đúng ${correct}/${total}`;
+      }
+    };
+
+    document.getElementById('resetBtn').onclick = render;
+    document.getElementById('modeBtn').onclick = () => {
+      mode = mode === 'color' ? 'shape' : 'color';
+      document.getElementById('modeBtn').innerHTML = mode === 'color'
+        ? '<i class="fas fa-exchange-alt"></i> Đổi: Hình dạng'
+        : '<i class="fas fa-exchange-alt"></i> Đổi: Màu sắc';
+      render();
+    };
+
+    render();
+  </script>
+
+  <script>
+    (function(){
+      try {
+        var g = localStorage.getItem('ai_grade') || '1';
+        var a = document.getElementById('backLink');
+        if (a) a.href = 'lam-quen-voi-ai.html#lop' + g;
+      } catch(e) {}
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Đếm ngón tay | Làm quen với AI</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --blue:#0b5fff; --green:#00a86b; --orange:#f59e0b; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Be Vietnam Pro',system-ui,sans-serif; background:linear-gradient(160deg,#ecfdf5,#e0f2fe,#fef3c7); min-height:100vh; color:#0f172a; }
+    .topbar { background:#fff; box-shadow:0 2px 12px rgba(0,0,0,.06); padding:12px 20px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:50; }
+    .topbar a { color:var(--blue); font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:6px; font-size:14px; }
+    .topbar h1 { font-size:16px; font-weight:800; color:var(--orange); }
+    .wrap { max-width:640px; margin:0 auto; padding:20px 16px 48px; }
+    .hero { background:linear-gradient(135deg,#f59e0b,#0b5fff); color:#fff; border-radius:20px; padding:20px; text-align:center; margin-bottom:16px; }
+    .card { background:#fff; border-radius:18px; box-shadow:0 4px 24px rgba(0,0,0,.08); padding:18px; margin-bottom:14px; }
+    .video-wrap { position:relative; width:100%; max-width:480px; margin:0 auto; border-radius:16px; overflow:hidden; background:#0f172a; aspect-ratio:4/3; }
+    video, canvas { width:100%; height:100%; object-fit:cover; display:block; }
+    canvas { position:absolute; left:0; top:0; pointer-events:none; }
+    .num-display {
+      text-align:center; margin-top:16px; padding:20px; border-radius:16px;
+      background:linear-gradient(135deg,#0b5fff,#7c3aed); color:#fff;
+      font-size:64px; font-weight:800; letter-spacing:4px; min-height:100px;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .btn { display:inline-flex; align-items:center; gap:8px; padding:12px 22px; border-radius:999px; font-weight:700; font-size:14px; border:0; cursor:pointer; background:var(--blue); color:#fff; font-family:inherit; margin:8px 4px; }
+    .btn:disabled { opacity:.5; }
+    .status { text-align:center; font-size:13px; color:#64748b; margin-top:8px; }
+    .tips { background:#ecfdf5; border-radius:12px; padding:12px; font-size:13px; color:#065f46; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <a href="lam-quen-voi-ai.html" id="backLink"><i class="fas fa-arrow-left"></i> Quay lại</a>
+    <h1><i class="fas fa-hand-paper"></i> AI đếm ngón tay</h1>
+    <span style="width:80px"></span>
+  </div>
+  <div class="wrap">
+    <div class="hero">
+      <h2>✋ Giơ tay — AI đếm số</h2>
+      <p>Bật camera, giơ 1 đến 5 ngón tay. AI sẽ hiện số to trên màn hình!</p>
+    </div>
+    <div class="card">
+      <div class="video-wrap">
+        <video id="video" autoplay playsinline muted></video>
+        <canvas id="canvas"></canvas>
+      </div>
+      <div class="num-display" id="numBox">?</div>
+      <div style="text-align:center">
+        <button class="btn" id="btnStart" disabled><i class="fas fa-video"></i> Bật camera</button>
+        <button class="btn" id="btnStop" disabled style="background:#64748b"><i class="fas fa-stop"></i> Tắt</button>
+      </div>
+      <p class="status" id="status">Đang tải mô hình AI…</p>
+    </div>
+    <div class="card tips">
+      <strong>Hướng dẫn:</strong> Đưa bàn tay vào khung hình, xòe rõ các ngón. Nền đơn giản, đủ sáng sẽ giúp AI đếm chính xác hơn.
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.17.0/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/hand-pose-detection@2.0.1/dist/hand-pose-detection.min.js"></script>
+  <script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const numBox = document.getElementById('numBox');
+    const statusEl = document.getElementById('status');
+    let stream = null, detector = null, running = false, raf = null;
+    let smoothCount = 0, history = [];
+
+    async function loadModel() {
+      try {
+        await tf.setBackend('webgl');
+        await tf.ready();
+        detector = await handPoseDetection.createDetector(
+          handPoseDetection.SupportedModels.MediaPipeHands,
+          { runtime: 'tfjs', modelType: 'lite', maxHands: 1 }
+        );
+        statusEl.textContent = 'Sẵn sàng! Bật camera và giơ tay nhé.';
+        document.getElementById('btnStart').disabled = false;
+      } catch (e) {
+        console.error(e);
+        statusEl.textContent = 'Không tải được mô hình. Kiểm tra mạng rồi tải lại trang.';
+      }
+    }
+
+    async function startCam() {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'user', width: 640, height: 480 },
+          audio: false
+        });
+        video.srcObject = stream;
+        await video.play();
+        canvas.width = video.videoWidth || 640;
+        canvas.height = video.videoHeight || 480;
+        document.getElementById('btnStart').disabled = true;
+        document.getElementById('btnStop').disabled = false;
+        running = true;
+        statusEl.textContent = 'AI đang nhìn bàn tay…';
+        loop();
+      } catch (e) {
+        statusEl.textContent = 'Không mở được camera. Hãy cho phép quyền camera.';
+      }
+    }
+
+    function stopCam() {
+      running = false;
+      if (raf) cancelAnimationFrame(raf);
+      if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+      video.srcObject = null;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      document.getElementById('btnStart').disabled = false;
+      document.getElementById('btnStop').disabled = true;
+      numBox.textContent = '?';
+      statusEl.textContent = 'Đã tắt camera.';
+    }
+
+    function countFingers(keypoints) {
+      // MediaPipe hand landmarks: 0 wrist, 4 thumb tip, 8 index, 12 middle, 16 ring, 20 pinky
+      const tipIdx = [4, 8, 12, 16, 20];
+      const pipIdx = [2, 6, 10, 14, 18];
+      let count = 0;
+      // Thumb: compare x distance from wrist-ish
+      const thumbTip = keypoints[4];
+      const thumbIp = keypoints[3];
+      const wrist = keypoints[0];
+      if (thumbTip && wrist) {
+        const distTip = Math.hypot(thumbTip.x - wrist.x, thumbTip.y - wrist.y);
+        const distIp = Math.hypot(thumbIp.x - wrist.x, thumbIp.y - wrist.y);
+        if (distTip > distIp * 1.1) count++;
+      }
+      // Other fingers: tip above pip (lower y in image coords = higher in air when palm faces camera varies)
+      for (let i = 1; i < 5; i++) {
+        const tip = keypoints[tipIdx[i]];
+        const pip = keypoints[pipIdx[i]];
+        if (!tip || !pip) continue;
+        // Finger extended if tip is farther from wrist than pip
+        const dTip = Math.hypot(tip.x - wrist.x, tip.y - wrist.y);
+        const dPip = Math.hypot(pip.x - wrist.x, pip.y - wrist.y);
+        if (dTip > dPip * 1.15) count++;
+      }
+      return Math.min(5, Math.max(0, count));
+    }
+
+    async function loop() {
+      if (!running || !detector) return;
+      try {
+        const hands = await detector.estimateHands(video, { flipHorizontal: true });
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        if (hands.length) {
+          const hand = hands[0];
+          const kps = hand.keypoints;
+          // draw points
+          ctx.fillStyle = '#22c55e';
+          kps.forEach(p => {
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+            ctx.fill();
+          });
+          // connections simplified
+          ctx.strokeStyle = '#4ade80';
+          ctx.lineWidth = 2;
+          const fingers = [[0,1,2,3,4],[0,5,6,7,8],[0,9,10,11,12],[0,13,14,15,16],[0,17,18,19,20]];
+          fingers.forEach(chain => {
+            ctx.beginPath();
+            chain.forEach((idx, i) => {
+              const p = kps[idx];
+              if (!p) return;
+              if (i === 0) ctx.moveTo(p.x, p.y);
+              else ctx.lineTo(p.x, p.y);
+            });
+            ctx.stroke();
+          });
+          const n = countFingers(kps);
+          history.push(n);
+          if (history.length > 5) history.shift();
+          // majority vote
+          const freq = {};
+          history.forEach(v => { freq[v] = (freq[v] || 0) + 1; });
+          let best = 0, bestC = 0;
+          Object.keys(freq).forEach(k => {
+            if (freq[k] > bestC) { bestC = freq[k]; best = +k; }
+          });
+          numBox.textContent = best;
+          statusEl.textContent = 'AI đếm được: ' + best + ' ngón tay';
+        } else {
+          statusEl.textContent = 'Chưa thấy bàn tay — đưa tay vào khung hình';
+        }
+      } catch (e) {
+        console.error(e);
+      }
+      raf = requestAnimationFrame(loop);
+    }
+
+    document.getElementById('btnStart').onclick = startCam;
+    document.getElementById('btnStop').onclick = stopCam;
+    loadModel();
+    try {
+      const g = localStorage.getItem('ai_grade') || '1';
+      document.getElementById('backLink').href = 'lam-quen-voi-ai.html#lop' + g;
+    } catch (e) {}
+  </script>
+</body>
+</html>

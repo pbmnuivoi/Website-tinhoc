@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI hay không AI? | Làm quen với AI</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --blue:#0b5fff; --green:#00a86b; --purple:#7c3aed; --pink:#e11d8b; --orange:#ff7a00; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Be Vietnam Pro',system-ui,sans-serif; background:linear-gradient(160deg,#ede9fe,#fce7f3,#e0f2fe); min-height:100vh; color:#0f172a; }
+    .topbar { background:#fff; box-shadow:0 2px 12px rgba(0,0,0,.06); padding:12px 20px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:50; }
+    .topbar a { color:var(--blue); font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:6px; font-size:14px; }
+    .topbar h1 { font-size:17px; font-weight:800; color:var(--purple); }
+    .wrap { max-width:700px; margin:0 auto; padding:20px 16px 48px; }
+    .hero { background:linear-gradient(135deg,#7c3aed,#0b5fff); color:#fff; border-radius:20px; padding:24px; text-align:center; margin-bottom:20px; }
+    .hero h2 { font-size:22px; margin-bottom:6px; }
+    .card { background:#fff; border-radius:18px; box-shadow:0 4px 24px rgba(0,0,0,.08); padding:22px; margin-bottom:16px; }
+    .score-bar { display:flex; justify-content:space-between; font-weight:700; font-size:14px; margin-bottom:16px; background:#f8fafc; padding:12px 16px; border-radius:12px; }
+    .scene { text-align:center; padding:20px; background:#f8fafc; border-radius:16px; margin-bottom:18px; min-height:160px; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+    .scene .big { font-size:64px; margin-bottom:10px; }
+    .scene .desc { font-size:16px; font-weight:700; }
+    .btns { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .btn-choice {
+      padding:18px; border-radius:16px; border:3px solid #e2e8f0; background:#fff;
+      font-weight:800; font-size:16px; cursor:pointer; transition:.2s; font-family:inherit;
+    }
+    .btn-choice:hover { transform:translateY(-2px); }
+    .btn-choice.ai { border-color:#c4b5fd; }
+    .btn-choice.ai:hover { background:#f5f3ff; border-color:var(--purple); }
+    .btn-choice.no { border-color:#bbf7d0; }
+    .btn-choice.no:hover { background:#ecfdf5; border-color:var(--green); }
+    .btn-choice.correct { border-color:var(--green)!important; background:#ecfdf5!important; color:#065f46; }
+    .btn-choice.wrong { border-color:#ef4444!important; background:#fef2f2!important; color:#991b1b; }
+    .btn-choice.disabled { pointer-events:none; }
+    .fb { margin-top:14px; padding:12px; border-radius:12px; font-size:14px; font-weight:600; display:none; text-align:center; }
+    .fb.show { display:block; }
+    .fb.ok { background:#ecfdf5; color:#065f46; }
+    .fb.err { background:#fef2f2; color:#991b1b; }
+    .btn { display:inline-flex; align-items:center; gap:8px; padding:12px 22px; border-radius:999px; font-weight:700; font-size:14px; border:0; cursor:pointer; background:var(--blue); color:#fff; margin-top:12px; font-family:inherit; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <a href="lam-quen-voi-ai.html" id="backLink"><i class="fas fa-arrow-left"></i> Làm quen với AI</a>
+    <h1><i class="fas fa-question-circle"></i> AI hay không AI?</h1>
+    <span style="width:90px"></span>
+  </div>
+  <div class="wrap">
+    <div class="hero">
+      <h2>🤖 Có AI ở đây không?</h2>
+      <p>Nhìn tình huống → chọn xem có dùng AI hay không. Luyện quan sát AI quanh em!</p>
+    </div>
+    <div class="card">
+      <div class="score-bar">
+        <span>Câu <strong id="num">1</strong>/<span id="total">10</span></span>
+        <span>Điểm: <strong id="score" style="color:var(--green)">0</strong></span>
+      </div>
+      <div class="scene" id="scene"></div>
+      <div class="btns">
+        <button class="btn-choice ai" id="btnAI"><i class="fas fa-robot"></i> Có AI</button>
+        <button class="btn-choice no" id="btnNo"><i class="fas fa-ban"></i> Không có AI</button>
+      </div>
+      <div class="fb" id="fb"></div>
+      <div style="text-align:center">
+        <button class="btn" id="next" style="display:none">Câu tiếp <i class="fas fa-arrow-right"></i></button>
+        <button class="btn" id="restart" style="display:none;background:var(--purple)"><i class="fas fa-redo"></i> Chơi lại</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    const data = [
+      { emoji:'📱', desc:'Điện thoại mở khóa bằng khuôn mặt', ai:true, why:'Nhận diện khuôn mặt là ứng dụng AI phổ biến.' },
+      { emoji:'📺', desc:'TV bật bằng nút remote thông thường', ai:false, why:'Remote thường chỉ gửi tín hiệu, không dùng AI.' },
+      { emoji:'🗣️', desc:'Loa thông minh trả lời câu hỏi của em', ai:true, why:'Trợ lý ảo (Siri, Google Assistant…) dùng AI hiểu giọng nói.' },
+      { emoji:'✏️', desc:'Bút chì viết chữ trên giấy', ai:false, why:'Bút chì là dụng cụ thủ công, không có AI.' },
+      { emoji:'🚗', desc:'Xe tự lái nhận biết biển báo', ai:true, why:'Xe tự lái dùng AI nhìn đường và quyết định.' },
+      { emoji:'📖', desc:'Sách giấy kể chuyện', ai:false, why:'Sách giấy không có máy tính hay AI bên trong.' },
+      { emoji:'🎮', desc:'Game gợi ý nước đi thông minh', ai:true, why:'Nhiều game dùng AI để tạo đối thủ thông minh.' },
+      { emoji:'🔦', desc:'Đèn pin bật bằng công tắc', ai:false, why:'Công tắc đèn đơn giản, không cần AI.' },
+      { emoji:'📷', desc:'Ứng dụng chỉnh ảnh làm đẹp khuôn mặt', ai:true, why:'Bộ lọc làm đẹp dùng AI nhận diện khuôn mặt.' },
+      { emoji:'🧮', desc:'Máy tính cầm tay cộng trừ nhân chia', ai:false, why:'Máy tính cơ bản tính theo công thức cố định, chưa phải AI học.' },
+      { emoji:'🛒', desc:'Website gợi ý sản phẩm em có thể thích', ai:true, why:'Hệ thống gợi ý dùng AI học từ hành vi người dùng.' },
+      { emoji:'❄️', desc:'Tủ lạnh giữ đồ ăn lạnh', ai:false, why:'Tủ lạnh thường chỉ điều khiển nhiệt độ, không “suy nghĩ”.' }
+    ];
+    let q = [], i = 0, score = 0, done = false;
+
+    function shuffle(a){ const b=[...a]; for(let j=b.length-1;j>0;j--){const k=Math.floor(Math.random()*(j+1));[b[j],b[k]]=[b[k],b[j]];} return b; }
+
+    function start() {
+      q = shuffle(data).slice(0, 10);
+      i = 0; score = 0; done = false;
+      document.getElementById('score').textContent = '0';
+      document.getElementById('total').textContent = q.length;
+      document.getElementById('next').style.display = 'none';
+      document.getElementById('restart').style.display = 'none';
+      load();
+    }
+
+    function load() {
+      done = false;
+      document.getElementById('num').textContent = i + 1;
+      document.getElementById('fb').className = 'fb';
+      document.getElementById('next').style.display = 'none';
+      const d = q[i];
+      document.getElementById('scene').innerHTML = `<div class="big">${d.emoji}</div><div class="desc">${d.desc}</div>`;
+      ['btnAI','btnNo'].forEach(id => {
+        const el = document.getElementById(id);
+        el.className = 'btn-choice ' + (id==='btnAI'?'ai':'no');
+        el.disabled = false;
+      });
+    }
+
+    function answer(isAI) {
+      if (done) return;
+      done = true;
+      const d = q[i];
+      const ok = isAI === d.ai;
+      const btnAI = document.getElementById('btnAI');
+      const btnNo = document.getElementById('btnNo');
+      btnAI.classList.add('disabled');
+      btnNo.classList.add('disabled');
+      if (ok) {
+        score += 10;
+        document.getElementById('score').textContent = score;
+        (isAI ? btnAI : btnNo).classList.add('correct');
+        document.getElementById('fb').className = 'fb show ok';
+        document.getElementById('fb').innerHTML = `<i class="fas fa-check-circle"></i> Đúng! ${d.why}`;
+      } else {
+        (isAI ? btnAI : btnNo).classList.add('wrong');
+        (d.ai ? btnAI : btnNo).classList.add('correct');
+        document.getElementById('fb').className = 'fb show err';
+        document.getElementById('fb').innerHTML = `<i class="fas fa-info-circle"></i> ${d.why}`;
+      }
+      if (i < q.length - 1) document.getElementById('next').style.display = 'inline-flex';
+      else {
+        document.getElementById('restart').style.display = 'inline-flex';
+        document.getElementById('fb').innerHTML += `<br>🎉 Xong! Điểm: <strong>${score}</strong>/${q.length*10}`;
+      }
+    }
+
+    document.getElementById('btnAI').onclick = () => answer(true);
+    document.getElementById('btnNo').onclick = () => answer(false);
+    document.getElementById('next').onclick = () => { i++; load(); };
+    document.getElementById('restart').onclick = start;
+    start();
+  </script>
+
+  <script>
+    (function(){
+      try {
+        var g = localStorage.getItem('ai_grade') || '1';
+        var a = document.getElementById('backLink');
+        if (a) a.href = 'lam-quen-voi-ai.html#lop' + g;
+      } catch(e) {}
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Nhận màu thật | Làm quen với AI</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --blue:#0b5fff; --green:#00a86b; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Be Vietnam Pro',system-ui,sans-serif; background:linear-gradient(160deg,#fef3c7,#e0e7ff,#fce7f3); min-height:100vh; color:#0f172a; }
+    .topbar { background:#fff; box-shadow:0 2px 12px rgba(0,0,0,.06); padding:12px 20px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:50; }
+    .topbar a { color:var(--blue); font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:6px; font-size:14px; }
+    .topbar h1 { font-size:16px; font-weight:800; color:#e11d8b; }
+    .wrap { max-width:640px; margin:0 auto; padding:20px 16px 48px; }
+    .hero { background:linear-gradient(135deg,#f59e0b,#e11d8b); color:#fff; border-radius:20px; padding:20px; text-align:center; margin-bottom:16px; }
+    .card { background:#fff; border-radius:18px; box-shadow:0 4px 24px rgba(0,0,0,.08); padding:18px; margin-bottom:14px; }
+    .video-wrap { position:relative; width:100%; max-width:400px; margin:0 auto; border-radius:16px; overflow:hidden; background:#0f172a; aspect-ratio:4/3; }
+    video, canvas { width:100%; height:100%; object-fit:cover; display:block; }
+    canvas { position:absolute; left:0; top:0; pointer-events:none; }
+    .center-box { position:absolute; left:50%; top:50%; width:80px; height:80px; margin:-40px 0 0 -40px; border:3px solid #fff; border-radius:12px; box-shadow:0 0 0 9999px rgba(0,0,0,.25); }
+    .btn { display:inline-flex; align-items:center; gap:8px; padding:12px 22px; border-radius:999px; font-weight:700; font-size:14px; border:0; cursor:pointer; background:var(--blue); color:#fff; font-family:inherit; margin:8px 4px; }
+    .btn:disabled { opacity:.5; }
+    .swatch { width:72px; height:72px; border-radius:16px; border:3px solid #e2e8f0; margin:0 auto 8px; }
+    .result { text-align:center; font-weight:800; font-size:20px; margin-top:12px; min-height:90px; }
+    .status { text-align:center; font-size:13px; color:#64748b; }
+    .task { background:#fffbeb; border-radius:12px; padding:12px; font-size:14px; font-weight:700; text-align:center; margin-bottom:12px; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <a href="lam-quen-voi-ai.html" id="backLink"><i class="fas fa-arrow-left"></i> Quay lại</a>
+    <h1><i class="fas fa-eye-dropper"></i> AI nhận màu thật</h1>
+    <span style="width:80px"></span>
+  </div>
+  <div class="wrap">
+    <div class="hero">
+      <h2>🎨 Đưa vật màu vào khung</h2>
+      <p>AI nhìn vùng giữa camera và nói tên màu tiếng Việt!</p>
+    </div>
+    <div class="card">
+      <div class="task" id="task">Nhiệm vụ: Tìm một vật màu <strong id="targetName">đỏ</strong> và đưa vào ô giữa!</div>
+      <div class="video-wrap">
+        <video id="video" autoplay playsinline muted></video>
+        <canvas id="canvas"></canvas>
+        <div class="center-box"></div>
+      </div>
+      <div style="text-align:center">
+        <button class="btn" id="btnCam"><i class="fas fa-video"></i> Bật camera</button>
+        <button class="btn" id="btnNext" style="background:#7c3aed;display:none"><i class="fas fa-arrow-right"></i> Màu tiếp</button>
+      </div>
+      <div class="result" id="result">
+        <div class="swatch" id="swatch" style="background:#e2e8f0"></div>
+        <div id="colorName">—</div>
+      </div>
+      <p class="status" id="status">Bật camera rồi đưa vật màu vào ô vuông giữa màn hình.</p>
+    </div>
+  </div>
+  <script>
+    const COLORS = [
+      { name:'đỏ', rgb:[220,40,40], css:'#ef4444' },
+      { name:'cam', rgb:[240,120,30], css:'#f97316' },
+      { name:'vàng', rgb:[240,200,40], css:'#eab308' },
+      { name:'xanh lá', rgb:[40,180,80], css:'#22c55e' },
+      { name:'xanh dương', rgb:[40,100,220], css:'#3b82f6' },
+      { name:'tím', rgb:[140,60,200], css:'#a855f7' },
+      { name:'hồng', rgb:[240,100,160], css:'#ec4899' },
+      { name:'nâu', rgb:[140,90,50], css:'#a16207' },
+      { name:'đen', rgb:[30,30,30], css:'#1e293b' },
+      { name:'trắng', rgb:[240,240,240], css:'#f8fafc' }
+    ];
+    let stream=null, raf=null, target=null, found=false;
+
+    function pickTarget() {
+      target = COLORS[Math.floor(Math.random()*COLORS.length)];
+      document.getElementById('targetName').textContent = target.name;
+      document.getElementById('targetName').style.color = target.css;
+      found=false;
+      document.getElementById('btnNext').style.display='none';
+      document.getElementById('status').textContent = 'Tìm vật màu '+target.name+' đưa vào ô giữa!';
+    }
+
+    function nearestColor(r,g,b) {
+      let best=COLORS[0], bestD=1e9;
+      COLORS.forEach(c => {
+        const d = (r-c.rgb[0])**2 + (g-c.rgb[1])**2 + (b-c.rgb[2])**2;
+        if (d<bestD) { bestD=d; best=c; }
+      });
+      return best;
+    }
+
+    async function startCam() {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:'environment', width:640, height:480 }, audio:false });
+        video.srcObject = stream;
+        await video.play();
+        canvas.width = video.videoWidth||640;
+        canvas.height = video.videoHeight||480;
+        document.getElementById('btnCam').disabled = true;
+        pickTarget();
+        loop();
+      } catch(e) {
+        document.getElementById('status').textContent = 'Không mở được camera.';
+      }
+    }
+
+    function loop() {
+      if (!stream) return;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      // sample center region
+      const cx = Math.floor(canvas.width/2), cy = Math.floor(canvas.height/2);
+      const size = Math.floor(Math.min(canvas.width, canvas.height)*0.12);
+      const data = ctx.getImageData(cx-size/2, cy-size/2, size, size).data;
+      let r=0,g=0,b=0,n=0;
+      for (let i=0;i<data.length;i+=16) { r+=data[i]; g+=data[i+1]; b+=data[i+2]; n++; }
+      r=Math.round(r/n); g=Math.round(g/n); b=Math.round(b/n);
+      const col = nearestColor(r,g,b);
+      document.getElementById('swatch').style.background = 'rgb('+r+','+g+','+b+')';
+      document.getElementById('colorName').textContent = 'AI thấy: màu '+col.name;
+      if (target && col.name===target.name && !found) {
+        found=true;
+        document.getElementById('status').innerHTML = '🎉 Đúng rồi! AI nhận ra màu <strong>'+col.name+'</strong>';
+        document.getElementById('btnNext').style.display='inline-flex';
+      }
+      raf = requestAnimationFrame(loop);
+    }
+
+    document.getElementById('btnCam').onclick = startCam;
+    document.getElementById('btnNext').onclick = pickTarget;
+    try {
+      const g = localStorage.getItem('ai_grade')||'2';
+      document.getElementById('backLink').href='lam-quen-voi-ai.html#lop'+g;
+    } catch(e){}
+  </script>
+</body>
+</html>

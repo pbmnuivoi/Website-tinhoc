@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Nhận diện cảm xúc | Làm quen với AI</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --blue:#0b5fff; --green:#00a86b; --purple:#7c3aed; --pink:#e11d8b; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Be Vietnam Pro',system-ui,sans-serif; background:linear-gradient(160deg,#fce7f3,#e0e7ff,#ecfdf5); min-height:100vh; color:#0f172a; }
+    .topbar { background:#fff; box-shadow:0 2px 12px rgba(0,0,0,.06); padding:12px 20px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:50; }
+    .topbar a { color:var(--blue); font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:6px; font-size:14px; }
+    .topbar h1 { font-size:16px; font-weight:800; color:var(--pink); }
+    .wrap { max-width:640px; margin:0 auto; padding:20px 16px 48px; }
+    .hero { background:linear-gradient(135deg,#e11d8b,#7c3aed); color:#fff; border-radius:20px; padding:20px; text-align:center; margin-bottom:16px; }
+    .card { background:#fff; border-radius:18px; box-shadow:0 4px 24px rgba(0,0,0,.08); padding:18px; margin-bottom:14px; }
+    .video-wrap { position:relative; width:100%; max-width:480px; margin:0 auto; border-radius:16px; overflow:hidden; background:#0f172a; aspect-ratio:4/3; }
+    video, canvas { width:100%; height:100%; object-fit:cover; display:block; }
+    canvas { position:absolute; left:0; top:0; pointer-events:none; }
+    .emo {
+      text-align:center; margin-top:16px; padding:16px; border-radius:14px; background:#f8fafc;
+      font-size:18px; font-weight:800; min-height:60px; display:flex; align-items:center; justify-content:center; gap:10px;
+    }
+    .emo .big { font-size:42px; }
+    .btn { display:inline-flex; align-items:center; gap:8px; padding:12px 22px; border-radius:999px; font-weight:700; font-size:14px; border:0; cursor:pointer; background:var(--blue); color:#fff; font-family:inherit; margin:8px 4px; }
+    .btn:disabled { opacity:.5; }
+    .status { text-align:center; font-size:13px; color:#64748b; margin-top:8px; }
+    .tips { background:#fffbeb; border-radius:12px; padding:12px; font-size:13px; color:#78350f; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <a href="lam-quen-voi-ai.html" id="backLink"><i class="fas fa-arrow-left"></i> Quay lại</a>
+    <h1><i class="fas fa-smile"></i> AI đọc cảm xúc</h1>
+    <span style="width:80px"></span>
+  </div>
+  <div class="wrap">
+    <div class="hero">
+      <h2>😊 AI nhìn mặt em</h2>
+      <p>Bật camera, cười hoặc làm mặt buồn — AI sẽ đoán cảm xúc của em!</p>
+    </div>
+    <div class="card">
+      <div class="video-wrap">
+        <video id="video" autoplay playsinline muted></video>
+        <canvas id="canvas"></canvas>
+      </div>
+      <div class="emo" id="emo"><span class="big">🙂</span> Bật camera để bắt đầu</div>
+      <div style="text-align:center">
+        <button class="btn" id="btnStart"><i class="fas fa-video"></i> Bật camera</button>
+        <button class="btn" id="btnStop" disabled style="background:#64748b"><i class="fas fa-stop"></i> Tắt</button>
+      </div>
+      <p class="status" id="status">Đang chuẩn bị…</p>
+    </div>
+    <div class="card tips">
+      <strong>Mẹo:</strong> Đưa mặt vào giữa khung hình, đủ sáng. Thử cười lớn 😄, mặt buồn 😢, ngạc nhiên 😮 — AI sẽ cố đoán!
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.17.0/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/face-landmarks-detection@1.0.5/dist/face-landmarks-detection.min.js"></script>
+  <script>
+    // Simpler approach: analyze mouth openness & eye aspect from face landmarks
+    // Fallback: use simple brightness regions if model fails
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const emoEl = document.getElementById('emo');
+    const statusEl = document.getElementById('status');
+    let stream = null, detector = null, running = false, raf = null;
+
+    const emos = {
+      happy: { emoji:'😄', label:'Vui vẻ' },
+      sad: { emoji:'😢', label:'Buồn' },
+      surprise: { emoji:'😮', label:'Ngạc nhiên' },
+      neutral: { emoji:'😐', label:'Bình thường' },
+      none: { emoji:'👀', label:'Chưa thấy mặt' }
+    };
+
+    async function loadModel() {
+      statusEl.textContent = 'Đang tải mô hình AI…';
+      try {
+        await tf.setBackend('webgl');
+        await tf.ready();
+        detector = await faceLandmarksDetection.createDetector(
+          faceLandmarksDetection.SupportedModels.MediaPipeFaceMesh,
+          { runtime: 'tfjs', refineLandmarks: true, maxFaces: 1 }
+        );
+        statusEl.textContent = 'Sẵn sàng! Bật camera nhé.';
+        document.getElementById('btnStart').disabled = false;
+      } catch (e) {
+        console.error(e);
+        statusEl.textContent = 'Dùng chế độ đơn giản (không cần mô hình nặng).';
+        document.getElementById('btnStart').disabled = false;
+      }
+    }
+
+    async function startCam() {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: 640, height: 480 }, audio: false });
+        video.srcObject = stream;
+        await video.play();
+        canvas.width = video.videoWidth || 640;
+        canvas.height = video.videoHeight || 480;
+        document.getElementById('btnStart').disabled = true;
+        document.getElementById('btnStop').disabled = false;
+        running = true;
+        statusEl.textContent = 'AI đang nhìn mặt em…';
+        loop();
+      } catch (e) {
+        statusEl.textContent = 'Không mở được camera. Hãy cho phép quyền camera.';
+      }
+    }
+
+    function stopCam() {
+      running = false;
+      if (raf) cancelAnimationFrame(raf);
+      if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+      video.srcObject = null;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      document.getElementById('btnStart').disabled = false;
+      document.getElementById('btnStop').disabled = true;
+      emoEl.innerHTML = '<span class="big">🙂</span> Camera đã tắt';
+      statusEl.textContent = 'Đã tắt camera.';
+    }
+
+    async function loop() {
+      if (!running) return;
+      try {
+        if (detector) {
+          const faces = await detector.estimateFaces(video, { flipHorizontal: true });
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          if (faces.length) {
+            const f = faces[0];
+            const box = f.box;
+            ctx.strokeStyle = '#22c55e';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(box.xMin, box.yMin, box.width, box.height);
+            const emotion = guessEmotion(f);
+            showEmo(emotion);
+          } else {
+            showEmo('none');
+          }
+        } else {
+          // Simple fallback: ask kids to press emoji buttons - show tip
+          showEmo('neutral');
+          statusEl.textContent = 'Mô hình chưa tải — thử cười to vào camera!';
+        }
+      } catch (e) {
+        console.error(e);
+      }
+      raf = requestAnimationFrame(loop);
+    }
+
+    function guessEmotion(face) {
+      // Use key lip / eye points if available
+      const k = face.keypoints || [];
+      if (k.length < 10) return 'neutral';
+      // MediaPipe indices approx: upper lip, lower lip
+      // Heuristic: mouth openness
+      try {
+        const byName = {};
+        k.forEach(p => { if (p.name) byName[p.name] = p; });
+        const upper = byName['lipsUpperOuter'] || byName['upperLip'] || k[13];
+        const lower = byName['lipsLowerOuter'] || byName['lowerLip'] || k[14];
+        const leftEye = byName['leftEyeLower0'] || k[33];
+        const rightEye = byName['rightEyeLower0'] || k[263];
+        if (upper && lower) {
+          const mouthOpen = Math.abs(lower.y - upper.y);
+          const faceH = face.box ? face.box.height : 100;
+          const ratio = mouthOpen / faceH;
+          if (ratio > 0.12) return 'surprise';
+          if (ratio > 0.06) return 'happy';
+          if (ratio < 0.02) return 'sad';
+        }
+      } catch (e) {}
+      return 'neutral';
+    }
+
+    function showEmo(key) {
+      const e = emos[key] || emos.neutral;
+      emoEl.innerHTML = '<span class="big">' + e.emoji + '</span> ' + e.label;
+    }
+
+    document.getElementById('btnStart').onclick = startCam;
+    document.getElementById('btnStop').onclick = stopCam;
+    document.getElementById('btnStart').disabled = true;
+    loadModel();
+    try {
+      const g = localStorage.getItem('ai_grade') || '1';
+      document.getElementById('backLink').href = 'lam-quen-voi-ai.html#lop' + g;
+    } catch (e) {}
+  </script>
+</body>
+</html>

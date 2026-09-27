@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Tạo Tranh | Làm quen với AI</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --blue:#0b5fff; --purple:#7c3aed; --pink:#e11d8b; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Be Vietnam Pro',system-ui,sans-serif; background:linear-gradient(160deg,#fdf2f8,#ede9fe,#e0f2fe); min-height:100vh; color:#0f172a; }
+    .topbar { background:#fff; box-shadow:0 2px 12px rgba(0,0,0,.06); padding:12px 20px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:50; }
+    .topbar a { color:var(--blue); font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:6px; font-size:14px; }
+    .topbar h1 { font-size:17px; font-weight:800; color:var(--pink); }
+    .wrap { max-width:720px; margin:0 auto; padding:20px 16px 48px; }
+    .hero { background:linear-gradient(135deg,#e11d8b,#7c3aed); color:#fff; border-radius:20px; padding:20px; text-align:center; margin-bottom:16px; }
+    .card { background:#fff; border-radius:18px; box-shadow:0 4px 24px rgba(0,0,0,.08); padding:18px; margin-bottom:14px; }
+    .label { font-weight:800; font-size:14px; margin-bottom:10px; display:flex; align-items:center; gap:8px; }
+    .label b { width:24px; height:24px; border-radius:50%; background:var(--purple); color:#fff; display:grid; place-items:center; font-size:12px; }
+    .opts { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
+    .opt { padding:10px 14px; border-radius:14px; border:2px solid #e2e8f0; background:#f8fafc; font-weight:700; font-size:13px; cursor:pointer; transition:.15s; user-select:none; }
+    .opt:hover { border-color:var(--purple); }
+    .opt.on { border-color:var(--purple); background:#ede9fe; color:#5b21b6; box-shadow:0 0 0 3px rgba(124,58,237,.2); }
+    .btn { display:inline-flex; align-items:center; gap:8px; padding:14px 28px; border-radius:999px; font-weight:800; font-size:15px; border:0; cursor:pointer; background:linear-gradient(135deg,#e11d8b,#7c3aed); color:#fff; font-family:inherit; }
+    .btn:disabled { opacity:.45; cursor:not-allowed; }
+    .btn:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 8px 22px rgba(124,58,237,.3); }
+    .stage { background:#0f172a; border-radius:16px; overflow:hidden; text-align:center; min-height:300px; display:flex; align-items:center; justify-content:center; }
+    .stage canvas { max-width:100%; display:block; }
+    .hint { text-align:center; font-size:13px; color:#64748b; margin-top:10px; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <a href="lam-quen-voi-ai.html" id="backLink"><i class="fas fa-arrow-left"></i> Quay lại</a>
+    <h1><i class="fas fa-palette"></i> AI Tạo Tranh</h1>
+    <span style="width:80px"></span>
+  </div>
+  <div class="wrap">
+    <div class="hero">
+      <h2>🎨 Cùng AI vẽ tranh</h2>
+      <p>Chọn bạn nhỏ, màu sắc và cảnh — AI sẽ vẽ ngay trên màn hình!</p>
+    </div>
+    <div class="card">
+      <div class="label"><b>1</b> Chọn bạn trong tranh</div>
+      <div class="opts" id="chars"></div>
+      <div class="label"><b>2</b> Chọn màu trời</div>
+      <div class="opts" id="skies"></div>
+      <div class="label"><b>3</b> Chọn nơi vui chơi</div>
+      <div class="opts" id="places"></div>
+      <div style="text-align:center;margin:8px 0 4px">
+        <button class="btn" id="drawBtn" disabled><i class="fas fa-magic"></i> AI vẽ tranh ngay</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="stage" id="stage">
+        <p style="color:#94a3b8;padding:40px">Chọn đủ 3 phần rồi bấm “AI vẽ tranh ngay”</p>
+      </div>
+      <p class="hint" id="caption"></p>
+    </div>
+  </div>
+  <script>
+    const chars = [
+      { id:'cat', name:'Mèo con', emoji:'🐱' },
+      { id:'dog', name:'Cún con', emoji:'🐶' },
+      { id:'robot', name:'Robot vui', emoji:'🤖' },
+      { id:'rabbit', name:'Thỏ con', emoji:'🐰' },
+      { id:'bird', name:'Chim non', emoji:'🐦' },
+      { id:'dragon', name:'Rồng con', emoji:'🐲' }
+    ];
+    const skies = [
+      { id:'day', name:'Trời xanh', top:'#7dd3fc', bot:'#e0f2fe' },
+      { id:'sunset', name:'Hoàng hôn', top:'#fb923c', bot:'#fce7f3' },
+      { id:'night', name:'Đêm sao', top:'#1e3a5f', bot:'#312e81' },
+      { id:'pink', name:'Mây hồng', top:'#f9a8d4', bot:'#fce7f3' }
+    ];
+    const places = [
+      { id:'park', name:'Công viên' },
+      { id:'beach', name:'Bãi biển' },
+      { id:'hill', name:'Đồi cỏ' },
+      { id:'space', name:'Vũ trụ' }
+    ];
+    const pick = { char:null, sky:null, place:null };
+
+    function makeOpts(boxId, list, key) {
+      const box = document.getElementById(boxId);
+      box.innerHTML = list.map(o =>
+        '<div class="opt" data-id="'+o.id+'">'+(o.emoji ? o.emoji+' ' : '')+o.name+'</div>'
+      ).join('');
+      box.querySelectorAll('.opt').forEach(el => {
+        el.onclick = () => {
+          box.querySelectorAll('.opt').forEach(x => x.classList.remove('on'));
+          el.classList.add('on');
+          pick[key] = list.find(x => x.id === el.dataset.id);
+          document.getElementById('drawBtn').disabled = !(pick.char && pick.sky && pick.place);
+        };
+      });
+    }
+    makeOpts('chars', chars, 'char');
+    makeOpts('skies', skies, 'sky');
+    makeOpts('places', places, 'place');
+
+    function drawPicture() {
+      const W = 512, H = 512;
+      const c = document.createElement('canvas');
+      c.width = W; c.height = H;
+      const ctx = c.getContext('2d');
+      const g = ctx.createLinearGradient(0, 0, 0, H * 0.55);
+      g.addColorStop(0, pick.sky.top);
+      g.addColorStop(1, pick.sky.bot);
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, W, H);
+      if (pick.sky.id === 'night') {
+        ctx.fillStyle = '#fff';
+        for (let i = 0; i < 40; i++) {
+          ctx.beginPath();
+          ctx.arc(Math.random()*W, Math.random()*H*0.45, Math.random()*2+0.5, 0, Math.PI*2);
+          ctx.fill();
+        }
+      }
+      if (pick.sky.id === 'day' || pick.sky.id === 'pink') {
+        ctx.fillStyle = '#fde047';
+        ctx.beginPath(); ctx.arc(420, 80, 40, 0, Math.PI*2); ctx.fill();
+      } else if (pick.sky.id === 'sunset') {
+        ctx.fillStyle = '#f97316';
+        ctx.beginPath(); ctx.arc(400, 120, 50, 0, Math.PI*2); ctx.fill();
+      } else {
+        ctx.fillStyle = '#f1f5f9';
+        ctx.beginPath(); ctx.arc(420, 70, 28, 0, Math.PI*2); ctx.fill();
+      }
+      if (pick.place.id === 'park' || pick.place.id === 'hill') {
+        ctx.fillStyle = pick.place.id === 'hill' ? '#4ade80' : '#22c55e';
+        ctx.beginPath();
+        ctx.moveTo(0, 340);
+        ctx.quadraticCurveTo(150, 280, 300, 340);
+        ctx.quadraticCurveTo(400, 380, 512, 320);
+        ctx.lineTo(512, 512); ctx.lineTo(0, 512); ctx.fill();
+        for (const x of [60, 200, 380]) {
+          ctx.fillStyle = '#854d0e';
+          ctx.fillRect(x+18, 300, 14, 50);
+          ctx.fillStyle = '#16a34a';
+          ctx.beginPath(); ctx.arc(x+25, 280, 32, 0, Math.PI*2); ctx.fill();
+        }
+      } else if (pick.place.id === 'beach') {
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillRect(0, 320, W, 100);
+        ctx.fillStyle = '#fde68a';
+        ctx.fillRect(0, 400, W, 112);
+        ctx.strokeStyle = '#fff'; ctx.lineWidth = 3;
+        for (let y = 340; y < 400; y += 20) {
+          ctx.beginPath();
+          for (let x = 0; x < W; x += 20) ctx.quadraticCurveTo(x+10, y-8, x+20, y);
+          ctx.stroke();
+        }
+      } else {
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(0, 300, W, 212);
+        ctx.fillStyle = '#a78bfa';
+        ctx.beginPath(); ctx.arc(100, 400, 40, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#38bdf8';
+        ctx.beginPath(); ctx.arc(400, 450, 25, 0, Math.PI*2); ctx.fill();
+      }
+      drawCharacter(ctx, pick.char.id, 256, 280);
+      ctx.fillStyle = 'rgba(255,255,255,0.9)';
+      roundRect(ctx, 80, 460, 352, 40, 12); ctx.fill();
+      ctx.fillStyle = '#5b21b6';
+      ctx.font = 'bold 18px Be Vietnam Pro, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(pick.char.emoji + ' ' + pick.char.name + ' ở ' + pick.place.name, 256, 486);
+      const stage = document.getElementById('stage');
+      stage.innerHTML = '';
+      stage.appendChild(c);
+      document.getElementById('caption').textContent = 'AI đã vẽ: ' + pick.char.name + ' · ' + pick.sky.name + ' · ' + pick.place.name;
+    }
+
+    function drawCharacter(ctx, id, x, y) {
+      if (id === 'cat' || id === 'dog' || id === 'rabbit') {
+        ctx.fillStyle = id === 'cat' ? '#fb923c' : id === 'dog' ? '#d97706' : '#f5f5f4';
+        ctx.beginPath(); ctx.ellipse(x, y+40, 50, 45, 0, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(x, y-10, 42, 0, Math.PI*2); ctx.fill();
+        if (id === 'cat' || id === 'rabbit') {
+          ctx.beginPath(); ctx.moveTo(x-30, y-30); ctx.lineTo(x-20, y-70); ctx.lineTo(x-5, y-35); ctx.fill();
+          ctx.beginPath(); ctx.moveTo(x+30, y-30); ctx.lineTo(x+20, y-70); ctx.lineTo(x+5, y-35); ctx.fill();
+        } else {
+          ctx.beginPath(); ctx.ellipse(x-35, y-20, 14, 10, -0.4, 0, Math.PI*2); ctx.fill();
+          ctx.beginPath(); ctx.ellipse(x+35, y-20, 14, 10, 0.4, 0, Math.PI*2); ctx.fill();
+        }
+        ctx.fillStyle = '#0f172a';
+        ctx.beginPath(); ctx.arc(x-15, y-12, 6, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(x+15, y-12, 6, 0, Math.PI*2); ctx.fill();
+        ctx.strokeStyle = '#0f172a'; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.arc(x, y+5, 14, 0.1, Math.PI-0.1); ctx.stroke();
+        ctx.fillStyle = '#f472b6';
+        ctx.beginPath(); ctx.arc(x, y-2, 5, 0, Math.PI*2); ctx.fill();
+      } else if (id === 'robot') {
+        ctx.fillStyle = '#94a3b8';
+        ctx.fillRect(x-40, y-20, 80, 90);
+        ctx.fillStyle = '#64748b';
+        ctx.fillRect(x-35, y-55, 70, 40);
+        ctx.fillStyle = '#22d3ee';
+        ctx.beginPath(); ctx.arc(x-15, y-35, 8, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(x+15, y-35, 8, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#fbbf24';
+        ctx.fillRect(x-20, y+10, 40, 12);
+        ctx.strokeStyle = '#64748b'; ctx.lineWidth = 4;
+        ctx.beginPath(); ctx.moveTo(x, y-55); ctx.lineTo(x, y-80); ctx.stroke();
+        ctx.fillStyle = '#ef4444';
+        ctx.beginPath(); ctx.arc(x, y-85, 8, 0, Math.PI*2); ctx.fill();
+      } else if (id === 'bird') {
+        ctx.fillStyle = '#38bdf8';
+        ctx.beginPath(); ctx.ellipse(x, y, 45, 35, 0, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(x+30, y-20, 22, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#fbbf24';
+        ctx.beginPath(); ctx.moveTo(x+48, y-20); ctx.lineTo(x+70, y-15); ctx.lineTo(x+48, y-10); ctx.fill();
+        ctx.fillStyle = '#0f172a';
+        ctx.beginPath(); ctx.arc(x+35, y-25, 5, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#0ea5e9';
+        ctx.beginPath(); ctx.ellipse(x-10, y+5, 30, 15, -0.3, 0, Math.PI*2); ctx.fill();
+      } else {
+        ctx.fillStyle = '#4ade80';
+        ctx.beginPath(); ctx.ellipse(x, y+30, 55, 50, 0, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(x, y-15, 40, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#fbbf24';
+        ctx.beginPath(); ctx.moveTo(x-20, y-40); ctx.lineTo(x-15, y-75); ctx.lineTo(x-5, y-40); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(x+20, y-40); ctx.lineTo(x+15, y-75); ctx.lineTo(x+5, y-40); ctx.fill();
+        ctx.fillStyle = '#0f172a';
+        ctx.beginPath(); ctx.arc(x-14, y-18, 6, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(x+14, y-18, 6, 0, Math.PI*2); ctx.fill();
+        ctx.strokeStyle = '#0f172a'; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.arc(x, y-5, 12, 0.2, Math.PI-0.2); ctx.stroke();
+      }
+    }
+    function roundRect(ctx, x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x+r, y);
+      ctx.arcTo(x+w, y, x+w, y+h, r);
+      ctx.arcTo(x+w, y+h, x, y+h, r);
+      ctx.arcTo(x, y+h, x, y, r);
+      ctx.arcTo(x, y, x+w, y, r);
+      ctx.closePath();
+    }
+    document.getElementById('drawBtn').onclick = drawPicture;
+    try {
+      const g = localStorage.getItem('ai_grade') || '1';
+      document.getElementById('backLink').href = 'lam-quen-voi-ai.html#lop' + g;
+    } catch(e) {}
+  </script>
+</body>
+</html>

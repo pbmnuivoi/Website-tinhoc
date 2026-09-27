@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kỹ sư câu lệnh | Làm quen với AI</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --blue:#0b5fff; --green:#00a86b; --purple:#7c3aed; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Be Vietnam Pro',system-ui,sans-serif; background:linear-gradient(160deg,#ede9fe,#e0f2fe,#fef3c7); min-height:100vh; color:#0f172a; }
+    .topbar { background:#fff; box-shadow:0 2px 12px rgba(0,0,0,.06); padding:12px 20px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:50; }
+    .topbar a { color:var(--blue); font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:6px; font-size:14px; }
+    .topbar h1 { font-size:17px; font-weight:800; color:var(--purple); }
+    .wrap { max-width:700px; margin:0 auto; padding:20px 16px 48px; }
+    .hero { background:linear-gradient(135deg,#7c3aed,#0b5fff); color:#fff; border-radius:20px; padding:20px; text-align:center; margin-bottom:16px; }
+    .card { background:#fff; border-radius:18px; box-shadow:0 4px 24px rgba(0,0,0,.08); padding:20px; margin-bottom:14px; }
+    .pieces { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
+    .piece {
+      padding:10px 14px; border-radius:10px; background:#ede9fe; border:2px dashed var(--purple);
+      color:#5b21b6; font-weight:700; font-size:13px; cursor:pointer; user-select:none; transition:.15s;
+    }
+    .piece:hover { background:#ddd6fe; }
+    .piece.used { opacity:.35; pointer-events:none; }
+    .slots { display:flex; flex-direction:column; gap:10px; }
+    .slot {
+      min-height:48px; border:2px dashed #cbd5e1; border-radius:12px; padding:10px 12px;
+      background:#f8fafc; display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+    }
+    .slot.filled { border-style:solid; border-color:var(--green); background:#ecfdf5; }
+    .slot-label { font-size:11px; font-weight:800; color:#64748b; text-transform:uppercase; }
+    .slot .piece { border-style:solid; cursor:pointer; }
+    .result {
+      background:#0f172a; color:#e2e8f0; padding:16px; border-radius:12px; font-size:14px;
+      line-height:1.7; min-height:70px; margin-top:12px;
+    }
+    .result em { color:#94a3b8; }
+    .btn { display:inline-flex; align-items:center; gap:8px; padding:12px 20px; border-radius:999px; font-weight:700; font-size:14px; border:0; cursor:pointer; font-family:inherit; margin:6px 4px 0; }
+    .btn-primary { background:var(--purple); color:#fff; }
+    .btn-ghost { background:#fff; border:2px solid var(--purple); color:var(--purple); }
+    .missions { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px; }
+    .mission {
+      padding:8px 14px; border-radius:999px; border:2px solid #e2e8f0; background:#f8fafc;
+      font-weight:700; font-size:12px; cursor:pointer;
+    }
+    .mission.active { background:var(--blue); color:#fff; border-color:var(--blue); }
+    .hint { font-size:13px; color:#64748b; margin-top:8px; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <a href="lam-quen-voi-ai.html" id="backLink"><i class="fas fa-arrow-left"></i> Làm quen với AI</a>
+    <h1><i class="fas fa-puzzle-piece"></i> Kỹ sư câu lệnh</h1>
+    <span style="width:90px"></span>
+  </div>
+  <div class="wrap">
+    <div class="hero">
+      <h2>🧩 Ghép prompt hoàn chỉnh</h2>
+      <p>Vai trò + Nhiệm vụ + Nội dung + Cách trả lời → học cách giao việc cho AI (lớp 3–5).</p>
+    </div>
+    <div class="card">
+      <p style="font-weight:700;margin-bottom:8px;font-size:14px">Chọn nhiệm vụ mẫu:</p>
+      <div class="missions" id="missions"></div>
+    </div>
+    <div class="card">
+      <p style="font-weight:700;margin-bottom:10px;font-size:14px">Bấm chọn mảnh rồi đưa vào đúng ô:</p>
+      <div class="pieces" id="pieces"></div>
+      <div class="slots">
+        <div class="slot" data-slot="role"><span class="slot-label">1. Vai trò</span></div>
+        <div class="slot" data-slot="task"><span class="slot-label">2. Nhiệm vụ</span></div>
+        <div class="slot" data-slot="content"><span class="slot-label">3. Nội dung</span></div>
+        <div class="slot" data-slot="format"><span class="slot-label">4. Cách trả lời</span></div>
+      </div>
+      <p class="hint">Câu lệnh hoàn chỉnh:</p>
+      <div class="result" id="result"><em>Chọn đủ 4 mảnh để tạo câu lệnh…</em></div>
+      <div style="text-align:center">
+        <button class="btn btn-primary" id="checkBtn"><i class="fas fa-check"></i> Kiểm tra</button>
+        <button class="btn btn-ghost" id="resetBtn"><i class="fas fa-redo"></i> Làm lại</button>
+      </div>
+      <div id="feedback" style="margin-top:12px;font-weight:600;font-size:14px;text-align:center;min-height:24px"></div>
+    </div>
+  </div>
+  <script>
+    const missions = [
+      {
+        name: 'Vòng tuần hoàn nước',
+        pieces: {
+          role: { label: 'Học sinh lớp 4', text: 'Em là học sinh lớp 4' },
+          task: { label: 'Tìm hiểu vòng tuần hoàn nước', text: 'Hãy giúp em tìm hiểu về vòng tuần hoàn của nước' },
+          content: { label: 'Ngôn ngữ đơn giản', text: 'Giải thích bằng ngôn ngữ đơn giản, dễ hiểu' },
+          format: { label: '5 câu ngắn', text: 'Trình bày bằng 5 câu ngắn' }
+        }
+      },
+      {
+        name: 'Giới thiệu bản thân',
+        pieces: {
+          role: { label: 'Học sinh tiểu học', text: 'Em là học sinh tiểu học' },
+          task: { label: 'Viết đoạn giới thiệu', text: 'Hãy giúp em viết đoạn giới thiệu về bản thân' },
+          content: { label: 'Sở thích & ước mơ', text: 'Nói về sở thích và ước mơ của em' },
+          format: { label: '4–6 câu', text: 'Viết khoảng 4 đến 6 câu, giọng thân thiện' }
+        }
+      },
+      {
+        name: 'Ôn bài Khoa học',
+        pieces: {
+          role: { label: 'Trợ lý học tập', text: 'Bạn là trợ lý học tập thân thiện' },
+          task: { label: 'Tóm tắt bài', text: 'Hãy tóm tắt bài về sự quang hợp của cây xanh' },
+          content: { label: 'Ý chính rõ ràng', text: 'Chỉ nêu các ý chính, tránh chi tiết khó' },
+          format: { label: 'Gạch đầu dòng', text: 'Trình bày bằng gạch đầu dòng ngắn' }
+        }
+      }
+    ];
+
+    let cur = 0;
+    let selected = {};
+
+    function renderMissions() {
+      document.getElementById('missions').innerHTML = missions.map((m, i) =>
+        `<div class="mission ${i===cur?'active':''}" data-i="${i}">${m.name}</div>`
+      ).join('');
+      document.querySelectorAll('.mission').forEach(el => {
+        el.onclick = () => { cur = +el.dataset.i; selected = {}; renderPieces(); renderMissions(); update(); };
+      });
+    }
+
+    function renderPieces() {
+      const p = missions[cur].pieces;
+      const order = ['role','task','content','format'];
+      const box = document.getElementById('pieces');
+      box.innerHTML = order.map(k =>
+        `<div class="piece ${selected[k]?'used':''}" data-id="${k}">${p[k].label}</div>`
+      ).join('');
+      box.querySelectorAll('.piece').forEach(el => {
+        el.onclick = () => {
+          if (selected[el.dataset.id]) return;
+          selected[el.dataset.id] = p[el.dataset.id].text;
+          renderPieces();
+          fillSlots();
+          update();
+        };
+      });
+      // reset slots visual
+      document.querySelectorAll('.slot').forEach(s => {
+        const key = s.dataset.slot;
+        const labels = { role:'1. Vai trò', task:'2. Nhiệm vụ', content:'3. Nội dung', format:'4. Cách trả lời' };
+        if (!selected[key]) {
+          s.innerHTML = `<span class="slot-label">${labels[key]}</span>`;
+          s.classList.remove('filled');
+        }
+      });
+      fillSlots();
+    }
+
+    function fillSlots() {
+      const p = missions[cur].pieces;
+      const labels = { role:'1. Vai trò', task:'2. Nhiệm vụ', content:'3. Nội dung', format:'4. Cách trả lời' };
+      Object.keys(selected).forEach(key => {
+        const slot = document.querySelector(`.slot[data-slot="${key}"]`);
+        if (!slot) return;
+        slot.classList.add('filled');
+        slot.innerHTML = `<span class="slot-label">${labels[key]}</span><div class="piece" data-id="${key}">${p[key].label}</div>`;
+        slot.querySelector('.piece').onclick = () => {
+          delete selected[key];
+          renderPieces();
+          update();
+          document.getElementById('feedback').textContent = '';
+        };
+      });
+    }
+
+    function update() {
+      const order = ['role','task','content','format'];
+      const parts = order.filter(k => selected[k]).map(k => selected[k]);
+      const res = document.getElementById('result');
+      if (!parts.length) res.innerHTML = '<em>Chọn đủ 4 mảnh để tạo câu lệnh…</em>';
+      else res.textContent = parts.join('. ') + '.';
+    }
+
+    document.getElementById('checkBtn').onclick = () => {
+      const n = Object.keys(selected).length;
+      const fb = document.getElementById('feedback');
+      if (n < 4) {
+        fb.style.color = '#b45309';
+        fb.textContent = '⚠️ Em cần ghép đủ 4 phần: Vai trò, Nhiệm vụ, Nội dung, Cách trả lời.';
+      } else {
+        fb.style.color = '#065f46';
+        fb.textContent = '🎉 Câu lệnh hoàn chỉnh! Đây chính là cách “giao việc” rõ ràng cho AI.';
+      }
+    };
+
+    document.getElementById('resetBtn').onclick = () => {
+      selected = {};
+      renderPieces();
+      update();
+      document.getElementById('feedback').textContent = '';
+    };
+
+    try {
+      const g = localStorage.getItem('ai_grade') || '3';
+      document.getElementById('backLink').href = 'lam-quen-voi-ai.html#lop' + g;
+    } catch(e){}
+
+    renderMissions();
+    renderPieces();
+  </script>
+</body>
+</html>

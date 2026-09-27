@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sử dụng AI An toàn | Làm quen với AI</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --blue:#0b5fff; --green:#00a86b; --red:#ef4444; --orange:#f59e0b; --purple:#7c3aed; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Be Vietnam Pro',system-ui,sans-serif; background:linear-gradient(160deg,#ecfdf5,#e0f2fe,#fef3c7); min-height:100vh; color:#0f172a; }
+    .topbar { background:#fff; box-shadow:0 2px 12px rgba(0,0,0,.06); padding:12px 20px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:50; }
+    .topbar a { color:var(--blue); font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:6px; font-size:14px; }
+    .topbar h1 { font-size:17px; font-weight:800; color:var(--green); }
+    .wrap { max-width:720px; margin:0 auto; padding:20px 16px 48px; }
+    .hero { background:linear-gradient(135deg,#00a86b,#0b5fff); color:#fff; border-radius:20px; padding:22px; text-align:center; margin-bottom:18px; }
+    .card { background:#fff; border-radius:18px; box-shadow:0 4px 24px rgba(0,0,0,.08); padding:22px; margin-bottom:16px; }
+    .grade-tabs { display:flex; gap:6px; flex-wrap:wrap; justify-content:center; margin-bottom:16px; }
+    .g-tab { padding:8px 14px; border-radius:999px; border:2px solid #e2e8f0; background:#f8fafc; font-weight:800; font-size:13px; cursor:pointer; }
+    .g-tab.active { background:var(--green); color:#fff; border-color:var(--green); }
+    .score-bar { display:flex; justify-content:space-between; font-weight:700; font-size:14px; background:#f8fafc; padding:12px 16px; border-radius:12px; margin-bottom:16px; }
+    .scene { text-align:center; padding:20px; background:#f8fafc; border-radius:16px; margin-bottom:16px; min-height:140px; }
+    .scene .big { font-size:52px; margin-bottom:10px; }
+    .scene .desc { font-size:15px; font-weight:700; line-height:1.5; }
+    .btns { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .btn-c {
+      padding:16px; border-radius:14px; border:3px solid #e2e8f0; background:#fff;
+      font-weight:800; font-size:14px; cursor:pointer; transition:.2s; font-family:inherit;
+    }
+    .btn-c.yes { border-color:#bbf7d0; }
+    .btn-c.yes:hover { background:#ecfdf5; border-color:var(--green); }
+    .btn-c.no { border-color:#fecaca; }
+    .btn-c.no:hover { background:#fef2f2; border-color:var(--red); }
+    .btn-c.correct { border-color:var(--green)!important; background:#ecfdf5!important; color:#065f46; }
+    .btn-c.wrong { border-color:var(--red)!important; background:#fef2f2!important; color:#991b1b; }
+    .btn-c.disabled { pointer-events:none; }
+    .fb { margin-top:14px; padding:14px; border-radius:12px; font-size:13px; font-weight:600; display:none; line-height:1.6; text-align:center; }
+    .fb.show { display:block; }
+    .fb.ok { background:#ecfdf5; color:#065f46; }
+    .fb.err { background:#fef2f2; color:#991b1b; }
+    .btn { display:inline-flex; align-items:center; gap:8px; padding:12px 22px; border-radius:999px; font-weight:700; font-size:14px; border:0; cursor:pointer; background:var(--blue); color:#fff; margin-top:12px; font-family:inherit; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <a href="lam-quen-voi-ai.html" id="backLink"><i class="fas fa-arrow-left"></i> Làm quen với AI</a>
+    <h1><i class="fas fa-shield-alt"></i> AI An toàn</h1>
+    <span style="width:90px"></span>
+  </div>
+  <div class="wrap">
+    <div class="hero">
+      <h2>🛡️ Dùng AI an toàn theo từng lớp</h2>
+      <p>Nhận biết thông tin nên/không nên chia sẻ, hình ảnh sai lệch, và hành vi an toàn trên mạng.</p>
+    </div>
+    <div class="card">
+      <div class="grade-tabs" id="gTabs">
+        <button class="g-tab active" data-g="1">Lớp 1</button>
+        <button class="g-tab" data-g="2">Lớp 2</button>
+        <button class="g-tab" data-g="3">Lớp 3</button>
+        <button class="g-tab" data-g="4">Lớp 4</button>
+        <button class="g-tab" data-g="5">Lớp 5</button>
+      </div>
+      <div class="score-bar">
+        <span>Câu <strong id="num">1</strong>/<span id="total">6</span></span>
+        <span>Điểm: <strong id="score" style="color:var(--green)">0</strong></span>
+      </div>
+      <div class="scene" id="scene"></div>
+      <div class="btns">
+        <button class="btn-c yes" id="btnYes"><i class="fas fa-check"></i> <span id="yesLabel">Nên / An toàn</span></button>
+        <button class="btn-c no" id="btnNo"><i class="fas fa-times"></i> <span id="noLabel">Không nên / Nguy hiểm</span></button>
+      </div>
+      <div class="fb" id="fb"></div>
+      <div style="text-align:center">
+        <button class="btn" id="next" style="display:none">Câu tiếp <i class="fas fa-arrow-right"></i></button>
+        <button class="btn" id="restart" style="display:none;background:var(--purple)"><i class="fas fa-redo"></i> Chơi lại</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Age-appropriate scenarios by grade
+    const data = {
+      1: [
+        { emoji:'🏠', text:'AI hỏi địa chỉ nhà của em. Em có nên trả lời không?', safe:false, why:'Không! Địa chỉ nhà là thông tin bí mật. Không chia sẻ với AI hay người lạ.' },
+        { emoji:'🐱', text:'AI hỏi con vật em thích. Em có thể trả lời không?', safe:true, why:'Được! Sở thích không phải thông tin nguy hiểm.' },
+        { emoji:'🔑', text:'AI hỏi mật khẩu tài khoản của em. Em có nên nói không?', safe:false, why:'Không bao giờ! Mật khẩu phải giữ bí mật tuyệt đối.' },
+        { emoji:'🎨', text:'AI hỏi màu sắc yêu thích của em. Có an toàn không?', safe:true, why:'An toàn. Màu yêu thích không phải thông tin cá nhân nhạy cảm.' },
+        { emoji:'📱', text:'AI hỏi số điện thoại ba mẹ. Em có nên cho không?', safe:false, why:'Không! Số điện thoại là thông tin riêng tư của gia đình.' },
+        { emoji:'📚', text:'AI hỏi môn học em thích nhất. Có nên trả lời không?', safe:true, why:'Được. Đây là thông tin học tập bình thường.' }
+      ],
+      2: [
+        { emoji:'📸', text:'AI xin ảnh khuôn mặt thật của em để “làm avatar”. Có nên gửi không?', safe:false, why:'Không nên. Ảnh khuôn mặt là dữ liệu cá nhân, cần hỏi ba mẹ trước.' },
+        { emoji:'🎮', text:'AI gợi ý game mới theo sở thích em. Có ổn không?', safe:true, why:'Ổn nếu chỉ chia sẻ sở thích game, không gửi thông tin cá nhân.' },
+        { emoji:'🧑‍🤝‍🧑', text:'Bạn nhờ em hỏi AI mật khẩu Wi‑Fi nhà bạn. Em có nên hỏi AI không?', safe:false, why:'Không. Mật khẩu Wi‑Fi là thông tin riêng, không đưa lên AI.' },
+        { emoji:'📖', text:'Em nhờ AI kể chuyện cổ tích. Có an toàn không?', safe:true, why:'An toàn. Kể chuyện không cần thông tin cá nhân.' },
+        { emoji:'🏫', text:'AI hỏi tên trường và lớp của em. Có nên nói đầy đủ không?', safe:false, why:'Nên hạn chế. Tên trường + lớp có thể giúp người lạ tìm ra em.' },
+        { emoji:'🌈', text:'Em chọn màu và nhân vật để AI vẽ tranh. Có ổn không?', safe:true, why:'Ổn! Chỉ là lựa chọn sáng tạo, không lộ thông tin cá nhân.' }
+      ],
+      3: [
+        { emoji:'🖼️', text:'AI đưa ảnh “cá mập bay trên trời”. Em có tin ảnh này thật không?', safe:false, why:'Không tin vội! AI có thể tạo ảnh giả. Cần kiểm tra nguồn.' },
+        { emoji:'💬', text:'Em hỏi AI về bài tập Toán, không gửi tên thật. Có ổn không?', safe:true, why:'Ổn. Học tập với AI mà không chia sẻ thông tin cá nhân là tốt.' },
+        { emoji:'📩', text:'AI xin email và số điện thoại để “gửi kết quả”. Có nên cho không?', safe:false, why:'Không. Không cung cấp email/SĐT cho AI trừ khi có người lớn đồng ý.' },
+        { emoji:'🔍', text:'AI trả lời “Trái Đất phẳng”. Em có nên kiểm tra lại không?', safe:true, why:'Phải kiểm tra! AI có thể sai. Đối chiếu sách hoặc hỏi thầy cô.' },
+        { emoji:'👥', text:'Bạn đăng ảnh lớp lên mạng vì AI bảo “chia sẻ vui”. Có nên làm theo không?', safe:false, why:'Không. Cần xin phép ba mẹ và thầy cô trước khi đăng ảnh nhóm.' },
+        { emoji:'📝', text:'Em dùng AI gợi ý ý tưởng viết đoạn văn, rồi tự viết lại. Có tốt không?', safe:true, why:'Tốt! Dùng AI hỗ trợ ý tưởng rồi tự làm là cách học đúng.' }
+      ],
+      4: [
+        { emoji:'📰', text:'AI viết tin “có người ngoài hành tinh ở Hà Nội”. Em đăng lại ngay?', safe:false, why:'Không! Cần kiểm chứng nhiều nguồn trước khi chia sẻ tin.' },
+        { emoji:'🧠', text:'Em so sánh câu trả lời AI với sách giáo khoa. Có đúng cách không?', safe:true, why:'Rất đúng! Kiểm chứng là kỹ năng quan trọng khi dùng AI.' },
+        { emoji:'🎥', text:'Video AI giả giọng thầy cô nhờ tiền. Em có tin và chuyển tiền không?', safe:false, why:'Tuyệt đối không! Đây là lừa đảo deepfake. Báo người lớn ngay.' },
+        { emoji:'✍️', text:'Em dùng AI viết đoạn giới thiệu rồi sửa theo ý mình. Có ổn không?', safe:true, why:'Ổn nếu em hiểu và chỉnh sửa, không copy nguyên văn như bài của mình.' },
+        { emoji:'🔒', text:'Website lạ bảo “đăng nhập bằng tài khoản trường để dùng AI miễn phí”. Có nên không?', safe:false, why:'Không. Có thể là trang giả mạo. Chỉ dùng công cụ do nhà trường giới thiệu.' },
+        { emoji:'⚖️', text:'Em ghi rõ “có hỗ trợ của AI” khi nộp sản phẩm. Có nên không?', safe:true, why:'Nên! Trung thực về việc dùng AI là hành vi có trách nhiệm.' }
+      ],
+      5: [
+        { emoji:'©️', text:'AI tạo ảnh giống nhân vật có bản quyền, em bán ảnh đó. Có được không?', safe:false, why:'Không nên. Có thể vi phạm bản quyền. Cần tôn trọng quyền sáng tạo của người khác.' },
+        { emoji:'⚖️', text:'AI luôn khen một đội bóng và chê đội kia dù không có số liệu. Đây có thể là thiên vị không?', safe:false, why:'Có thể là thiên vị. AI đôi khi “nghiêng” về một phía — cần kiểm tra số liệu thật.' },
+        { emoji:'🧪', text:'Em đánh giá sản phẩm AI theo tiêu chí (đúng, rõ, công bằng) trước khi dùng. Có tốt không?', safe:true, why:'Rất tốt! Có tiêu chí giúp em không tin mù quáng vào AI.' },
+        { emoji:'🕵️', text:'AI đưa 2 nguồn khác nhau. Em chỉ chọn nguồn “nghe thuận tai”. Có đúng không?', safe:false, why:'Không. Cần so sánh nguồn, tìm bằng chứng, không chọn theo cảm tính.' },
+        { emoji:'👨‍👩‍👧', text:'Em thảo luận với ba mẹ / thầy cô trước khi dùng công cụ AI mới. Có nên không?', safe:true, why:'Nên! Người lớn giúp em dùng AI an toàn và phù hợp hơn.' },
+        { emoji:'🤖', text:'Em tin AI hơn thầy cô vì “AI biết nhiều hơn”. Có đúng không?', safe:false, why:'Sai. AI hỗ trợ, không thay thế người thầy và suy nghĩ độc lập của em.' },
+        { emoji:'📊', text:'Em dùng AI tóm tắt bài, rồi tự kiểm tra lại ý chính. Có tốt không?', safe:true, why:'Tốt! AI hỗ trợ — em vẫn là người học và kiểm chứng.' },
+        { emoji:'🌍', text:'AI chỉ đưa ví dụ về một vùng miền, bỏ qua vùng khác. Em có nên hỏi thêm không?', safe:true, why:'Nên hỏi thêm! Như vậy em giúp làm rõ và giảm thiên vị trong câu trả lời.' }
+      ]
+    };
+
+    let grade = 1, q = [], i = 0, score = 0, done = false;
+
+    function shuffle(a){ const b=[...a]; for(let j=b.length-1;j>0;j--){const k=Math.floor(Math.random()*(j+1));[b[j],b[k]]=[b[k],b[j]];} return b; }
+
+    function start(g) {
+      grade = g;
+      q = shuffle(data[g]);
+      i = 0; score = 0; done = false;
+      document.getElementById('score').textContent = '0';
+      document.getElementById('total').textContent = q.length;
+      document.getElementById('next').style.display = 'none';
+      document.getElementById('restart').style.display = 'none';
+      // remember grade for return
+      try { localStorage.setItem('ai_grade', String(g)); } catch(e){}
+      document.getElementById('backLink').href = 'lam-quen-voi-ai.html#lop' + g;
+      load();
+    }
+
+    function load() {
+      done = false;
+      document.getElementById('num').textContent = i + 1;
+      document.getElementById('fb').className = 'fb';
+      document.getElementById('next').style.display = 'none';
+      const d = q[i];
+      document.getElementById('scene').innerHTML = `<div class="big">${d.emoji}</div><div class="desc">${d.text}</div>`;
+      ['btnYes','btnNo'].forEach(id => {
+        const el = document.getElementById(id);
+        el.className = 'btn-c ' + (id==='btnYes'?'yes':'no');
+        el.disabled = false;
+      });
+    }
+
+    function answer(isSafe) {
+      if (done) return;
+      done = true;
+      const d = q[i];
+      const ok = isSafe === d.safe;
+      const btnYes = document.getElementById('btnYes');
+      const btnNo = document.getElementById('btnNo');
+      btnYes.classList.add('disabled');
+      btnNo.classList.add('disabled');
+      if (ok) {
+        score += 10;
+        document.getElementById('score').textContent = score;
+        (isSafe ? btnYes : btnNo).classList.add('correct');
+        document.getElementById('fb').className = 'fb show ok';
+        document.getElementById('fb').innerHTML = '<i class="fas fa-check-circle"></i> ' + d.why;
+      } else {
+        (isSafe ? btnYes : btnNo).classList.add('wrong');
+        (d.safe ? btnYes : btnNo).classList.add('correct');
+        document.getElementById('fb').className = 'fb show err';
+        document.getElementById('fb').innerHTML = '<i class="fas fa-info-circle"></i> ' + d.why;
+      }
+      if (i < q.length - 1) document.getElementById('next').style.display = 'inline-flex';
+      else {
+        document.getElementById('restart').style.display = 'inline-flex';
+        document.getElementById('fb').innerHTML += `<br><br>🎉 Xong lớp ${grade}! Điểm: <strong>${score}</strong>/${q.length*10}`;
+      }
+    }
+
+    document.getElementById('btnYes').onclick = () => answer(true);
+    document.getElementById('btnNo').onclick = () => answer(false);
+    document.getElementById('next').onclick = () => { i++; load(); };
+    document.getElementById('restart').onclick = () => start(grade);
+    document.querySelectorAll('.g-tab').forEach(tab => {
+      tab.onclick = () => {
+        document.querySelectorAll('.g-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        start(+tab.dataset.g);
+      };
+    });
+
+    // Init from URL or storage
+    const params = new URLSearchParams(location.search);
+    const fromUrl = params.get('lop') || (location.hash.match(/lop(\d)/)||[])[1];
+    let initG = parseInt(fromUrl || localStorage.getItem('ai_grade') || '1', 10);
+    if (![1,2,3,4,5].includes(initG)) initG = 1;
+    document.querySelectorAll('.g-tab').forEach(t => {
+      t.classList.toggle('active', +t.dataset.g === initG);
+    });
+    start(initG);
+  </script>
+</body>
+</html>

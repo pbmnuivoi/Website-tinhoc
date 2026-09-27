@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cùng AI kể chuyện | Làm quen với AI</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --blue:#0b5fff; --green:#00a86b; --purple:#7c3aed; --pink:#e11d8b; --orange:#ff7a00; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Be Vietnam Pro',system-ui,sans-serif; background:linear-gradient(160deg,#fdf2f8,#ede9fe,#e0f2fe); min-height:100vh; color:#0f172a; }
+    .topbar { background:#fff; box-shadow:0 2px 12px rgba(0,0,0,.06); padding:12px 20px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:50; }
+    .topbar a { color:var(--blue); font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:6px; font-size:14px; }
+    .topbar h1 { font-size:17px; font-weight:800; color:var(--pink); }
+    .wrap { max-width:720px; margin:0 auto; padding:20px 16px 48px; }
+    .hero { background:linear-gradient(135deg,#e11d8b,#7c3aed); color:#fff; border-radius:20px; padding:22px; text-align:center; margin-bottom:18px; }
+    .card { background:#fff; border-radius:18px; box-shadow:0 4px 24px rgba(0,0,0,.08); padding:20px; margin-bottom:16px; }
+    .step-title { font-weight:800; font-size:15px; margin-bottom:12px; display:flex; align-items:center; gap:8px; }
+    .options { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:16px; }
+    .opt {
+      padding:12px 16px; border-radius:14px; border:2px solid #e2e8f0; background:#f8fafc;
+      font-weight:700; font-size:14px; cursor:pointer; transition:.2s;
+    }
+    .opt:hover { border-color:var(--purple); background:#f5f3ff; }
+    .opt.selected { border-color:var(--purple); background:#ede9fe; color:#5b21b6; box-shadow:0 0 0 3px rgba(124,58,237,.2); }
+    .story-box {
+      background:#0f172a; color:#e2e8f0; border-radius:16px; padding:20px; min-height:120px;
+      font-size:15px; line-height:1.8; margin-top:8px;
+    }
+    .story-box em { color:#94a3b8; }
+    .btn { display:inline-flex; align-items:center; gap:8px; padding:12px 22px; border-radius:999px; font-weight:700; font-size:14px; border:0; cursor:pointer; background:var(--purple); color:#fff; font-family:inherit; margin-top:12px; }
+    .btn:disabled { opacity:.5; cursor:not-allowed; }
+    .btn-outline { background:#fff; border:2px solid var(--purple); color:var(--purple); }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <a href="lam-quen-voi-ai.html" id="backLink"><i class="fas fa-arrow-left"></i> Làm quen với AI</a>
+    <h1><i class="fas fa-book-open"></i> Cùng AI kể chuyện</h1>
+    <span style="width:90px"></span>
+  </div>
+  <div class="wrap">
+    <div class="hero">
+      <h2>📖 Em chọn – AI kể</h2>
+      <p>Chọn nhân vật, nơi chốn và sự kiện. AI sẽ ghép thành câu chuyện ngắn cho em!</p>
+    </div>
+    <div class="card">
+      <div class="step-title"><span style="background:var(--purple);color:#fff;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:13px">1</span> Chọn nhân vật</div>
+      <div class="options" id="chars"></div>
+
+      <div class="step-title"><span style="background:var(--blue);color:#fff;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:13px">2</span> Chọn nơi chốn</div>
+      <div class="options" id="places"></div>
+
+      <div class="step-title"><span style="background:var(--orange);color:#fff;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:13px">3</span> Chọn sự kiện</div>
+      <div class="options" id="events"></div>
+
+      <div style="text-align:center">
+        <button class="btn" id="genBtn" disabled><i class="fas fa-magic"></i> AI kể chuyện</button>
+        <button class="btn btn-outline" id="resetBtn"><i class="fas fa-redo"></i> Chọn lại</button>
+      </div>
+
+      <div class="step-title" style="margin-top:20px"><i class="fas fa-scroll" style="color:var(--pink)"></i> Câu chuyện của em</div>
+      <div class="story-box" id="story"><em>Chọn đủ 3 phần rồi bấm “AI kể chuyện”…</em></div>
+    </div>
+  </div>
+  <script>
+    const chars = [
+      { id:'rabbit', label:'🐰 Thỏ con' },
+      { id:'robot', label:'🤖 Robot nhỏ' },
+      { id:'girl', label:'👧 Bạn Lan' },
+      { id:'cat', label:'🐱 Mèo Mun' },
+      { id:'dragon', label:'🐉 Rồng con' }
+    ];
+    const places = [
+      { id:'forest', label:'🌲 Rừng xanh' },
+      { id:'school', label:'🏫 Trường học' },
+      { id:'space', label:'🚀 Không gian' },
+      { id:'beach', label:'🏖️ Bãi biển' },
+      { id:'castle', label:'🏰 Lâu đài' }
+    ];
+    const events = [
+      { id:'friend', label:'🤝 Kết bạn mới' },
+      { id:'treasure', label:'💎 Tìm kho báu' },
+      { id:'help', label:'❤️ Giúp đỡ người khác' },
+      { id:'learn', label:'📚 Học điều mới' },
+      { id:'adventure', label:'⚡ Cuộc phiêu lưu' }
+    ];
+
+    const templates = {
+      rabbit_forest_friend: 'Một buổi sáng trong rừng xanh, thỏ con gặp một chú sóc đang tìm hạt dẻ. Thỏ con chia sẻ thức ăn và hai bạn trở thành đôi bạn thân. Chúng chơi đùa dưới ánh nắng, cười vui cả ngày.',
+      rabbit_forest_treasure: 'Thỏ con đi dạo trong rừng thì thấy một tấm bản đồ cũ. Theo bản đồ, thỏ tìm thấy một hộp đầy cà rốt ngọt! Thỏ quyết định chia sẻ với bạn bè trong rừng.',
+      rabbit_school_learn: 'Thỏ con đến trường học dưới tán cây. Cô giáo Cú dạy thỏ đọc sách và vẽ tranh. Cuối ngày, thỏ con đã biết viết tên mình và rất tự hào.',
+      robot_space_adventure: 'Robot nhỏ bay vào không gian trên chiếc tàu màu xanh. Robot khám phá một hành tinh có hoa phát sáng và kết bạn với người ngoài hành tinh thân thiện. Chúng cùng múa dưới bầu trời đầy sao.',
+      robot_school_help: 'Robot nhỏ đến trường để giúp các bạn học sinh. Robot nhắc bài, mang sách và kể chuyện vui. Cả lớp đều thích robot vì robot luôn sẵn sàng giúp đỡ.',
+      girl_beach_treasure: 'Bạn Lan dạo bước trên bãi biển và nhặt được một vỏ ốc bí ẩn. Bên trong có mảnh giấy ghi: “Hãy chia sẻ nụ cười”. Lan mỉm cười với mọi người và cả bãi biển trở nên ấm áp hơn.',
+      girl_castle_adventure: 'Bạn Lan bước vào lâu đài cổ kính. Cô bé giải các câu đố trên tường và tìm ra căn phòng chứa đầy sách cổ. Lan học được rằng dũng cảm và thông minh luôn đi cùng nhau.',
+      cat_forest_friend: 'Mèo Mun đi lạc trong rừng xanh và gặp thỏ con. Hai bạn cùng tìm đường về nhà, vừa đi vừa kể chuyện cười. Từ đó, rừng xanh có thêm một cặp bạn thân vui vẻ.',
+      cat_school_learn: 'Mèo Mun ngồi trong lớp học và chăm chú nghe cô giáo. Hôm đó Mun học cách đếm đến mười và vẽ hình tròn. Mun kêu “meo!” thật to vì vui quá.',
+      dragon_castle_treasure: 'Rồng con bay quanh lâu đài và phát hiện một viên ngọc phát sáng. Thay vì giữ một mình, rồng con dùng ngọc để thắp sáng cả ngôi làng. Mọi người cảm ơn rồng con rất nhiều.',
+      dragon_space_adventure: 'Rồng con đeo kính bảo hộ và bay thẳng lên không gian! Rồng vòng quanh Mặt Trăng, vẫy chào các vì sao, rồi trở về Trái Đất với câu chuyện phiêu lưu tuyệt vời.',
+      default: null
+    };
+
+    // Generate story from parts if no exact template
+    function buildStory(c, p, e) {
+      const key = `${c.id}_${p.id}_${e.id}`;
+      if (templates[key]) return templates[key];
+
+      const charName = c.label.replace(/^[^\s]+\s/, '');
+      const placeName = p.label.replace(/^[^\s]+\s/, '');
+      const eventName = e.label.replace(/^[^\s]+\s/, '');
+
+      const opens = [
+        `Ngày xửa ngày xưa, ${charName} đến ${placeName}.`,
+        `Vào một buổi sáng đẹp trời, ${charName} xuất hiện ở ${placeName}.`,
+        `${charName} đang dạo chơi tại ${placeName} thì điều bất ngờ xảy ra.`
+      ];
+      const middles = {
+        friend: `${charName} gặp một người bạn mới. Cả hai cùng cười, cùng chơi và hứa sẽ giúp đỡ nhau.`,
+        treasure: `${charName} tìm thấy một món đồ quý giá. Nhưng điều quý nhất chính là niềm vui được chia sẻ.`,
+        help: `${charName} thấy ai đó cần giúp đỡ và liền đưa tay ra. Kết thúc ngày hôm đó, mọi người đều hạnh phúc.`,
+        learn: `${charName} học được một điều mới rất thú vị. Từ đó ${charName} trở nên thông minh và tự tin hơn.`,
+        adventure: `Cuộc phiêu lưu bắt đầu! ${charName} vượt qua thử thách và khám phá điều kỳ diệu tại ${placeName}.`
+      };
+      const ends = [
+        'Và mọi người sống hạnh phúc bên nhau.',
+        'Câu chuyện kết thúc bằng những nụ cười rạng rỡ.',
+        'Đó là một ngày đáng nhớ biết bao!'
+      ];
+      const open = opens[Math.floor(Math.random()*opens.length)];
+      const mid = middles[e.id] || middles.adventure;
+      const end = ends[Math.floor(Math.random()*ends.length)];
+      return `${open} ${mid} ${end}`;
+    }
+
+
+    let ttsAudio = null;
+    function speakFemaleVi(text) {
+      if (ttsAudio) { try { ttsAudio.pause(); } catch(e) {} ttsAudio = null; }
+      if ('speechSynthesis' in window) speechSynthesis.cancel();
+      // Chia câu ngắn để Google TTS đọc giọng nữ êm
+      const parts = text.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [text];
+      let i = 0;
+      function playNext() {
+        if (i >= parts.length) return;
+        const chunk = parts[i].trim();
+        i++;
+        if (!chunk) { playNext(); return; }
+        const url = 'https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=vi&q=' + encodeURIComponent(chunk.slice(0, 200));
+        const a = new Audio(url);
+        a.volume = 1;
+        ttsAudio = a;
+        a.onended = playNext;
+        a.onerror = function() { speakLocalFemale(text); };
+        a.play().catch(function() { speakLocalFemale(text); });
+      }
+      playNext();
+    }
+    function speakLocalFemale(text) {
+      if (!('speechSynthesis' in window)) return;
+      speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = 'vi-VN';
+      u.rate = 0.88;
+      u.pitch = 1.25;
+      u.volume = 1;
+      const voices = speechSynthesis.getVoices();
+      const prefer = voices.find(v => /vi/i.test(v.lang) && /female|nữ|linh|my|hoai|google/i.test(v.name))
+        || voices.find(v => /vi/i.test(v.lang) && !/male|nam/i.test(v.name))
+        || voices.find(v => /vi/i.test(v.lang));
+      if (prefer) u.voice = prefer;
+      speechSynthesis.speak(u);
+    }
+    if ('speechSynthesis' in window) {
+      speechSynthesis.getVoices();
+      speechSynthesis.onvoiceschanged = function() { speechSynthesis.getVoices(); };
+    }
+
+    let sel = { char: null, place: null, event: null };
+
+    function renderOpts(containerId, list, key) {
+      const box = document.getElementById(containerId);
+      box.innerHTML = list.map(o =>
+        `<div class="opt" data-id="${o.id}">${o.label}</div>`
+      ).join('');
+      box.querySelectorAll('.opt').forEach(el => {
+        el.onclick = () => {
+          box.querySelectorAll('.opt').forEach(x => x.classList.remove('selected'));
+          el.classList.add('selected');
+          sel[key] = list.find(x => x.id === el.dataset.id);
+          updateBtn();
+        };
+      });
+    }
+
+    function updateBtn() {
+      document.getElementById('genBtn').disabled = !(sel.char && sel.place && sel.event);
+    }
+
+    document.getElementById('genBtn').onclick = () => {
+      const story = buildStory(sel.char, sel.place, sel.event);
+      document.getElementById('story').textContent = story;
+      // Optional TTS
+      // Giọng nữ êm: ưu tiên Google TTS tiếng Việt, dự phòng speechSynthesis
+      speakFemaleVi(story);
+    };
+
+    document.getElementById('resetBtn').onclick = () => {
+      sel = { char: null, place: null, event: null };
+      document.querySelectorAll('.opt').forEach(o => o.classList.remove('selected'));
+      document.getElementById('story').innerHTML = '<em>Chọn đủ 3 phần rồi bấm “AI kể chuyện”…</em>';
+      updateBtn();
+    };
+
+    renderOpts('chars', chars, 'char');
+    renderOpts('places', places, 'place');
+    renderOpts('events', events, 'event');
+  </script>
+
+  <script>
+    (function(){
+      try {
+        var g = localStorage.getItem('ai_grade') || '1';
+        var a = document.getElementById('backLink');
+        if (a) a.href = 'lam-quen-voi-ai.html#lop' + g;
+      } catch(e) {}
+    })();
+  </script>
+</body>
+</html>
