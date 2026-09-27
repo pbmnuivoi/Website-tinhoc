@@ -386,8 +386,8 @@
           <input type="text" placeholder="Tìm kiếm...">
           <button type="button"><i class="fas fa-search"></i></button>
         </div>
-        <a href="https://taphuan.nxbgd.vn/tap-huan" target="_blank" rel="noopener" class="btn btn-ghost">Đăng nhập</a>
-        <a href="https://taphuan.nxbgd.vn/tap-huan" target="_blank" rel="noopener" class="btn btn-solid">Đăng ký</a>
+        <a href="404.html" class="btn btn-ghost">Đăng nhập</a>
+        <a href="404.html" class="btn btn-solid">Đăng ký</a>
         <button class="menu-toggle" id="menuBtn"><i class="fas fa-bars"></i></button>
       </div>
     </div>
@@ -567,6 +567,15 @@
           <a href="game-ai-may-hoc.html" style="display:block;padding:16px;border-radius:14px;background:linear-gradient(135deg,#7c3aed,#0b5fff);color:#fff;text-align:center;font-weight:700;text-decoration:none">
             <div style="font-size:28px;margin-bottom:6px">🧠</div>AI Máy học<br><span style="font-size:11px;opacity:.85;font-weight:500">Học Bút & Sách + %</span>
           </a>
+          <a href="game-ai-hoc-toan.html" style="display:block;padding:16px;border-radius:14px;background:linear-gradient(135deg,#7c3aed,#0b5fff);color:#fff;text-align:center;font-weight:700;text-decoration:none">
+            <div style="font-size:28px;margin-bottom:6px">🔢</div>AI Học Toán<br><span style="font-size:11px;opacity:.85;font-weight:500">Kéo thả phép tính</span>
+          </a>
+          <a href="game-ai-hinh-hoc.html" style="display:block;padding:16px;border-radius:14px;background:linear-gradient(135deg,#7c3aed,#3b82f6);color:#fff;text-align:center;font-weight:700;text-decoration:none">
+            <div style="font-size:28px;margin-bottom:6px">📐</div>AI Nhận dạng hình<br><span style="font-size:11px;opacity:.85;font-weight:500">Vẽ tròn vuông tam giác</span>
+          </a>
+          <a href="game-ai-english.html" style="display:block;padding:16px;border-radius:14px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;text-align:center;font-weight:700;text-decoration:none">
+            <div style="font-size:28px;margin-bottom:6px">🇬🇧</div>English với AI<br><span style="font-size:11px;opacity:.85;font-weight:500">Ảnh → Việt + đọc English</span>
+          </a>
           <a href="game-ai-mau-that.html" style="display:block;padding:16px;border-radius:14px;background:linear-gradient(135deg,#f59e0b,#ec4899);color:#fff;text-align:center;font-weight:700;text-decoration:none">
             <div style="font-size:28px;margin-bottom:6px">🎨</div>AI nhận màu thật<br><span style="font-size:11px;opacity:.85;font-weight:500">Camera màu sắc</span>
           </a>
@@ -603,7 +612,7 @@
         { t: 1, noiDung: "Con người và cảm xúc", ungDung: "Nhìn mặt bạn → đoán vui hay buồn", troChoi: "AI đọc cảm xúc", goiY: "Chỉ cần bật camera và cười hoặc làm mặt buồn." },
         { t: 2, noiDung: "AI vì con người", ungDung: "Việc này do AI hay do người làm?", troChoi: "AI hay không AI?", goiY: "Chọn Đúng / Sai — rất ít chữ." },
         { t: 3, noiDung: "AI quanh em", ungDung: "Nghe tiếng thật rồi chọn đúng hình", troChoi: "Nghe tiếng đoán vật", goiY: "Bấm nghe → chọn hình. Không cần gõ chữ." },
-        { t: 4, noiDung: "AI tương tác", ungDung: "Kéo màu và hình đúng chỗ AI yêu cầu", troChoi: "Săn màu – săn hình", goiY: "Kéo thả, AI báo đúng (xanh) hoặc sai (đỏ)." },
+        { t: 4, noiDung: "AI nhận dạng hình học", ungDung: "Vẽ tròn, vuông, tam giác trên bảng", troChoi: "AI Nhận dạng hình", goiY: "Vẽ hình rồi bấm AI đoán — xem % từng loại hình." },
         { t: 5, noiDung: "AI học từ ví dụ", ungDung: "Xem ảnh Bút & Sách → cho AI học", troChoi: "AI Máy học", goiY: "Bấm “Cho AI học”, rồi đưa bút/sách vào camera." },
         { t: 6, noiDung: "AI thực hiện nhiệm vụ", ungDung: "Đưa đồ vật trước camera để AI đoán tên", troChoi: "AI đoán đồ vật", goiY: "Camera nhìn đồ thật và hiện tên đồ vật." }
       ],
@@ -616,7 +625,7 @@
         { t: 6, noiDung: "Hình thành ý tưởng AI", ungDung: "Chọn nhân vật + nơi → AI kể chuyện ngắn", troChoi: "Cùng AI kể chuyện", goiY: "Chỉ cần chọn, không cần viết dài." }
       ],
       3: [
-        { t: 1, noiDung: "AI hỗ trợ học tập", ungDung: "Giơ 1–5 ngón tay, AI đếm giúp em", troChoi: "AI đếm ngón tay", goiY: "Luyện đếm và thấy AI hỗ trợ học số." },
+        { t: 1, noiDung: "AI hỗ trợ học tập", ungDung: "Kéo số A B C D + phép tính → AI tính", troChoi: "AI Học Toán", goiY: "Ghép phép tính, chọn tính đúng hoặc bắt lỗi AI." },
         { t: 2, noiDung: "Con người chủ động", ungDung: "Chọn câu hỏi → xem gợi ý AI → em xác nhận", troChoi: "AI Hỏi – Đáp", goiY: "Em là người quyết định đúng/sai, không phải AI." },
         { t: 3, noiDung: "Kiểm tra kết quả", ungDung: "Tìm chỗ AI trả lời sai và sửa", troChoi: "Bắt lỗi AI", goiY: "Đọc câu AI, tìm lỗi, chọn chỗ đúng." },
         { t: 4, noiDung: "AI trong trường học", ungDung: "Xếp đúng thứ tự các bước dùng AI", troChoi: "AI sắp xếp bước", goiY: "Kéo bước 1→2→3… phù hợp giờ học." },
@@ -649,6 +658,9 @@
 
     // Map game names → interactive HTML files
     const gameMap = {
+      'English với AI': 'game-ai-english.html',
+      'AI Nhận dạng hình': 'game-ai-hinh-hoc.html',
+      'AI Học Toán': 'game-ai-hoc-toan.html',
       'AI sắp xếp bước': 'game-ai-xep-buoc.html',
       'AI nhận màu thật': 'game-ai-mau-that.html',
       'AI Máy học cây cảnh': 'game-ai-may-hoc.html',

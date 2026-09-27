@@ -67,7 +67,7 @@
         <span>Câu: <strong id="qNum">1</strong>/<span id="qTotal">8</span></span>
         <span>Điểm: <strong id="score" style="color:var(--green)">0</strong></span>
       </div>
-      <p class="hint">① Bấm nghe → ② Chọn hình đúng với tiếng vừa nghe</p>
+      <p class="hint">① Bấm nghe tiếng thật → ② Hết tiếng, AI tự chọn đáp án đúng</p>
       <button class="sound-btn" id="playBtn">
         <span class="icon"><i class="fas fa-play-circle"></i></span>
         <span class="label">Bấm để nghe tiếng thật</span>
@@ -167,7 +167,9 @@
       currentAudio = audio;
       audio.onended = () => {
         btn.classList.remove('playing');
-        btn.querySelector('.label').textContent = 'Bấm để nghe lại — rồi chọn hình đúng';
+        btn.querySelector('.label').textContent = 'AI đang chọn đáp án…';
+        // AI tự chọn đáp án đúng khi hết âm thanh
+        setTimeout(() => autoSelectCorrect(), 400);
       };
       audio.onerror = () => {
         btn.classList.remove('playing');
@@ -179,7 +181,15 @@
       });
     }
 
-    function select(el, correct) {
+    function autoSelectCorrect() {
+      if (answered) return;
+      const correct = queue[idx];
+      if (!correct) return;
+      const el = document.querySelector('.choice[data-id="'+correct.id+'"]');
+      if (el) select(el, correct, true);
+    }
+
+    function select(el, correct, byAI) {
       if (answered) return;
       answered = true;
       if (currentAudio) { currentAudio.pause(); currentAudio = null; }
@@ -191,7 +201,9 @@
         score += 10;
         document.getElementById('score').textContent = score;
         fb.className = 'fb show ok';
-        fb.innerHTML = '<i class="fas fa-check-circle"></i> Đúng rồi! Đây là tiếng <strong>'+correct.name+'</strong> '+correct.emoji;
+        fb.innerHTML = byAI
+          ? '<i class="fas fa-robot"></i> AI chọn: <strong>'+correct.name+'</strong> '+correct.emoji+' — Đây là đáp án đúng!'
+          : '<i class="fas fa-check-circle"></i> Đúng rồi! Đây là tiếng <strong>'+correct.name+'</strong> '+correct.emoji;
       } else {
         el.classList.add('wrong');
         document.querySelectorAll('.choice').forEach(c => { if (c.dataset.id === correct.id) c.classList.add('correct'); });

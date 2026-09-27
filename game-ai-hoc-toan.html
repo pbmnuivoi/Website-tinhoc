@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Học Toán | Làm quen với AI</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --blue:#0b5fff; --green:#00a86b; --orange:#f59e0b; --red:#ef4444; --purple:#7c3aed; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Be Vietnam Pro',system-ui,sans-serif; background:linear-gradient(160deg,#e0f2fe,#fef3c7,#ecfdf5); min-height:100vh; color:#0f172a; }
+    .topbar { background:#fff; box-shadow:0 2px 12px rgba(0,0,0,.06); padding:12px 20px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:50; }
+    .topbar a { color:var(--blue); font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:6px; font-size:14px; }
+    .topbar h1 { font-size:16px; font-weight:800; color:var(--purple); }
+    .wrap { max-width:720px; margin:0 auto; padding:20px 16px 48px; }
+    .hero { background:linear-gradient(135deg,#7c3aed,#0b5fff); color:#fff; border-radius:20px; padding:20px; text-align:center; margin-bottom:16px; }
+    .card { background:#fff; border-radius:18px; box-shadow:0 4px 24px rgba(0,0,0,.08); padding:18px; margin-bottom:14px; }
+    .modes { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-bottom:14px; }
+    .mode-btn { padding:10px 16px; border-radius:999px; border:2px solid #e2e8f0; background:#f8fafc; font-weight:800; font-size:13px; cursor:pointer; font-family:inherit; }
+    .mode-btn.on { border-color:var(--purple); background:#ede9fe; color:#5b21b6; }
+    .mode-btn.warn-mode.on { border-color:var(--orange); background:#fffbeb; color:#b45309; }
+    .label { font-weight:800; font-size:13px; color:#64748b; margin:10px 0 8px; text-transform:uppercase; letter-spacing:.03em; }
+    .pool { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; min-height:48px; padding:8px; background:#f8fafc; border-radius:12px; border:2px dashed #e2e8f0; }
+    .chip {
+      min-width:48px; height:48px; padding:0 12px; border-radius:12px; border:2px solid #cbd5e1;
+      background:#fff; font-weight:800; font-size:18px; cursor:grab; display:inline-flex; align-items:center; justify-content:center;
+      user-select:none; touch-action:none;
+    }
+    .chip.op { background:#eef4ff; border-color:#93c5fd; color:#1d4ed8; font-size:22px; }
+    .chip.num { background:#f0fdf4; border-color:#86efac; color:#166534; }
+    .chip.dragging { opacity:.4; }
+    .slots { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; align-items:center; min-height:64px; padding:12px; background:#f1f5f9; border-radius:14px; border:2px solid #e2e8f0; margin-top:8px; }
+    .slot {
+      min-width:56px; height:56px; border-radius:12px; border:2px dashed #94a3b8; background:#fff;
+      display:flex; align-items:center; justify-content:center; font-weight:800; font-size:20px;
+    }
+    .slot.filled { border-style:solid; border-color:var(--blue); background:#eef4ff; }
+    .slot.over { border-color:var(--purple); background:#ede9fe; }
+    .eq { font-size:28px; font-weight:800; color:#64748b; padding:0 4px; }
+    .btn { display:inline-flex; align-items:center; gap:8px; padding:12px 22px; border-radius:999px; font-weight:800; font-size:14px; border:0; cursor:pointer; font-family:inherit; margin:6px 4px; color:#fff; }
+    .btn-purple { background:var(--purple); }
+    .btn-green { background:var(--green); }
+    .btn-orange { background:var(--orange); }
+    .btn-gray { background:#64748b; }
+    .btn:disabled { opacity:.45; }
+    .result {
+      margin-top:14px; padding:16px; border-radius:14px; text-align:center; font-weight:800; font-size:18px; display:none;
+    }
+    .result.show { display:block; }
+    .result.ok { background:#ecfdf5; color:#065f46; }
+    .result.bad { background:#fef2f2; color:#991b1b; border:2px solid #fca5a5; }
+    .result.warn { background:#fffbeb; color:#92400e; border:2px solid #fcd34d; }
+    .values { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:10px; }
+    .val-box { background:#f8fafc; border-radius:12px; padding:8px; text-align:center; border:1px solid #e2e8f0; }
+    .val-box b { display:block; font-size:12px; color:#64748b; }
+    .val-box input { width:100%; border:2px solid #e2e8f0; border-radius:8px; padding:6px; font-size:16px; font-weight:800; text-align:center; font-family:inherit; margin-top:4px; }
+    .hint { font-size:12px; color:#64748b; text-align:center; margin-top:8px; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <a href="lam-quen-voi-ai.html" id="backLink"><i class="fas fa-arrow-left"></i> Quay lại</a>
+    <h1><i class="fas fa-square-root-variable"></i> AI Học Toán</h1>
+    <span style="width:80px"></span>
+  </div>
+  <div class="wrap">
+    <div class="hero">
+      <h2>🔢 Kéo số & phép tính — AI tính giúp</h2>
+      <p>Tạo phép tính bằng kéo thả. Có chế độ tính đúng và chế độ bắt lỗi AI.</p>
+    </div>
+
+    <div class="card">
+      <div class="modes">
+        <button class="mode-btn on" data-mode="exact"><i class="fas fa-check-circle"></i> Tính chính xác</button>
+        <button class="mode-btn warn-mode" data-mode="check"><i class="fas fa-exclamation-triangle"></i> Kiểm chứng (AI có thể sai)</button>
+      </div>
+
+      <div class="label">Giá trị A B C D (điền số)</div>
+      <div class="values">
+        <div class="val-box"><b>A</b><input type="number" id="valA" value="6" min="0" max="99"></div>
+        <div class="val-box"><b>B</b><input type="number" id="valB" value="3" min="0" max="99"></div>
+        <div class="val-box"><b>C</b><input type="number" id="valC" value="2" min="0" max="99"></div>
+        <div class="val-box"><b>D</b><input type="number" id="valD" value="4" min="0" max="99"></div>
+      </div>
+
+      <div class="label">Kéo chữ số / biến</div>
+      <div class="pool" id="numPool"></div>
+
+      <div class="label">Kéo phép toán</div>
+      <div class="pool" id="opPool"></div>
+
+      <div class="label">Ghép phép tính vào đây (kéo thả)</div>
+      <div class="slots" id="slots">
+        <div class="slot" data-i="0"></div>
+        <div class="slot" data-i="1"></div>
+        <div class="slot" data-i="2"></div>
+        <span class="eq">=</span>
+        <div class="slot" data-i="3" style="min-width:72px;border-color:var(--green);background:#f0fdf4" id="ansSlot">?</div>
+      </div>
+      <p class="hint">Ví dụ: kéo A → + → B rồi bấm Bắt đầu. Xóa ô bằng cách kéo ra ngoài hoặc bấm ô đang chọn.</p>
+
+      <div style="text-align:center;margin-top:12px">
+        <button class="btn btn-purple" id="btnRun"><i class="fas fa-play"></i> Bắt đầu học</button>
+        <button class="btn btn-gray" id="btnClear"><i class="fas fa-eraser"></i> Xóa phép tính</button>
+      </div>
+
+      <div class="result" id="result"></div>
+    </div>
+  </div>
+
+  <script>
+    let mode = 'exact'; // exact | check
+    let expr = [null, null, null]; // left, op, right
+    let dragData = null;
+
+    const nums = [
+      { id:'A', label:'A', type:'var' },
+      { id:'B', label:'B', type:'var' },
+      { id:'C', label:'C', type:'var' },
+      { id:'D', label:'D', type:'var' },
+      { id:'n2', label:'2', type:'num', value:2 },
+      { id:'n5', label:'5', type:'num', value:5 },
+      { id:'n10', label:'10', type:'num', value:10 }
+    ];
+    const ops = [
+      { id:'add', label:'+', type:'op' },
+      { id:'sub', label:'−', type:'op' },
+      { id:'mul', label:'×', type:'op' },
+      { id:'div', label:'÷', type:'op' }
+    ];
+
+    function getVarValue(id) {
+      const map = { A:'valA', B:'valB', C:'valC', D:'valD' };
+      if (map[id]) return Number(document.getElementById(map[id]).value) || 0;
+      const n = nums.find(x => x.id === id);
+      return n && n.value != null ? n.value : 0;
+    }
+
+    function renderPools() {
+      const np = document.getElementById('numPool');
+      np.innerHTML = nums.map(n =>
+        `<div class="chip num" draggable="true" data-id="${n.id}" data-type="${n.type}" data-label="${n.label}">${n.label}</div>`
+      ).join('');
+      const op = document.getElementById('opPool');
+      op.innerHTML = ops.map(o =>
+        `<div class="chip op" draggable="true" data-id="${o.id}" data-type="op" data-label="${o.label}">${o.label}</div>`
+      ).join('');
+      bindDrag(document.querySelectorAll('.chip'));
+    }
+
+    function bindDrag(nodes) {
+      nodes.forEach(el => {
+        el.addEventListener('dragstart', e => {
+          dragData = { id: el.dataset.id, type: el.dataset.type, label: el.dataset.label };
+          el.classList.add('dragging');
+          e.dataTransfer.effectAllowed = 'copy';
+        });
+        el.addEventListener('dragend', () => el.classList.remove('dragging'));
+      });
+    }
+
+    function setupSlots() {
+      document.querySelectorAll('.slot').forEach(slot => {
+        const i = +slot.dataset.i;
+        if (i === 3) return; // answer slot not droppable for building
+        slot.addEventListener('dragover', e => { e.preventDefault(); slot.classList.add('over'); });
+        slot.addEventListener('dragleave', () => slot.classList.remove('over'));
+        slot.addEventListener('drop', e => {
+          e.preventDefault();
+          slot.classList.remove('over');
+          if (!dragData) return;
+          // slot 0 and 2 = number/var, slot 1 = op
+          if (i === 1 && dragData.type !== 'op') return;
+          if ((i === 0 || i === 2) && dragData.type === 'op') return;
+          expr[i] = { ...dragData };
+          renderExpr();
+        });
+        slot.addEventListener('click', () => {
+          if (i < 3 && expr[i]) { expr[i] = null; renderExpr(); }
+        });
+      });
+    }
+
+    function renderExpr() {
+      for (let i = 0; i < 3; i++) {
+        const slot = document.querySelector('.slot[data-i="'+i+'"]');
+        if (expr[i]) {
+          slot.textContent = expr[i].label;
+          slot.classList.add('filled');
+        } else {
+          slot.textContent = '';
+          slot.classList.remove('filled');
+        }
+      }
+      document.getElementById('ansSlot').textContent = '?';
+      document.getElementById('result').className = 'result';
+    }
+
+    function compute(a, op, b) {
+      switch (op) {
+        case 'add': return a + b;
+        case 'sub': return a - b;
+        case 'mul': return a * b;
+        case 'div': return b === 0 ? null : Math.round((a / b) * 100) / 100;
+        default: return null;
+      }
+    }
+
+    function wrongAnswer(correct) {
+      // intentionally wrong for check mode
+      const deltas = [1, -1, 2, -2, correct + 1, Math.max(0, correct - 3)];
+      let w = correct + deltas[Math.floor(Math.random() * deltas.length)];
+      if (w === correct) w = correct + 1;
+      return w;
+    }
+
+    function run() {
+      const res = document.getElementById('result');
+      if (!expr[0] || !expr[1] || !expr[2]) {
+        res.className = 'result show warn';
+        res.innerHTML = '<i class="fas fa-info-circle"></i> Hãy kéo đủ: số/biến · phép toán · số/biến';
+        return;
+      }
+      const a = getVarValue(expr[0].id);
+      const b = getVarValue(expr[2].id);
+      const opId = expr[1].id;
+      const correct = compute(a, opId, b);
+      if (correct === null) {
+        res.className = 'result show bad';
+        res.innerHTML = '⚠️ Không chia được cho 0!';
+        return;
+      }
+
+      const formula = `${expr[0].label}(${a}) ${expr[1].label} ${expr[2].label}(${b})`;
+
+      if (mode === 'exact') {
+        document.getElementById('ansSlot').textContent = correct;
+        res.className = 'result show ok';
+        res.innerHTML = `✅ AI tính chính xác:<br><span style="font-size:22px">${formula} = <strong>${correct}</strong></span>`;
+      } else {
+        // check mode: AI may give wrong answer
+        const aiAns = wrongAnswer(correct);
+        document.getElementById('ansSlot').textContent = aiAns;
+        res.className = 'result show bad';
+        res.innerHTML = `
+          ⚠️ <strong>Cảnh báo:</strong> AI đưa ra kết quả <span style="font-size:22px">${aiAns}</span><br>
+          ${formula} → AI nói = ${aiAns}<br>
+          <button class="btn btn-green" id="btnReveal" style="margin-top:10px"><i class="fas fa-eye"></i> Kiểm tra đáp án đúng</button>
+        `;
+        document.getElementById('btnReveal').onclick = () => {
+          document.getElementById('ansSlot').textContent = correct;
+          res.className = 'result show warn';
+          res.innerHTML = `
+            🔍 Đáp án đúng là <strong style="font-size:22px">${correct}</strong><br>
+            AI đã sai! Em vừa <strong>kiểm chứng</strong> kết quả của AI — rất tốt!
+          `;
+        };
+      }
+    }
+
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+      btn.onclick = () => {
+        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('on'));
+        btn.classList.add('on');
+        mode = btn.dataset.mode;
+        document.getElementById('result').className = 'result';
+        document.getElementById('ansSlot').textContent = '?';
+      };
+    });
+    document.getElementById('btnRun').onclick = run;
+    document.getElementById('btnClear').onclick = () => {
+      expr = [null, null, null];
+      renderExpr();
+    };
+
+    renderPools();
+    setupSlots();
+    try {
+      const g = localStorage.getItem('ai_grade') || '3';
+      document.getElementById('backLink').href = 'lam-quen-voi-ai.html#lop' + g;
+    } catch (e) {}
+  </script>
+</body>
+</html>

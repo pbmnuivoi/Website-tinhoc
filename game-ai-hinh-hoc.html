@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Nhận dạng hình học | Làm quen với AI</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --blue:#0b5fff; --green:#00a86b; --purple:#7c3aed; --orange:#f59e0b; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Be Vietnam Pro',system-ui,sans-serif; background:linear-gradient(160deg,#e0e7ff,#ecfdf5,#fef3c7); min-height:100vh; color:#0f172a; }
+    .topbar { background:#fff; box-shadow:0 2px 12px rgba(0,0,0,.06); padding:12px 20px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:50; }
+    .topbar a { color:var(--blue); font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:6px; font-size:14px; }
+    .topbar h1 { font-size:15px; font-weight:800; color:var(--purple); }
+    .wrap { max-width:640px; margin:0 auto; padding:20px 16px 48px; }
+    .hero { background:linear-gradient(135deg,#7c3aed,#0b5fff); color:#fff; border-radius:20px; padding:18px; text-align:center; margin-bottom:14px; }
+    .card { background:#fff; border-radius:18px; box-shadow:0 4px 24px rgba(0,0,0,.08); padding:16px; margin-bottom:14px; }
+    .board-wrap { border-radius:16px; overflow:hidden; border:3px solid #e2e8f0; background:#fff; touch-action:none; }
+    #board { display:block; width:100%; height:auto; cursor:crosshair; background:#fafafa; }
+    .btn { display:inline-flex; align-items:center; gap:6px; padding:11px 18px; border-radius:999px; font-weight:700; font-size:13px; border:0; cursor:pointer; font-family:inherit; margin:4px 3px; color:#fff; }
+    .btn-purple { background:var(--purple); }
+    .btn-blue { background:var(--blue); }
+    .btn-gray { background:#64748b; }
+    .btn-green { background:var(--green); }
+    .result { margin-top:12px; padding:16px; border-radius:14px; background:#f8fafc; text-align:center; min-height:80px; }
+    .result .emoji { font-size:48px; }
+    .result .name { font-size:20px; font-weight:800; margin:6px 0; }
+    .pct-row { display:flex; flex-direction:column; gap:6px; max-width:280px; margin:10px auto 0; text-align:left; }
+    .pct-item { display:grid; grid-template-columns:90px 1fr 40px; align-items:center; gap:6px; font-size:12px; font-weight:700; }
+    .pct-bar { height:8px; background:#e2e8f0; border-radius:999px; overflow:hidden; }
+    .pct-bar > div { height:100%; border-radius:999px; }
+    .hints { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-top:10px; }
+    .hint-chip { background:#ede9fe; color:#5b21b6; padding:6px 12px; border-radius:999px; font-size:12px; font-weight:700; }
+    .tips { background:#eef2ff; border-radius:12px; padding:12px; font-size:13px; color:#3730a3; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <a href="lam-quen-voi-ai.html" id="backLink"><i class="fas fa-arrow-left"></i> Quay lại</a>
+    <h1><i class="fas fa-shapes"></i> AI nhận dạng hình</h1>
+    <span style="width:80px"></span>
+  </div>
+  <div class="wrap">
+    <div class="hero">
+      <h2>📐 Vẽ hình → AI đoán</h2>
+      <p>Vẽ tròn, vuông, chữ nhật, tam giác… AI nhận dạng và hiện %</p>
+    </div>
+    <div class="card">
+      <div class="board-wrap">
+        <canvas id="board" width="560" height="400"></canvas>
+      </div>
+      <div style="text-align:center;margin-top:10px">
+        <button class="btn btn-purple" id="btnGuess"><i class="fas fa-magic"></i> AI đoán hình</button>
+        <button class="btn btn-gray" id="btnClear"><i class="fas fa-eraser"></i> Xóa bảng</button>
+      </div>
+      <div class="hints">
+        <span class="hint-chip">⭕ Tròn</span>
+        <span class="hint-chip">⬜ Vuông</span>
+        <span class="hint-chip">▭ Chữ nhật</span>
+        <span class="hint-chip">🔺 Tam giác</span>
+        <span class="hint-chip">— Đường thẳng</span>
+      </div>
+      <div class="result" id="result">
+        <div class="emoji">✏️</div>
+        <div class="name">Vẽ một hình rồi bấm “AI đoán hình”</div>
+      </div>
+    </div>
+    <div class="card tips">
+      <strong>Mẹo:</strong> Vẽ nét liền, hình to vừa phải. Vuông thì các cạnh gần bằng nhau; tròn thì khép kín.
+    </div>
+  </div>
+  <script>
+    const canvas = document.getElementById('board');
+    const ctx = canvas.getContext('2d');
+    let drawing = false, points = [], strokes = [];
+
+    function resize() {
+      const r = canvas.getBoundingClientRect();
+      // keep internal resolution
+    }
+    ctx.lineWidth = 4;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = '#1e293b';
+
+    function pos(e) {
+      const r = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / r.width;
+      const scaleY = canvas.height / r.height;
+      const src = e.touches ? e.touches[0] : e;
+      return { x: (src.clientX - r.left) * scaleX, y: (src.clientY - r.top) * scaleY };
+    }
+
+    function start(e) { e.preventDefault(); drawing = true; points = []; const p = pos(e); points.push(p); ctx.beginPath(); ctx.moveTo(p.x, p.y); }
+    function move(e) {
+      if (!drawing) return; e.preventDefault();
+      const p = pos(e); points.push(p); ctx.lineTo(p.x, p.y); ctx.stroke();
+    }
+    function end(e) {
+      if (!drawing) return; drawing = false;
+      if (points.length > 3) strokes.push(points.slice());
+      points = [];
+    }
+
+    canvas.addEventListener('mousedown', start);
+    canvas.addEventListener('mousemove', move);
+    canvas.addEventListener('mouseup', end);
+    canvas.addEventListener('mouseleave', end);
+    canvas.addEventListener('touchstart', start, { passive:false });
+    canvas.addEventListener('touchmove', move, { passive:false });
+    canvas.addEventListener('touchend', end);
+
+    function clearBoard() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      strokes = []; points = [];
+      document.getElementById('result').innerHTML = '<div class="emoji">✏️</div><div class="name">Vẽ một hình rồi bấm “AI đoán hình”</div>';
+    }
+
+    function allPoints() {
+      const a = [];
+      strokes.forEach(s => s.forEach(p => a.push(p)));
+      return a;
+    }
+
+    function dist(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
+
+    function analyze() {
+      const pts = allPoints();
+      if (pts.length < 15) {
+        document.getElementById('result').innerHTML = '<div class="emoji">👀</div><div class="name">Vẽ thêm nét nữa nhé!</div>';
+        return;
+      }
+
+      let minX=1e9,minY=1e9,maxX=-1e9,maxY=-1e9;
+      pts.forEach(p => { minX=Math.min(minX,p.x); minY=Math.min(minY,p.y); maxX=Math.max(maxX,p.x); maxY=Math.max(maxY,p.y); });
+      const w = maxX - minX, h = maxY - minY;
+      const aspect = w / (h || 1);
+      const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
+
+      // perimeter approx
+      let peri = 0;
+      for (let i = 1; i < pts.length; i++) peri += dist(pts[i-1], pts[i]);
+      // area via shoe lace on simplified path (every nth point)
+      const step = Math.max(1, Math.floor(pts.length / 40));
+      const simp = [];
+      for (let i = 0; i < pts.length; i += step) simp.push(pts[i]);
+      if (simp.length > 2) {
+        let area = 0;
+        for (let i = 0; i < simp.length; i++) {
+          const j = (i + 1) % simp.length;
+          area += simp[i].x * simp[j].y - simp[j].x * simp[i].y;
+        }
+        area = Math.abs(area) / 2;
+        // circularity: 4πA / P² → 1 for perfect circle
+        const circ = peri > 0 ? (4 * Math.PI * area) / (peri * peri) : 0;
+        // radius variance
+        const rs = pts.map(p => dist(p, { x:cx, y:cy }));
+        const meanR = rs.reduce((a,b)=>a+b,0) / rs.length;
+        const varR = rs.reduce((a,b)=>a+(b-meanR)**2,0) / rs.length;
+        const rCv = meanR > 0 ? Math.sqrt(varR) / meanR : 1;
+
+        // corner-ish: angle changes
+        let sharp = 0;
+        for (let i = 2; i < simp.length - 1; i++) {
+          const a = simp[i-1], b = simp[i], c = simp[i+1];
+          const v1 = { x:a.x-b.x, y:a.y-b.y };
+          const v2 = { x:c.x-b.x, y:c.y-b.y };
+          const d1 = Math.hypot(v1.x,v1.y)||1, d2 = Math.hypot(v2.x,v2.y)||1;
+          const cos = (v1.x*v2.x + v1.y*v2.y) / (d1*d2);
+          const ang = Math.acos(Math.max(-1, Math.min(1, cos)));
+          if (ang < 2.2 && ang > 0.4) sharp++; // corner-like
+        }
+
+        // scores
+        let scores = {
+          circle: 0, square: 0, rect: 0, triangle: 0, line: 0
+        };
+
+        // line: very thin bbox
+        if (Math.min(w,h) < Math.max(w,h) * 0.18) scores.line = 0.85 + (1 - Math.min(w,h)/Math.max(w,h))*0.1;
+        else scores.line = Math.max(0, 0.3 - Math.min(w,h)/Math.max(w,h));
+
+        // circle: high circularity, low radius CV
+        scores.circle = Math.max(0, Math.min(1, circ * 1.2)) * (1 - Math.min(1, rCv * 2));
+        if (rCv < 0.18 && circ > 0.55) scores.circle = Math.max(scores.circle, 0.75);
+        if (rCv < 0.12) scores.circle = Math.max(scores.circle, 0.88);
+
+        // square vs rect
+        const near1 = 1 - Math.min(1, Math.abs(aspect - 1));
+        if (near1 > 0.75 && sharp >= 3) scores.square = 0.5 + near1 * 0.4;
+        if (near1 > 0.85 && rCv > 0.2) scores.square = Math.max(scores.square, 0.7);
+        if (aspect > 1.35 || aspect < 0.75) {
+          scores.rect = 0.55 + Math.min(0.35, Math.abs(Math.log(aspect)) * 0.4);
+          if (sharp >= 3) scores.rect += 0.1;
+        } else if (near1 > 0.7) {
+          scores.rect = 0.25;
+        }
+
+        // triangle: fewer sharp corners cluster ~3
+        if (sharp >= 2 && sharp <= 6 && circ < 0.7) {
+          scores.triangle = 0.45 + (sharp <= 4 ? 0.25 : 0.1);
+          if (rCv > 0.25) scores.triangle += 0.1;
+        }
+
+        // normalize-ish
+        const labels = {
+          circle: { e:'⭕', n:'Hình tròn', c:'#3b82f6' },
+          square: { e:'⬜', n:'Hình vuông', c:'#22c55e' },
+          rect: { e:'▭', n:'Hình chữ nhật', c:'#f59e0b' },
+          triangle: { e:'🔺', n:'Hình tam giác', c:'#ef4444' },
+          line: { e:'➖', n:'Đường thẳng', c:'#64748b' }
+        };
+        const keys = Object.keys(scores).sort((a,b) => scores[b]-scores[a]);
+        // soft normalize display
+        const sum = keys.reduce((s,k)=>s+Math.max(0,scores[k]),0) || 1;
+        const top = keys[0];
+        const topPct = Math.round(Math.max(0, scores[top]) / Math.max(scores[top], 0.01) * Math.min(99, 55 + scores[top]*45));
+
+        let rows = '';
+        keys.forEach(k => {
+          const raw = Math.max(0, scores[k]);
+          const pct = Math.round((raw / sum) * 100);
+          if (pct < 2) return;
+          const L = labels[k];
+          rows += `<div class="pct-item"><span>${L.e} ${L.n}</span><div class="pct-bar"><div style="width:${pct}%;background:${L.c}"></div></div><span>${pct}%</span></div>`;
+        });
+
+        const L = labels[top];
+        document.getElementById('result').innerHTML =
+          `<div class="emoji">${L.e}</div><div class="name">AI đoán: ${L.n}</div>` +
+          `<div class="pct-row">${rows}</div>`;
+      } else {
+        document.getElementById('result').innerHTML = '<div class="emoji">👀</div><div class="name">Chưa đủ nét để đoán</div>';
+      }
+    }
+
+    document.getElementById('btnClear').onclick = clearBoard;
+    document.getElementById('btnGuess').onclick = analyze;
+    try {
+      const g = localStorage.getItem('ai_grade') || '2';
+      document.getElementById('backLink').href = 'lam-quen-voi-ai.html#lop' + g;
+    } catch (e) {}
+  </script>
+</body>
+</html>

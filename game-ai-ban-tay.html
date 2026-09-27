@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Đếm ngón tay | Làm quen với AI</title>
+  <title>AI Đếm ngón tay & Cử chỉ</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
@@ -12,191 +12,243 @@
     body { font-family:'Be Vietnam Pro',system-ui,sans-serif; background:linear-gradient(160deg,#ecfdf5,#e0f2fe,#fef3c7); min-height:100vh; color:#0f172a; }
     .topbar { background:#fff; box-shadow:0 2px 12px rgba(0,0,0,.06); padding:12px 20px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:50; }
     .topbar a { color:var(--blue); font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:6px; font-size:14px; }
-    .topbar h1 { font-size:16px; font-weight:800; color:var(--orange); }
-    .wrap { max-width:640px; margin:0 auto; padding:20px 16px 48px; }
-    .hero { background:linear-gradient(135deg,#f59e0b,#0b5fff); color:#fff; border-radius:20px; padding:20px; text-align:center; margin-bottom:16px; }
-    .card { background:#fff; border-radius:18px; box-shadow:0 4px 24px rgba(0,0,0,.08); padding:18px; margin-bottom:14px; }
-    .video-wrap { position:relative; width:100%; max-width:480px; margin:0 auto; border-radius:16px; overflow:hidden; background:#0f172a; aspect-ratio:4/3; }
-    video, canvas { width:100%; height:100%; object-fit:cover; display:block; }
-    canvas { position:absolute; left:0; top:0; pointer-events:none; }
-    .num-display {
-      text-align:center; margin-top:16px; padding:20px; border-radius:16px;
-      background:linear-gradient(135deg,#0b5fff,#7c3aed); color:#fff;
-      font-size:64px; font-weight:800; letter-spacing:4px; min-height:100px;
-      display:flex; align-items:center; justify-content:center;
-    }
-    .btn { display:inline-flex; align-items:center; gap:8px; padding:12px 22px; border-radius:999px; font-weight:700; font-size:14px; border:0; cursor:pointer; background:var(--blue); color:#fff; font-family:inherit; margin:8px 4px; }
-    .btn:disabled { opacity:.5; }
+    .topbar h1 { font-size:15px; font-weight:800; color:var(--orange); }
+    .wrap { max-width:700px; margin:0 auto; padding:20px 16px 48px; }
+    .hero { background:linear-gradient(135deg,#f59e0b,#0b5fff); color:#fff; border-radius:20px; padding:18px; text-align:center; margin-bottom:14px; }
+    .card { background:#fff; border-radius:18px; box-shadow:0 4px 24px rgba(0,0,0,.08); padding:16px; margin-bottom:14px; }
+    .video-wrap { position:relative; width:100%; max-width:480px; margin:0 auto; border-radius:16px; overflow:hidden; background:#111; aspect-ratio:4/3; }
+    video, canvas { width:100%; height:100%; display:block; object-fit:cover; }
+    canvas { position:absolute; left:0; top:0; }
+    .display { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px; }
+    .box { border-radius:14px; padding:16px; text-align:center; color:#fff; }
+    .box.n { background:linear-gradient(135deg,#0b5fff,#7c3aed); }
+    .box.g { background:linear-gradient(135deg,#f59e0b,#ef4444); }
+    .box .big { font-size:42px; font-weight:800; }
+    .box .sub { font-size:12px; opacity:.9; font-weight:600; margin-top:4px; }
+    .btn { display:inline-flex; align-items:center; gap:6px; padding:12px 20px; border-radius:999px; font-weight:700; font-size:14px; border:0; cursor:pointer; background:var(--blue); color:#fff; font-family:inherit; margin:6px 4px; }
+    .btn:disabled { opacity:.45; }
+    .btn-gray { background:#64748b; }
     .status { text-align:center; font-size:13px; color:#64748b; margin-top:8px; }
-    .tips { background:#ecfdf5; border-radius:12px; padding:12px; font-size:13px; color:#065f46; }
+    .gestures { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:12px; }
+    .g-item { background:#f8fafc; border-radius:12px; padding:10px 6px; text-align:center; border:2px solid #e2e8f0; font-size:12px; font-weight:700; }
+    .g-item .em { font-size:28px; display:block; }
+    .g-item.on { border-color:var(--green); background:#ecfdf5; color:#065f46; box-shadow:0 0 0 3px rgba(0,168,107,.25); }
+    .tips { background:#fffbeb; border-radius:12px; padding:12px; font-size:13px; color:#92400e; }
   </style>
 </head>
 <body>
   <div class="topbar">
     <a href="lam-quen-voi-ai.html" id="backLink"><i class="fas fa-arrow-left"></i> Quay lại</a>
-    <h1><i class="fas fa-hand-paper"></i> AI đếm ngón tay</h1>
+    <h1><i class="fas fa-hand-paper"></i> AI đếm ngón & cử chỉ</h1>
     <span style="width:80px"></span>
   </div>
   <div class="wrap">
     <div class="hero">
-      <h2>✋ Giơ tay — AI đếm số</h2>
-      <p>Bật camera, giơ 1 đến 5 ngón tay. AI sẽ hiện số to trên màn hình!</p>
+      <h2>✋ MediaPipe — chỉ bám bàn tay</h2>
+      <p>Thuật toán chuyên nhận tay, giảm nhiễu thân người</p>
     </div>
     <div class="card">
       <div class="video-wrap">
-        <video id="video" autoplay playsinline muted></video>
+        <video id="video" playsinline></video>
         <canvas id="canvas"></canvas>
       </div>
-      <div class="num-display" id="numBox">?</div>
       <div style="text-align:center">
-        <button class="btn" id="btnStart" disabled><i class="fas fa-video"></i> Bật camera</button>
-        <button class="btn" id="btnStop" disabled style="background:#64748b"><i class="fas fa-stop"></i> Tắt</button>
+        <button class="btn" id="btnStart"><i class="fas fa-video"></i> Bật camera</button>
+        <button class="btn btn-gray" id="btnStop" disabled><i class="fas fa-stop"></i> Tắt</button>
       </div>
-      <p class="status" id="status">Đang tải mô hình AI…</p>
+      <div class="display">
+        <div class="box n"><div class="big" id="num">?</div><div class="sub">Số ngón tay</div></div>
+        <div class="box g"><div class="big" id="gest">—</div><div class="sub" id="gestName">Cử chỉ</div></div>
+      </div>
+      <div class="gestures">
+        <div class="g-item" data-g="rock"><span class="em">✊</span>Búa</div>
+        <div class="g-item" data-g="scissors"><span class="em">✌️</span>Kéo</div>
+        <div class="g-item" data-g="paper"><span class="em">🖐️</span>Bao</div>
+        <div class="g-item" data-g="ok"><span class="em">👌</span>OK</div>
+        <div class="g-item" data-g="like"><span class="em">👍</span>Like</div>
+        <div class="g-item" data-g="peace"><span class="em">✌️</span>Peace</div>
+      </div>
+      <p class="status" id="status">Bấm Bật camera. Đưa một bàn tay gần, lòng bàn tay hướng camera.</p>
     </div>
     <div class="card tips">
-      <strong>Hướng dẫn:</strong> Đưa bàn tay vào khung hình, xòe rõ các ngón. Nền đơn giản, đủ sáng sẽ giúp AI đếm chính xác hơn.
+      <strong>Mẹo khi có thân trong khung:</strong> Đưa tay <b>gần camera</b>, xòe rõ. AI dùng mô hình Hands chuyên dụng (không nhận diện người).
     </div>
   </div>
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.17.0/dist/tf.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/hand-pose-detection@2.0.1/dist/hand-pose-detection.min.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
   <script>
     const video = document.getElementById('video');
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
-    const numBox = document.getElementById('numBox');
-    const statusEl = document.getElementById('status');
-    let stream = null, detector = null, running = false, raf = null;
-    let smoothCount = 0, history = [];
+    let camera = null, hands = null;
+    let histN = [], histG = [];
 
-    async function loadModel() {
-      try {
-        await tf.setBackend('webgl');
-        await tf.ready();
-        detector = await handPoseDetection.createDetector(
-          handPoseDetection.SupportedModels.MediaPipeHands,
-          { runtime: 'tfjs', modelType: 'lite', maxHands: 1 }
-        );
-        statusEl.textContent = 'Sẵn sàng! Bật camera và giơ tay nhé.';
-        document.getElementById('btnStart').disabled = false;
-      } catch (e) {
-        console.error(e);
-        statusEl.textContent = 'Không tải được mô hình. Kiểm tra mạng rồi tải lại trang.';
-      }
+    const GEST = {
+      rock:{e:'✊',n:'Búa'}, scissors:{e:'✌️',n:'Kéo'}, paper:{e:'🖐️',n:'Bao'},
+      ok:{e:'👌',n:'OK'}, like:{e:'👍',n:'Like'}, peace:{e:'✌️',n:'Peace'},
+      one:{e:'☝️',n:'1 ngón'}, three:{e:'🤟',n:'3 ngón'}, four:{e:'🖖',n:'4 ngón'},
+      none:{e:'—',n:'Chưa rõ'}
+    };
+
+    // MediaPipe landmark indices
+    // Thumb: 1,2,3,4  Index:5-8  Middle:9-12  Ring:13-16  Pinky:17-20  Wrist:0
+
+    function dist(a, b) {
+      return Math.hypot(a.x - b.x, a.y - b.y);
     }
 
-    async function startCam() {
-      try {
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: 'user', width: 640, height: 480 },
-          audio: false
+    /** Finger extended using MediaPipe classic logic (works with body in frame) */
+    function fingerOpen(lm, tip, pip, mcp, wrist) {
+      // tip farther from wrist than pip
+      return dist(lm[tip], lm[wrist]) > dist(lm[pip], lm[wrist]) * 1.08
+          && dist(lm[tip], lm[mcp]) > dist(lm[pip], lm[mcp]) * 0.95;
+    }
+
+    function thumbOpen(lm) {
+      // thumb tip (4) vs IP (3) relative to index MCP (5) — sideways open
+      const tip = lm[4], ip = lm[3], mcp = lm[2], indexMcp = lm[5];
+      // distance thumb tip to index mcp larger when open
+      return dist(tip, indexMcp) > dist(ip, indexMcp) * 1.15;
+    }
+
+    function getStates(lm) {
+      return [
+        thumbOpen(lm),
+        fingerOpen(lm, 8, 6, 5, 0),
+        fingerOpen(lm, 12, 10, 9, 0),
+        fingerOpen(lm, 16, 14, 13, 0),
+        fingerOpen(lm, 20, 18, 17, 0)
+      ];
+    }
+
+    function isOK(lm) {
+      // thumb tip close to index tip
+      const palm = dist(lm[0], lm[9]) || 0.15;
+      return dist(lm[4], lm[8]) < palm * 0.5;
+    }
+
+    function classify(s, lm) {
+      const [th, ix, md, rg, pk] = s;
+      const n = s.filter(Boolean).length;
+      if (isOK(lm) && !md && !rg && !pk) return 'ok';
+      if (th && !ix && !md && !rg && !pk) return 'like';
+      if (n === 0) return 'rock';
+      if (ix && md && rg && pk) return 'paper';
+      if (n >= 5) return 'paper';
+      if (ix && md && !rg && !pk) return th ? 'peace' : 'scissors';
+      if (n === 1) return 'one';
+      if (n === 3) return 'three';
+      if (n === 4) return 'four';
+      return 'none';
+    }
+
+    function majority(arr) {
+      if (!arr.length) return null;
+      const f = {};
+      arr.forEach(v => { f[v] = (f[v] || 0) + 1; });
+      let best = arr[0], c = 0;
+      Object.keys(f).forEach(k => { if (f[k] > c) { c = f[k]; best = isNaN(+k) ? k : +k; } });
+      // for strings
+      let bestS = arr[0], cs = 0;
+      Object.keys(f).forEach(k => { if (f[k] > cs) { cs = f[k]; bestS = k; } });
+      return { val: bestS, count: cs };
+    }
+
+    function onResults(results) {
+      canvas.width = video.videoWidth || 640;
+      canvas.height = video.videoHeight || 480;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      // mirror draw video already mirrored by camera utils often - draw landmarks in same space
+      if (!results.multiHandLandmarks || !results.multiHandLandmarks.length) {
+        histN = []; histG = [];
+        document.getElementById('num').textContent = '?';
+        document.getElementById('gest').textContent = '—';
+        document.getElementById('gestName').textContent = 'Chưa thấy tay';
+        document.querySelectorAll('.g-item').forEach(el => el.classList.remove('on'));
+        document.getElementById('status').textContent = 'Đưa một bàn tay vào khung, gần camera, lòng bàn tay hướng máy.';
+        return;
+      }
+
+      // Use first hand only
+      const lm = results.multiHandLandmarks[0];
+      // Draw connections + landmarks (MediaPipe drawing utils)
+      if (window.drawConnectors && window.HAND_CONNECTIONS) {
+        drawConnectors(ctx, lm, HAND_CONNECTIONS, { color: '#22c55e', lineWidth: 3 });
+        drawLandmarks(ctx, lm, { color: '#fbbf24', lineWidth: 1, radius: 4 });
+      } else {
+        // fallback dots
+        ctx.fillStyle = '#fbbf24';
+        lm.forEach(p => {
+          ctx.beginPath();
+          ctx.arc(p.x * canvas.width, p.y * canvas.height, 4, 0, Math.PI * 2);
+          ctx.fill();
         });
-        video.srcObject = stream;
-        await video.play();
-        canvas.width = video.videoWidth || 640;
-        canvas.height = video.videoHeight || 480;
+      }
+
+      // Convert normalized lm to pixel-like for dist (normalized 0-1 is fine for ratios)
+      const states = getStates(lm);
+      const n = states.filter(Boolean).length;
+      const g = classify(states, lm);
+
+      histN.push(n); if (histN.length > 7) histN.shift();
+      histG.push(g); if (histG.length > 7) histG.shift();
+
+      const mN = majority(histN.map(String));
+      const mG = majority(histG);
+      const bestN = mN ? +mN.val : n;
+      const bestG = mG ? mG.val : g;
+
+      document.getElementById('num').textContent = bestN;
+      const gi = GEST[bestG] || GEST.none;
+      document.getElementById('gest').textContent = gi.e;
+      document.getElementById('gestName').textContent = gi.n;
+      document.querySelectorAll('.g-item').forEach(el => el.classList.toggle('on', el.dataset.g === bestG));
+      document.getElementById('status').textContent = 'Đang nhận: ' + bestN + ' ngón · ' + gi.n;
+    }
+
+    function initHands() {
+      hands = new Hands({
+        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+      });
+      hands.setOptions({
+        maxNumHands: 1,
+        modelComplexity: 1,
+        minDetectionConfidence: 0.7,
+        minTrackingConfidence: 0.6
+      });
+      hands.onResults(onResults);
+    }
+
+    async function start() {
+      try {
+        if (!hands) initHands();
+        camera = new Camera(video, {
+          onFrame: async () => { await hands.send({ image: video }); },
+          width: 640,
+          height: 480
+        });
+        await camera.start();
         document.getElementById('btnStart').disabled = true;
         document.getElementById('btnStop').disabled = false;
-        running = true;
-        statusEl.textContent = 'AI đang nhìn bàn tay…';
-        loop();
-      } catch (e) {
-        statusEl.textContent = 'Không mở được camera. Hãy cho phép quyền camera.';
-      }
-    }
-
-    function stopCam() {
-      running = false;
-      if (raf) cancelAnimationFrame(raf);
-      if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
-      video.srcObject = null;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      document.getElementById('btnStart').disabled = false;
-      document.getElementById('btnStop').disabled = true;
-      numBox.textContent = '?';
-      statusEl.textContent = 'Đã tắt camera.';
-    }
-
-    function countFingers(keypoints) {
-      // MediaPipe hand landmarks: 0 wrist, 4 thumb tip, 8 index, 12 middle, 16 ring, 20 pinky
-      const tipIdx = [4, 8, 12, 16, 20];
-      const pipIdx = [2, 6, 10, 14, 18];
-      let count = 0;
-      // Thumb: compare x distance from wrist-ish
-      const thumbTip = keypoints[4];
-      const thumbIp = keypoints[3];
-      const wrist = keypoints[0];
-      if (thumbTip && wrist) {
-        const distTip = Math.hypot(thumbTip.x - wrist.x, thumbTip.y - wrist.y);
-        const distIp = Math.hypot(thumbIp.x - wrist.x, thumbIp.y - wrist.y);
-        if (distTip > distIp * 1.1) count++;
-      }
-      // Other fingers: tip above pip (lower y in image coords = higher in air when palm faces camera varies)
-      for (let i = 1; i < 5; i++) {
-        const tip = keypoints[tipIdx[i]];
-        const pip = keypoints[pipIdx[i]];
-        if (!tip || !pip) continue;
-        // Finger extended if tip is farther from wrist than pip
-        const dTip = Math.hypot(tip.x - wrist.x, tip.y - wrist.y);
-        const dPip = Math.hypot(pip.x - wrist.x, pip.y - wrist.y);
-        if (dTip > dPip * 1.15) count++;
-      }
-      return Math.min(5, Math.max(0, count));
-    }
-
-    async function loop() {
-      if (!running || !detector) return;
-      try {
-        const hands = await detector.estimateHands(video, { flipHorizontal: true });
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        if (hands.length) {
-          const hand = hands[0];
-          const kps = hand.keypoints;
-          // draw points
-          ctx.fillStyle = '#22c55e';
-          kps.forEach(p => {
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
-            ctx.fill();
-          });
-          // connections simplified
-          ctx.strokeStyle = '#4ade80';
-          ctx.lineWidth = 2;
-          const fingers = [[0,1,2,3,4],[0,5,6,7,8],[0,9,10,11,12],[0,13,14,15,16],[0,17,18,19,20]];
-          fingers.forEach(chain => {
-            ctx.beginPath();
-            chain.forEach((idx, i) => {
-              const p = kps[idx];
-              if (!p) return;
-              if (i === 0) ctx.moveTo(p.x, p.y);
-              else ctx.lineTo(p.x, p.y);
-            });
-            ctx.stroke();
-          });
-          const n = countFingers(kps);
-          history.push(n);
-          if (history.length > 5) history.shift();
-          // majority vote
-          const freq = {};
-          history.forEach(v => { freq[v] = (freq[v] || 0) + 1; });
-          let best = 0, bestC = 0;
-          Object.keys(freq).forEach(k => {
-            if (freq[k] > bestC) { bestC = freq[k]; best = +k; }
-          });
-          numBox.textContent = best;
-          statusEl.textContent = 'AI đếm được: ' + best + ' ngón tay';
-        } else {
-          statusEl.textContent = 'Chưa thấy bàn tay — đưa tay vào khung hình';
-        }
+        document.getElementById('status').textContent = 'Camera đã bật — giơ một bàn tay gần máy.';
       } catch (e) {
         console.error(e);
+        document.getElementById('status').textContent = 'Không mở camera / tải model. Dùng Chrome, cho phép camera, có mạng.';
       }
-      raf = requestAnimationFrame(loop);
     }
 
-    document.getElementById('btnStart').onclick = startCam;
-    document.getElementById('btnStop').onclick = stopCam;
-    loadModel();
+    function stop() {
+      if (camera) { camera.stop(); camera = null; }
+      document.getElementById('btnStart').disabled = false;
+      document.getElementById('btnStop').disabled = true;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      document.getElementById('status').textContent = 'Đã tắt.';
+    }
+
+    document.getElementById('btnStart').onclick = start;
+    document.getElementById('btnStop').onclick = stop;
     try {
       const g = localStorage.getItem('ai_grade') || '1';
       document.getElementById('backLink').href = 'lam-quen-voi-ai.html#lop' + g;

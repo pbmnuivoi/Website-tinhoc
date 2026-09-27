@@ -7,27 +7,43 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
-    :root { --blue:#0b5fff; --green:#00a86b; --purple:#7c3aed; --pink:#e11d8b; }
+    :root { --blue:#0b5fff; --green:#00a86b; --pink:#e11d8b; --purple:#7c3aed; }
     * { margin:0; padding:0; box-sizing:border-box; }
     body { font-family:'Be Vietnam Pro',system-ui,sans-serif; background:linear-gradient(160deg,#fce7f3,#e0e7ff,#ecfdf5); min-height:100vh; color:#0f172a; }
     .topbar { background:#fff; box-shadow:0 2px 12px rgba(0,0,0,.06); padding:12px 20px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:50; }
     .topbar a { color:var(--blue); font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:6px; font-size:14px; }
     .topbar h1 { font-size:16px; font-weight:800; color:var(--pink); }
-    .wrap { max-width:640px; margin:0 auto; padding:20px 16px 48px; }
+    .wrap { max-width:680px; margin:0 auto; padding:20px 16px 48px; }
     .hero { background:linear-gradient(135deg,#e11d8b,#7c3aed); color:#fff; border-radius:20px; padding:20px; text-align:center; margin-bottom:16px; }
     .card { background:#fff; border-radius:18px; box-shadow:0 4px 24px rgba(0,0,0,.08); padding:18px; margin-bottom:14px; }
     .video-wrap { position:relative; width:100%; max-width:480px; margin:0 auto; border-radius:16px; overflow:hidden; background:#0f172a; aspect-ratio:4/3; }
-    video, canvas { width:100%; height:100%; object-fit:cover; display:block; }
-    canvas { position:absolute; left:0; top:0; pointer-events:none; }
-    .emo {
-      text-align:center; margin-top:16px; padding:16px; border-radius:14px; background:#f8fafc;
-      font-size:18px; font-weight:800; min-height:60px; display:flex; align-items:center; justify-content:center; gap:10px;
+    video, #overlay { width:100%; height:100%; object-fit:cover; display:block; }
+    #overlay { position:absolute; left:0; top:0; pointer-events:none; }
+    .thumbs { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin:12px 0; min-height:70px; }
+    .thumb-wrap { position:relative; width:64px; height:64px; }
+    .thumb-wrap canvas { width:64px; height:64px; border-radius:10px; border:2px solid #e2e8f0; display:block; }
+    .thumb-wrap .del {
+      position:absolute; top:-6px; right:-6px; width:22px; height:22px; border-radius:50%;
+      background:#ef4444; color:#fff; border:0; font-size:11px; cursor:pointer;
+      display:grid; place-items:center; font-weight:800; line-height:1;
     }
-    .emo .big { font-size:42px; }
-    .btn { display:inline-flex; align-items:center; gap:8px; padding:12px 22px; border-radius:999px; font-weight:700; font-size:14px; border:0; cursor:pointer; background:var(--blue); color:#fff; font-family:inherit; margin:8px 4px; }
-    .btn:disabled { opacity:.5; }
+    .btn { display:inline-flex; align-items:center; gap:8px; padding:12px 18px; border-radius:999px; font-weight:700; font-size:13px; border:0; cursor:pointer; font-family:inherit; margin:5px 3px; color:#fff; }
+    .btn-blue { background:var(--blue); }
+    .btn-pink { background:var(--pink); }
+    .btn-purple { background:var(--purple); }
+    .btn-green { background:var(--green); }
+    .btn-gray { background:#64748b; }
+    .btn:disabled { opacity:.45; cursor:not-allowed; }
     .status { text-align:center; font-size:13px; color:#64748b; margin-top:8px; }
-    .tips { background:#fffbeb; border-radius:12px; padding:12px; font-size:13px; color:#78350f; }
+    .result { margin-top:14px; padding:16px; border-radius:14px; background:#f8fafc; text-align:center; }
+    .result .big { font-size:42px; }
+    .result .label { font-size:18px; font-weight:800; margin:6px 0; }
+    .pct-row { display:flex; flex-direction:column; gap:8px; max-width:300px; margin:12px auto 0; text-align:left; }
+    .pct-item { display:grid; grid-template-columns:90px 1fr 40px; align-items:center; gap:8px; font-size:13px; font-weight:700; }
+    .pct-bar { height:10px; background:#e2e8f0; border-radius:999px; overflow:hidden; }
+    .pct-bar > div { height:100%; border-radius:999px; transition:width .4s; }
+    .auto-badge { display:inline-block; background:#ecfdf5; color:#065f46; font-size:12px; font-weight:700; padding:4px 10px; border-radius:999px; margin-bottom:8px; }
+    .tips { background:#fdf2f8; border-radius:12px; padding:12px; font-size:13px; color:#9d174d; }
   </style>
 </head>
 <body>
@@ -38,158 +54,242 @@
   </div>
   <div class="wrap">
     <div class="hero">
-      <h2>😊 AI nhìn mặt em</h2>
-      <p>Bật camera, cười hoặc làm mặt buồn — AI sẽ đoán cảm xúc của em!</p>
+      <h2>😊 Tự động chụp mặt → AI đoán %</h2>
+      <p>Khi thấy mặt, AI tự chụp ảnh. Có thể xóa ảnh không ưng rồi đoán lại.</p>
     </div>
     <div class="card">
       <div class="video-wrap">
         <video id="video" autoplay playsinline muted></video>
-        <canvas id="canvas"></canvas>
+        <canvas id="overlay"></canvas>
       </div>
-      <div class="emo" id="emo"><span class="big">🙂</span> Bật camera để bắt đầu</div>
-      <div style="text-align:center">
-        <button class="btn" id="btnStart"><i class="fas fa-video"></i> Bật camera</button>
-        <button class="btn" id="btnStop" disabled style="background:#64748b"><i class="fas fa-stop"></i> Tắt</button>
+      <div style="text-align:center;margin-top:10px">
+        <button class="btn btn-blue" id="btnCam"><i class="fas fa-video"></i> Bật camera</button>
+        <button class="btn btn-green" id="btnAuto" disabled><i class="fas fa-magic"></i> Bật tự chụp</button>
+        <button class="btn btn-pink" id="btnSnap" disabled><i class="fas fa-camera"></i> Chụp tay</button>
+        <button class="btn btn-purple" id="btnGuess" disabled><i class="fas fa-brain"></i> AI đoán</button>
+        <button class="btn btn-gray" id="btnClear" disabled><i class="fas fa-trash"></i> Xóa hết</button>
       </div>
-      <p class="status" id="status">Đang chuẩn bị…</p>
+      <div style="text-align:center;margin-top:6px">
+        <span class="auto-badge" id="autoBadge" style="display:none">● Đang tự chụp khi thấy mặt (<span id="snapCount">0</span>/5)</span>
+      </div>
+      <div class="thumbs" id="thumbs"></div>
+      <p class="status" id="status">Bật camera → bật tự chụp (hoặc chụp tay) → xóa ảnh nếu cần → AI đoán.</p>
+      <div class="result" id="result">
+        <div class="big">🙂</div>
+        <div class="label">Chưa đoán</div>
+      </div>
     </div>
     <div class="card tips">
-      <strong>Mẹo:</strong> Đưa mặt vào giữa khung hình, đủ sáng. Thử cười lớn 😄, mặt buồn 😢, ngạc nhiên 😮 — AI sẽ cố đoán!
+      <strong>Mẹo:</strong> Đủ sáng, nhìn thẳng. Ảnh xấu bấm nút ✕ trên ảnh để xóa. Tối đa 5 ảnh.
     </div>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.17.0/dist/tf.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/face-landmarks-detection@1.0.5/dist/face-landmarks-detection.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.13/dist/face-api.js"></script>
   <script>
-    // Simpler approach: analyze mouth openness & eye aspect from face landmarks
-    // Fallback: use simple brightness regions if model fails
     const video = document.getElementById('video');
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-    const emoEl = document.getElementById('emo');
+    const overlay = document.getElementById('overlay');
+    const thumbs = document.getElementById('thumbs');
     const statusEl = document.getElementById('status');
-    let stream = null, detector = null, running = false, raf = null;
+    const resultEl = document.getElementById('result');
+    let stream = null, modelsReady = false, snaps = [], autoOn = false, lastSnap = 0, tracking = false;
 
-    const emos = {
-      happy: { emoji:'😄', label:'Vui vẻ' },
-      sad: { emoji:'😢', label:'Buồn' },
-      surprise: { emoji:'😮', label:'Ngạc nhiên' },
-      neutral: { emoji:'😐', label:'Bình thường' },
-      none: { emoji:'👀', label:'Chưa thấy mặt' }
+    const EMO = {
+      happy: { emoji:'😄', label:'Vui vẻ', color:'#22c55e' },
+      sad: { emoji:'😢', label:'Buồn', color:'#3b82f6' },
+      angry: { emoji:'😠', label:'Giận', color:'#ef4444' },
+      fearful: { emoji:'😨', label:'Sợ', color:'#a855f7' },
+      disgusted: { emoji:'🤢', label:'Ghê', color:'#84cc16' },
+      surprised: { emoji:'😮', label:'Ngạc nhiên', color:'#f59e0b' },
+      neutral: { emoji:'😐', label:'Bình thường', color:'#64748b' }
     };
 
-    async function loadModel() {
-      statusEl.textContent = 'Đang tải mô hình AI…';
+    async function loadModels() {
+      statusEl.textContent = 'Đang tải mô hình…';
       try {
-        await tf.setBackend('webgl');
-        await tf.ready();
-        detector = await faceLandmarksDetection.createDetector(
-          faceLandmarksDetection.SupportedModels.MediaPipeFaceMesh,
-          { runtime: 'tfjs', refineLandmarks: true, maxFaces: 1 }
-        );
-        statusEl.textContent = 'Sẵn sàng! Bật camera nhé.';
-        document.getElementById('btnStart').disabled = false;
+        const URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.13/model';
+        await faceapi.nets.tinyFaceDetector.loadFromUri(URL);
+        await faceapi.nets.faceExpressionNet.loadFromUri(URL);
+        await faceapi.nets.faceLandmark68TinyNet.loadFromUri(URL);
+        modelsReady = true;
+        statusEl.textContent = 'Sẵn sàng. Bật camera nhé!';
       } catch (e) {
-        console.error(e);
-        statusEl.textContent = 'Dùng chế độ đơn giản (không cần mô hình nặng).';
-        document.getElementById('btnStart').disabled = false;
+        statusEl.textContent = 'Không tải được mô hình. Kiểm tra mạng.';
       }
     }
 
     async function startCam() {
       try {
-        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: 640, height: 480 }, audio: false });
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
+          audio: false
+        });
         video.srcObject = stream;
         await video.play();
-        canvas.width = video.videoWidth || 640;
-        canvas.height = video.videoHeight || 480;
-        document.getElementById('btnStart').disabled = true;
-        document.getElementById('btnStop').disabled = false;
-        running = true;
-        statusEl.textContent = 'AI đang nhìn mặt em…';
-        loop();
+        overlay.width = video.videoWidth || 640;
+        overlay.height = video.videoHeight || 480;
+        document.getElementById('btnCam').disabled = true;
+        document.getElementById('btnSnap').disabled = false;
+        document.getElementById('btnAuto').disabled = false;
+        statusEl.textContent = 'Camera đã bật. Bấm “Bật tự chụp” hoặc “Chụp tay”.';
+        tracking = true;
+        trackLoop();
       } catch (e) {
-        statusEl.textContent = 'Không mở được camera. Hãy cho phép quyền camera.';
+        statusEl.textContent = 'Không mở được camera.';
       }
     }
 
-    function stopCam() {
-      running = false;
-      if (raf) cancelAnimationFrame(raf);
-      if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
-      video.srcObject = null;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      document.getElementById('btnStart').disabled = false;
-      document.getElementById('btnStop').disabled = true;
-      emoEl.innerHTML = '<span class="big">🙂</span> Camera đã tắt';
-      statusEl.textContent = 'Đã tắt camera.';
-    }
-
-    async function loop() {
-      if (!running) return;
+    async function trackLoop() {
+      if (!tracking || !stream || !modelsReady) return;
       try {
-        if (detector) {
-          const faces = await detector.estimateFaces(video, { flipHorizontal: true });
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          if (faces.length) {
-            const f = faces[0];
-            const box = f.box;
-            ctx.strokeStyle = '#22c55e';
-            ctx.lineWidth = 3;
-            ctx.strokeRect(box.xMin, box.yMin, box.width, box.height);
-            const emotion = guessEmotion(f);
-            showEmo(emotion);
-          } else {
-            showEmo('none');
+        const det = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.45 }))
+          .withFaceLandmarks(true);
+        const ctx = overlay.getContext('2d');
+        ctx.clearRect(0, 0, overlay.width, overlay.height);
+        if (det) {
+          const box = det.detection.box;
+          ctx.strokeStyle = '#22c55e';
+          ctx.lineWidth = 3;
+          ctx.strokeRect(box.x, box.y, box.width, box.height);
+          if (det.landmarks) {
+            ctx.fillStyle = 'rgba(34,197,94,0.75)';
+            det.landmarks.positions.forEach(p => {
+              ctx.beginPath(); ctx.arc(p.x, p.y, 1.4, 0, Math.PI*2); ctx.fill();
+            });
           }
-        } else {
-          // Simple fallback: ask kids to press emoji buttons - show tip
-          showEmo('neutral');
-          statusEl.textContent = 'Mô hình chưa tải — thử cười to vào camera!';
-        }
-      } catch (e) {
-        console.error(e);
-      }
-      raf = requestAnimationFrame(loop);
-    }
-
-    function guessEmotion(face) {
-      // Use key lip / eye points if available
-      const k = face.keypoints || [];
-      if (k.length < 10) return 'neutral';
-      // MediaPipe indices approx: upper lip, lower lip
-      // Heuristic: mouth openness
-      try {
-        const byName = {};
-        k.forEach(p => { if (p.name) byName[p.name] = p; });
-        const upper = byName['lipsUpperOuter'] || byName['upperLip'] || k[13];
-        const lower = byName['lipsLowerOuter'] || byName['lowerLip'] || k[14];
-        const leftEye = byName['leftEyeLower0'] || k[33];
-        const rightEye = byName['rightEyeLower0'] || k[263];
-        if (upper && lower) {
-          const mouthOpen = Math.abs(lower.y - upper.y);
-          const faceH = face.box ? face.box.height : 100;
-          const ratio = mouthOpen / faceH;
-          if (ratio > 0.12) return 'surprise';
-          if (ratio > 0.06) return 'happy';
-          if (ratio < 0.02) return 'sad';
+          // auto capture every 1.2s when face seen
+          if (autoOn && snaps.length < 5 && Date.now() - lastSnap > 1200) {
+            doSnap();
+            lastSnap = Date.now();
+          }
         }
       } catch (e) {}
-      return 'neutral';
+      requestAnimationFrame(trackLoop);
     }
 
-    function showEmo(key) {
-      const e = emos[key] || emos.neutral;
-      emoEl.innerHTML = '<span class="big">' + e.emoji + '</span> ' + e.label;
+    function doSnap() {
+      if (snaps.length >= 5) {
+        statusEl.textContent = 'Đã đủ 5 ảnh. Xóa bớt hoặc bấm AI đoán.';
+        if (autoOn) toggleAuto(false);
+        return;
+      }
+      const c = document.createElement('canvas');
+      c.width = video.videoWidth || 640;
+      c.height = video.videoHeight || 480;
+      c.getContext('2d').drawImage(video, 0, 0);
+      const id = Date.now() + '_' + snaps.length;
+      snaps.push({ id, canvas: c });
+      renderThumbs();
+      updateBtns();
+      statusEl.textContent = 'Đã có '+snaps.length+'/5 ảnh. Có thể xóa ảnh ✕ hoặc đoán.';
     }
 
-    document.getElementById('btnStart').onclick = startCam;
-    document.getElementById('btnStop').onclick = stopCam;
-    document.getElementById('btnStart').disabled = true;
-    loadModel();
+    function renderThumbs() {
+      thumbs.innerHTML = '';
+      snaps.forEach((s, i) => {
+        const wrap = document.createElement('div');
+        wrap.className = 'thumb-wrap';
+        const th = document.createElement('canvas');
+        th.width = 64; th.height = 64;
+        th.getContext('2d').drawImage(s.canvas, 0, 0, 64, 64);
+        const del = document.createElement('button');
+        del.className = 'del';
+        del.innerHTML = '✕';
+        del.title = 'Xóa ảnh này';
+        del.onclick = () => {
+          snaps = snaps.filter(x => x.id !== s.id);
+          renderThumbs();
+          updateBtns();
+          statusEl.textContent = snaps.length ? ('Còn '+snaps.length+' ảnh.') : 'Đã xóa hết ảnh.';
+        };
+        wrap.appendChild(th);
+        wrap.appendChild(del);
+        thumbs.appendChild(wrap);
+      });
+      document.getElementById('snapCount').textContent = snaps.length;
+    }
+
+    function updateBtns() {
+      document.getElementById('btnGuess').disabled = snaps.length < 1;
+      document.getElementById('btnClear').disabled = snaps.length < 1;
+    }
+
+    function clearAll() {
+      snaps = [];
+      renderThumbs();
+      updateBtns();
+      resultEl.innerHTML = '<div class="big">🙂</div><div class="label">Chưa đoán</div>';
+      statusEl.textContent = 'Đã xóa hết ảnh.';
+    }
+
+    function toggleAuto(force) {
+      autoOn = typeof force === 'boolean' ? force : !autoOn;
+      const badge = document.getElementById('autoBadge');
+      const btn = document.getElementById('btnAuto');
+      if (autoOn) {
+        badge.style.display = 'inline-block';
+        btn.innerHTML = '<i class="fas fa-pause"></i> Tắt tự chụp';
+        btn.className = 'btn btn-gray';
+        statusEl.textContent = 'Tự chụp BẬT — đưa mặt vào khung, AI tự chụp mỗi ~1 giây.';
+        lastSnap = 0;
+      } else {
+        badge.style.display = 'none';
+        btn.innerHTML = '<i class="fas fa-magic"></i> Bật tự chụp';
+        btn.className = 'btn btn-green';
+        statusEl.textContent = 'Tự chụp TẮT. Có thể chụp tay hoặc đoán.';
+      }
+    }
+
+    async function guess() {
+      if (!modelsReady || !snaps.length) return;
+      statusEl.textContent = 'AI đang phân tích '+snaps.length+' ảnh…';
+      document.getElementById('btnGuess').disabled = true;
+      const totals = { happy:0, sad:0, angry:0, fearful:0, disgusted:0, surprised:0, neutral:0 };
+      let valid = 0;
+      for (const s of snaps) {
+        try {
+          const det = await faceapi.detectSingleFace(s.canvas, new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.3 }))
+            .withFaceExpressions();
+          if (det && det.expressions) {
+            valid++;
+            Object.keys(totals).forEach(k => { totals[k] += det.expressions[k] || 0; });
+          }
+        } catch (e) {}
+      }
+      document.getElementById('btnGuess').disabled = false;
+      if (!valid) {
+        resultEl.innerHTML = '<div class="big">👀</div><div class="label">Không thấy mặt rõ</div>';
+        statusEl.textContent = 'Xóa ảnh mờ và chụp lại gần hơn.';
+        return;
+      }
+      Object.keys(totals).forEach(k => { totals[k] /= valid; });
+      const sorted = Object.keys(totals).sort((a,b) => totals[b]-totals[a]);
+      const top = sorted[0];
+      const topE = EMO[top];
+      let rows = '';
+      sorted.forEach(k => {
+        const pct = Math.round(totals[k]*100);
+        if (pct < 1) return;
+        const e = EMO[k];
+        rows += '<div class="pct-item"><span>'+e.emoji+' '+e.label+'</span><div class="pct-bar"><div style="width:'+pct+'%;background:'+e.color+'"></div></div><span>'+pct+'%</span></div>';
+      });
+      resultEl.innerHTML =
+        '<div class="big">'+topE.emoji+'</div>'+
+        '<div class="label">AI đoán: '+topE.label+' · '+Math.round(totals[top]*100)+'%</div>'+
+        '<div class="pct-row">'+rows+'</div>'+
+        '<p class="status">Từ '+valid+'/'+snaps.length+' ảnh có mặt</p>';
+      statusEl.textContent = 'Xong! Xóa ảnh ✕ để thử cảm xúc khác.';
+    }
+
+    document.getElementById('btnCam').onclick = startCam;
+    document.getElementById('btnSnap').onclick = doSnap;
+    document.getElementById('btnAuto').onclick = () => toggleAuto();
+    document.getElementById('btnGuess').onclick = guess;
+    document.getElementById('btnClear').onclick = clearAll;
+    loadModels();
     try {
-      const g = localStorage.getItem('ai_grade') || '1';
-      document.getElementById('backLink').href = 'lam-quen-voi-ai.html#lop' + g;
-    } catch (e) {}
+      const g = localStorage.getItem('ai_grade')||'1';
+      document.getElementById('backLink').href = 'lam-quen-voi-ai.html#lop'+g;
+    } catch(e){}
   </script>
 </body>
 </html>
