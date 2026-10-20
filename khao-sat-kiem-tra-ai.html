@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phiếu khảo sát – Sử dụng AI trong học tập | Tin học Tiểu học</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --blue: #0b5fff; --blue-dark: #0842b3; --blue-soft: #eef4ff;
+  --orange: #ff7a00; --green: #00a86b; --purple: #7c3aed;
+  --pink: #e11d8b; --bg: #f0f4fa; --card: #ffffff; --text: #0f172a;
+  --muted: #64748b; --line: #e2e8f0; --shadow: 0 4px 20px rgba(15,23,42,.06);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Be Vietnam Pro',system-ui,sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+.topbar { background:var(--card); border-bottom:1px solid var(--line); padding:12px 16px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:50; }
+.brand { display:flex; align-items:center; gap:10px; }
+.brand-mark { width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg,var(--orange),var(--pink)); color:#fff; display:grid; place-items:center; font-size:16px; }
+.brand h1 { font-size:15px; font-weight:800; color:var(--orange); }
+.brand p { font-size:11px; color:var(--muted); }
+.btn-back { display:inline-flex; align-items:center; gap:6px; padding:8px 14px; border-radius:999px; border:1.5px solid var(--blue); color:var(--blue); font-weight:700; font-size:13px; background:#fff; text-decoration:none; }
+.btn-back:hover { background:var(--blue); color:#fff; }
+.wrap { max-width:1100px; margin:0 auto; padding:16px; }
+.start-screen { background:var(--card); border-radius:20px; padding:28px 24px; box-shadow:var(--shadow); max-width:520px; margin:40px auto; text-align:center; }
+.start-screen .icon { font-size:48px; margin-bottom:12px; }
+.start-screen h2 { font-size:22px; margin-bottom:8px; color:var(--orange); }
+.start-screen p { color:var(--muted); font-size:14px; margin-bottom:20px; line-height:1.5; }
+.form-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px; text-align:left; }
+.form-row label { font-size:12px; font-weight:700; color:var(--muted); display:block; margin-bottom:4px; }
+.form-row input { width:100%; border:2px solid var(--line); border-radius:12px; padding:11px 14px; font:500 14px 'Be Vietnam Pro',sans-serif; }
+.btn-start { width:100%; padding:14px; border:0; border-radius:14px; background:linear-gradient(135deg,var(--orange),var(--pink)); color:#fff; font:800 16px 'Be Vietnam Pro',sans-serif; cursor:pointer; }
+.quiz-layout { display:none; grid-template-columns:1fr 320px; gap:16px; }
+@media(max-width:900px){ .quiz-layout { grid-template-columns:1fr; } .side-panel { order:-1; } }
+.chat-card { background:var(--card); border-radius:20px; box-shadow:var(--shadow); overflow:hidden; display:flex; flex-direction:column; min-height:560px; }
+.chat-header { background:linear-gradient(135deg,var(--orange),var(--pink)); color:#fff; padding:14px 18px; display:flex; align-items:center; justify-content:space-between; }
+.chat-header .left { display:flex; align-items:center; gap:10px; }
+.chat-header .avatar { width:40px; height:40px; border-radius:50%; background:rgba(255,255,255,.25); display:grid; place-items:center; font-size:18px; }
+.chat-header h3 { font-size:15px; font-weight:700; }
+.chat-header .sub { font-size:11px; opacity:.85; }
+.progress-pill { background:rgba(255,255,255,.2); padding:6px 12px; border-radius:999px; font-size:12px; font-weight:700; }
+.chat-body { flex:1; padding:16px; overflow-y:auto; background:#f8fafc; display:flex; flex-direction:column; gap:12px; max-height:420px; }
+.msg { max-width:92%; padding:12px 14px; border-radius:16px; font-size:14px; line-height:1.5; animation:fadeIn .3s ease; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+.msg.teacher { background:#fff; border:1px solid var(--line); align-self:flex-start; border-bottom-left-radius:4px; }
+.msg.teacher .name { font-size:11px; font-weight:700; color:var(--orange); margin-bottom:4px; }
+.msg.system { background:#fef3c7; border:1px solid #fbbf24; align-self:center; font-size:13px; text-align:center; max-width:100%; }
+.msg.ai-hint { background:#f3e8ff; border:1px solid #c4b5fd; align-self:flex-start; }
+.msg.ai-hint .note { font-size:11px; color:var(--purple); margin-top:6px; font-weight:600; }
+.options-area { padding:14px 16px; border-top:1px solid var(--line); background:#fff; }
+.opts-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
+@media(max-width:480px){ .opts-grid { grid-template-columns:1fr; } }
+.opt-btn { padding:12px 10px; border:2px solid var(--line); border-radius:14px; background:#fff; font:600 13px 'Be Vietnam Pro',sans-serif; cursor:pointer; transition:.2s; text-align:left; }
+.opt-btn:hover { border-color:var(--orange); background:#fff7ed; }
+.opt-btn.selected { border-color:var(--orange); background:var(--orange); color:#fff; }
+.opt-btn:disabled { opacity:.6; cursor:not-allowed; }
+.action-row { display:flex; gap:10px; flex-wrap:wrap; }
+.btn { display:inline-flex; align-items:center; justify-content:center; gap:6px; padding:11px 18px; border-radius:12px; font:700 13px 'Be Vietnam Pro',sans-serif; border:0; cursor:pointer; }
+.btn-confirm { background:var(--green); color:#fff; flex:1; }
+.btn-confirm:disabled { background:#94a3b8; cursor:not-allowed; }
+.btn-ai { background:linear-gradient(135deg,var(--purple),var(--pink)); color:#fff; }
+.btn-ai:disabled { opacity:.5; cursor:not-allowed; }
+.btn-info { background:var(--blue-soft); color:var(--blue); border:1.5px solid var(--blue); }
+.timer-box { display:flex; align-items:center; gap:8px; font-size:13px; color:var(--muted); margin-bottom:8px; }
+.timer-box strong { color:var(--orange); font-size:16px; }
+.side-panel { background:var(--card); border-radius:20px; box-shadow:var(--shadow); padding:18px; display:flex; flex-direction:column; gap:14px; }
+.side-panel h4 { font-size:14px; font-weight:800; color:var(--orange); display:flex; align-items:center; gap:8px; }
+.side-panel .info-box { background:#fff7ed; border-radius:12px; padding:12px; font-size:13px; line-height:1.55; color:#9a3412; }
+.side-panel .info-box strong { display:block; margin-bottom:4px; color:var(--orange); }
+.side-panel .tip { font-size:12px; color:var(--muted); background:#f8fafc; border-radius:10px; padding:10px; border:1px dashed var(--line); }
+.side-panel .log-mini { font-size:11px; color:var(--muted); max-height:120px; overflow-y:auto; }
+.result-screen { display:none; background:var(--card); border-radius:20px; padding:28px 24px; box-shadow:var(--shadow); max-width:640px; margin:20px auto; }
+.result-screen .score-big { font-size:48px; font-weight:800; text-align:center; margin:12px 0; }
+.result-screen .grade { text-align:center; font-size:20px; font-weight:800; margin-bottom:16px; }
+.result-screen .metrics { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:16px 0; }
+.metric { background:#f8fafc; border-radius:12px; padding:12px; text-align:center; }
+.metric .val { font-size:22px; font-weight:800; color:var(--orange); }
+.metric .lbl { font-size:11px; color:var(--muted); margin-top:2px; }
+.result-comment { background:#f0fdf4; border:1px solid #86efac; border-radius:12px; padding:14px; font-size:14px; line-height:1.55; margin:12px 0; }
+.result-comment.warn { background:#fef3c7; border-color:#fbbf24; }
+.result-comment.fail { background:#fef2f2; border-color:#fca5a5; }
+.btn-group { display:flex; gap:10px; flex-wrap:wrap; margin-top:16px; }
+.btn-group .btn { flex:1; min-width:140px; }
+.btn-primary { background:var(--orange); color:#fff; }
+.btn-outline { background:#fff; border:2px solid var(--orange); color:var(--orange); }
+.log-detail { margin-top:16px; font-size:12px; max-height:200px; overflow-y:auto; background:#f8fafc; border-radius:10px; padding:10px; }
+
+/* Certificate */
+.cert-wrap{display:none;margin-top:20px}
+.cert-box{background:linear-gradient(135deg,#fff9e6 0%,#fff 40%,#e8f5e9 100%);border:4px solid #f59e0b;border-radius:20px;padding:24px 20px;text-align:center;position:relative;overflow:hidden;box-shadow:0 8px 30px rgba(245,158,11,.25)}
+.cert-box::before{content:'⭐';position:absolute;top:12px;left:16px;font-size:28px;opacity:.5}
+.cert-box::after{content:'⭐';position:absolute;top:12px;right:16px;font-size:28px;opacity:.5}
+.cert-badge{font-size:48px;margin-bottom:6px}
+.cert-title{font-size:22px;font-weight:800;color:#b45309;margin:4px 0;letter-spacing:1px}
+.cert-sub{font-size:13px;color:#78716c;margin-bottom:12px}
+.cert-name{font-size:26px;font-weight:800;color:#0b5fff;margin:10px 0;padding:8px 16px;background:rgba(11,95,255,.08);border-radius:12px;display:inline-block}
+.cert-info{font-size:14px;color:#444;line-height:1.7;margin:10px 0}
+.cert-score{font-size:36px;font-weight:800;color:#16a34a;margin:8px 0}
+.cert-footer{font-size:11px;color:#a8a29e;margin-top:14px;border-top:2px dashed #fcd34d;padding-top:10px}
+.btn-cert{background:linear-gradient(135deg,#f59e0b,#ea580c);color:#fff;border:0;padding:14px 22px;border-radius:14px;font:800 15px 'Be Vietnam Pro',sans-serif;cursor:pointer;box-shadow:0 6px 20px rgba(245,158,11,.35);display:inline-flex;align-items:center;gap:8px;margin-top:12px}
+.btn-cert:hover{transform:translateY(-2px)}
+@media print{.topbar,.btn-group,.log-detail,.result-comment,.metrics,.score-big,.grade,.start-screen,.quiz-layout{display:none!important}.cert-wrap{display:block!important}.cert-box{border:3px solid #f59e0b;box-shadow:none}}
+
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark"><i class="fas fa-graduation-cap"></i></div>
+      <div>
+        <h1>Phiếu khảo sát</h1>
+        <p>Chủ đề 3 · Sử dụng AI trong học tập</p>
+      </div>
+    </div>
+    <a href="lam-quen-voi-ai.html" class="btn-back"><i class="fas fa-arrow-left"></i> Quay lại</a>
+  </div>
+  <div class="wrap">
+    <div class="start-screen" id="startScreen">
+      <div class="icon">📚</div>
+      <h2>Phiếu đánh giá – Sử dụng AI trong học tập</h2>
+      <p>Hệ thống chọn ngẫu nhiên <strong>5 câu hỏi</strong> (A–D) về Toán, Tin học, Công nghệ, Tiếng Anh và AI. Em suy nghĩ kỹ, có thể xem gợi ý AI nhưng phải kiểm chứng!</p>
+      <div class="form-row">
+        <div><label>Họ và tên</label><input id="inpName" placeholder="VD: Nguyễn Văn An"></div>
+        <div><label>Lớp</label><input id="inpClass" placeholder="VD: 3A"></div>
+      </div>
+      <button class="btn-start" onclick="startQuiz()"><i class="fas fa-play"></i> Bắt đầu làm phiếu</button>
+    </div>
+    <div class="quiz-layout" id="quizLayout">
+      <div class="chat-card">
+        <div class="chat-header">
+          <div class="left">
+            <div class="avatar"><i class="fas fa-chalkboard-teacher"></i></div>
+            <div><h3>Cô giáo AI</h3><div class="sub">Đang hỏi em nè…</div></div>
+          </div>
+          <div class="progress-pill" id="progressPill">Câu 1 / 5</div>
+        </div>
+        <div class="chat-body" id="chatBody"></div>
+        <div class="options-area">
+          <div class="timer-box"><i class="fas fa-clock"></i> Thời gian chọn: <strong id="timerDisplay">0s</strong></div>
+          <div class="opts-grid" id="optsGrid"></div>
+          <div class="action-row">
+            <button class="btn btn-confirm" id="btnConfirm" disabled onclick="confirmAnswer()"><i class="fas fa-check"></i> Xác nhận đáp án</button>
+            <button class="btn btn-ai" id="btnAI" onclick="showAISuggestion()"><i class="fas fa-magic"></i> AI gợi ý</button>
+            <button class="btn btn-info" id="btnInfo" onclick="toggleInfo()"><i class="fas fa-info-circle"></i> Thông tin</button>
+          </div>
+        </div>
+      </div>
+      <div class="side-panel">
+        <h4><i class="fas fa-lightbulb"></i> Mục đích & Phân tích</h4>
+        <div class="info-box" id="infoBox"><strong>Chọn câu hỏi để xem</strong>Nhấn «Thông tin» để xem mục đích (không có đáp án).</div>
+        <div class="tip">💡 Gợi ý AI có thể đúng hoặc sai – em phải tự kiểm chứng!</div>
+        <h4 style="margin-top:8px"><i class="fas fa-history"></i> Nhật ký hành vi</h4>
+        <div class="log-mini" id="logMini">Chưa có hành động.</div>
+      </div>
+    </div>
+    <div class="result-screen" id="resultScreen">
+      <div style="text-align:center;font-size:40px">🎉</div>
+      <h2 style="text-align:center;color:var(--orange);margin:8px 0">Kết quả phiếu khảo sát</h2>
+      <div class="score-big" id="scoreBig">0%</div>
+      <div class="grade" id="gradeLabel">—</div>
+      <div class="metrics">
+        <div class="metric"><div class="val" id="mCorrect">0/5</div><div class="lbl">Câu đúng</div></div>
+        <div class="metric"><div class="val" id="mVerify">0%</div><div class="lbl">Kiểm chứng</div></div>
+        <div class="metric"><div class="val" id="mIndep">0%</div><div class="lbl">Độc lập (không phụ thuộc AI)</div></div>
+        <div class="metric"><div class="val" id="mSpeed">0s</div><div class="lbl">TB thời gian/câu</div></div>
+      </div>
+      <div class="result-comment" id="resultComment"></div>
+      <div class="log-detail" id="logDetail"></div>
+      
+      <div class="cert-wrap" id="certWrap">
+        <div class="cert-box" id="certBox">
+          <div class="cert-badge">🏆</div>
+          <div class="cert-title">CHỨNG NHẬN HOÀN THÀNH</div>
+          <div class="cert-sub">Phiếu khảo sát Tin học Tiểu học · Chủ đề AI</div>
+          <div class="cert-name" id="certName">—</div>
+          <div class="cert-info">
+            Lớp: <strong id="certClass">—</strong><br>
+            Chủ đề: <strong id="certTopic">Sử dụng AI trong học tập</strong> 📚<br>
+            Ngày: <strong id="certDate">—</strong>
+          </div>
+          <div class="cert-score" id="certScore">0%</div>
+          <div style="font-size:14px;color:#16a34a;font-weight:700">ĐÃ ĐẠT YÊU CẦU</div>
+          <div class="cert-footer">Trò chơi Tin học Tiểu học · Làm quen với AI<br>Học sinh đã hoàn thành phiếu khảo sát với kết quả đạt</div>
+        </div>
+        <div style="text-align:center">
+          <button class="btn-cert" onclick="downloadCertPDF()"><i class="fas fa-file-pdf"></i> Tải PDF chứng nhận</button>
+          <button class="btn-cert" style="background:linear-gradient(135deg,#0b5fff,#7c3aed);margin-left:8px" onclick="window.print()"><i class="fas fa-print"></i> In chứng nhận</button>
+        </div>
+      </div>
+
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="location.reload()"><i class="fas fa-redo"></i> Làm lại phiếu</button>
+        <a class="btn btn-outline" href="lam-quen-voi-ai.html"><i class="fas fa-home"></i> Về chủ đề</a>
+      </div>
+    </div>
+  </div>
+<script>
+const QUESTION_BANK = [
+  { id:1, q:"Khi làm bài tập toán, em nên dùng AI như thế nào?", opts:["A. Chép nguyên đáp án AI đưa","B. Xem gợi ý rồi tự giải và kiểm tra","C. Không bao giờ dùng AI","D. Chỉ dùng AI khi cô cho phép chơi"], ans:"B", subject:"AI", purpose:"Cách dùng AI học tập đúng đắn.", analysis:"AI hỗ trợ, nhưng em phải tự hiểu bài." },
+  { id:2, q:"8 + 7 bằng bao nhiêu?", opts:["A. 14","B. 15","C. 16","D. 13"], ans:"B", subject:"Toán", purpose:"Phép cộng.", analysis:"Tám cộng bảy bằng mười lăm." },
+  { id:3, q:"Phần mềm nào giúp em vẽ tranh trên máy tính?", opts:["A. Word","B. Paint / phần mềm vẽ","C. Excel","D. Trình duyệt"], ans:"B", subject:"Tin học", purpose:"Ứng dụng tin học.", analysis:"Paint hoặc phần mềm vẽ dùng để tạo hình." },
+  { id:4, q:"'Study' trong tiếng Anh nghĩa là gì?", opts:["A. Chơi","B. Học","C. Ăn","D. Ngủ"], ans:"B", subject:"Tiếng Anh", purpose:"Từ vựng học tập.", analysis:"Study = học / nghiên cứu." },
+  { id:5, q:"AI có thể giúp em học tiếng Anh bằng cách nào?", opts:["A. Làm bài kiểm tra thay em","B. Luyện phát âm, gợi ý từ vựng","C. Chỉ dịch nguyên bài","D. Không giúp được gì"], ans:"B", subject:"AI", purpose:"AI hỗ trợ học ngoại ngữ.", analysis:"AI luyện phát âm và gợi ý từ rất hữu ích." },
+  { id:6, q:"16 - 9 bằng bao nhiêu?", opts:["A. 5","B. 6","C. 7","D. 8"], ans:"C", subject:"Toán", purpose:"Phép trừ.", analysis:"Mười sáu trừ chín bằng bảy." },
+  { id:7, q:"Khi AI đưa ra đáp án sai, em nên làm gì?", opts:["A. Vẫn chép vì tin AI","B. Kiểm tra lại bằng sách hoặc hỏi cô","C. Bỏ luôn bài tập","D. Chỉ dùng AI lần sau"], ans:"B", subject:"AI", purpose:"Kiểm chứng kết quả AI.", analysis:"Luôn kiểm tra thông tin từ AI." },
+  { id:8, q:"5 × 6 bằng bao nhiêu?", opts:["A. 25","B. 30","C. 35","D. 20"], ans:"B", subject:"Toán", purpose:"Phép nhân.", analysis:"Năm nhân sáu bằng ba mươi." },
+  { id:9, q:"Thiết bị nào dùng để lưu bài làm của em?", opts:["A. Chỉ màn hình","B. Ổ cứng / USB / đám mây","C. Chỉ chuột","D. Loa"], ans:"B", subject:"Tin học", purpose:"Lưu trữ dữ liệu.", analysis:"Bài làm được lưu trên ổ cứng, USB hoặc cloud." },
+  { id:10, q:"'Book' nghĩa là gì?", opts:["A. Bút","B. Sách","C. Bảng","D. Ghế"], ans:"B", subject:"Tiếng Anh", purpose:"Từ vựng học tập.", analysis:"Book = sách." },
+  { id:11, q:"24 ÷ 6 bằng bao nhiêu?", opts:["A. 3","B. 4","C. 5","D. 6"], ans:"B", subject:"Toán", purpose:"Phép chia.", analysis:"Hai mươi tư chia sáu bằng bốn." },
+  { id:12, q:"AI trong học tập KHÔNG nên dùng để làm gì?", opts:["A. Gợi ý cách giải bài","B. Làm thay toàn bộ bài kiểm tra","C. Giải thích khái niệm khó","D. Luyện từ vựng"], ans:"B", subject:"AI", purpose:"Giới hạn đạo đức khi dùng AI.", analysis:"Làm thay bài kiểm tra là gian lận." },
+  { id:13, q:"Máy tính bảng (tablet) thường dùng để làm gì ở trường?", opts:["A. Chỉ chơi game","B. Học bài, xem video bài giảng","C. Chỉ chụp ảnh","D. Không dùng được"], ans:"B", subject:"Công nghệ", purpose:"Thiết bị học tập.", analysis:"Tablet hỗ trợ học tập hiện đại." },
+  { id:14, q:"11 + 9 bằng bao nhiêu?", opts:["A. 19","B. 20","C. 21","D. 18"], ans:"B", subject:"Toán", purpose:"Phép cộng.", analysis:"Mười một cộng chín bằng hai mươi." },
+  { id:15, q:"'Question' nghĩa là gì?", opts:["A. Câu trả lời","B. Câu hỏi","C. Bài tập","D. Điểm số"], ans:"B", subject:"Tiếng Anh", purpose:"Từ vựng lớp học.", analysis:"Question = câu hỏi." },
+  { id:16, q:"Khi em không hiểu bài, cách tốt nhất là?", opts:["A. Chỉ hỏi AI rồi thôi","B. Hỏi cô, bạn, xem sách, có thể dùng AI hỗ trợ","C. Bỏ qua bài đó","D. Chỉ chờ cô giảng lại"], ans:"B", subject:"AI", purpose:"Kết hợp nhiều nguồn học.", analysis:"Học tốt nhất khi kết hợp nhiều cách." }
+];
+
+let studentName='', studentClass='', selectedQuestions=[], currentIdx=0, selectedAnswer=null, questionStartTime=0, timerInterval=null, usedAIThisQ=false, viewedInfoThisQ=false, logs=[], results=[];
+
+function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
+function startQuiz(){studentName=document.getElementById('inpName').value.trim()||'Học sinh';studentClass=document.getElementById('inpClass').value.trim()||'—';selectedQuestions=shuffle(QUESTION_BANK).slice(0,5);currentIdx=0;logs=[];results=[];document.getElementById('startScreen').style.display='none';document.getElementById('quizLayout').style.display='grid';showQuestion();}
+function showQuestion(){const q=selectedQuestions[currentIdx];selectedAnswer=null;usedAIThisQ=false;viewedInfoThisQ=false;questionStartTime=Date.now();clearInterval(timerInterval);timerInterval=setInterval(updateTimer,200);document.getElementById('progressPill').textContent=`Câu ${currentIdx+1} / 5`;const chat=document.getElementById('chatBody');chat.innerHTML='';addMsg('teacher',`Câu ${currentIdx+1}: ${q.q}`,'Cô giáo');addMsg('system','Em hãy chọn A, B, C hoặc D rồi nhấn Xác nhận.');document.getElementById('optsGrid').innerHTML=q.opts.map(o=>{const v=o.charAt(0);return `<button class="opt-btn" data-val="${v}" onclick="selectOpt(this,'${v}')">${o}</button>`;}).join('');document.getElementById('btnConfirm').disabled=true;document.getElementById('btnAI').disabled=false;document.getElementById('infoBox').innerHTML=`<strong>Chưa xem thông tin</strong>Nhấn «Thông tin» để xem mục đích.`;updateTimer();logAction('hiện_câu',`Câu ${currentIdx+1}: ${q.subject}`);}
+function updateTimer(){document.getElementById('timerDisplay').textContent=Math.floor((Date.now()-questionStartTime)/1000)+'s';}
+function selectOpt(btn,val){document.querySelectorAll('.opt-btn').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');selectedAnswer=val;document.getElementById('btnConfirm').disabled=false;logAction('chọn_đáp_án',val);}
+function confirmAnswer(){if(selectedAnswer===null)return;clearInterval(timerInterval);const q=selectedQuestions[currentIdx];const timeSpent=Math.floor((Date.now()-questionStartTime)/1000);const isCorrect=selectedAnswer===q.ans;results.push({qid:q.id,subject:q.subject,correct:isCorrect,time:timeSpent,usedAI:usedAIThisQ,viewedInfo:viewedInfoThisQ,answer:selectedAnswer});logAction('xác_nhận',`${selectedAnswer} | ${isCorrect?'✓':'✗'} | ${timeSpent}s | AI:${usedAIThisQ}`);addMsg('system',isCorrect?'🎉 Em chọn đúng rồi! Giỏi quá!':'🤔 Chưa đúng lần này. Học tiếp nhé!');document.getElementById('btnConfirm').disabled=true;document.getElementById('btnAI').disabled=true;document.querySelectorAll('.opt-btn').forEach(b=>b.disabled=true);setTimeout(()=>{currentIdx++;if(currentIdx>=5)showResult();else showQuestion();},1200);}
+function showAISuggestion(){if(usedAIThisQ)return;usedAIThisQ=true;const q=selectedQuestions[currentIdx];const giveCorrect=Math.random()<0.55;let suggestion=giveCorrect?q.ans:['A','B','C','D'].filter(x=>x!==q.ans)[Math.floor(Math.random()*3)];let text=Math.random()<0.4?`AI nghĩ có thể là «${suggestion}». Cũng có thể là đáp án khác.`:`AI gợi ý: đáp án có thể là «${suggestion}».`;addMsg('ai-hint',text+'<div class="note">⚠️ Đây là gợi ý của AI – em cần xác minh và tự chọn.</div>','AI Gợi ý');logAction('xem_AI_gợi_ý',suggestion);document.getElementById('btnAI').disabled=true;}
+function toggleInfo(){viewedInfoThisQ=true;const q=selectedQuestions[currentIdx];document.getElementById('infoBox').innerHTML=`<strong>Mục đích:</strong> ${q.purpose}<br><br><strong>Phân tích:</strong> ${q.analysis}<br><br><em style="color:#64748b">Không tiết lộ đáp án.</em>`;logAction('xem_thông_tin',q.subject);}
+function addMsg(type,html,name){const chat=document.getElementById('chatBody');const div=document.createElement('div');div.className='msg '+type;if(name&&type==='teacher')div.innerHTML=`<div class="name">${name}</div>${html}`;else if(name&&type==='ai-hint')div.innerHTML=`<div class="name" style="color:#7c3aed">${name}</div>${html}`;else div.innerHTML=html;chat.appendChild(div);chat.scrollTop=chat.scrollHeight;}
+function logAction(action,detail){const t=new Date().toLocaleTimeString('vi-VN');logs.push({t,action,detail});document.getElementById('logMini').innerHTML=logs.slice(-6).map(l=>`<div>[${l.t}] ${l.action}: ${l.detail}</div>`).join('')||'Chưa có';}
+function showResult(){document.getElementById('quizLayout').style.display='none';document.getElementById('resultScreen').style.display='block';const correctCount=results.filter(r=>r.correct).length;const scorePct=Math.round((correctCount/5)*100);const verifyPct=Math.round((results.filter(r=>r.viewedInfo).length/5)*100);const indepPct=Math.round((results.filter(r=>!r.usedAI).length/5)*100);const avgTime=Math.round(results.reduce((s,r)=>s+r.time,0)/5);document.getElementById('scoreBig').textContent=scorePct+'%';document.getElementById('mCorrect').textContent=correctCount+'/5';document.getElementById('mVerify').textContent=verifyPct+'%';document.getElementById('mIndep').textContent=indepPct+'%';document.getElementById('mSpeed').textContent=avgTime+'s';let grade,commentClass,comment;if(scorePct>=80){grade='🌟 Tốt';commentClass='';comment=`Tuyệt vời ${studentName} (${studentClass})! Em dùng AI trong học tập rất đúng cách. Tiếp tục phát huy!`;}else if(scorePct>=60){grade='👍 Khá';commentClass='warn';comment=`Khá lắm ${studentName}! Hãy ôn phần ${getWeakSubjects()}. Muốn đạt Tốt thì làm lại phiếu nhé.`;}else{grade='📝 Cần cố gắng hơn';commentClass='fail';comment=`${studentName} ơi, em chưa đạt. Xem lại chủ đề Sử dụng AI trong học tập, chú ý ${getWeakSubjects()}, rồi làm lại nhé!`;}document.getElementById('gradeLabel').textContent=grade;const rc=document.getElementById('resultComment');rc.className='result-comment '+commentClass;rc.innerHTML=comment;let bn='';if(indepPct>=80)bn+=' Em chọn khá độc lập. ';else bn+=' Em hay xem gợi ý AI – nhớ kiểm chứng! ';if(verifyPct>=60)bn+=' Tốt: có thói quen xem thông tin. ';else bn+=' Nên xem «Thông tin» nhiều hơn. ';rc.innerHTML+='<br><br><strong>Nhận xét hành vi:</strong>'+bn;document.getElementById('logDetail').innerHTML='<strong>Chi tiết:</strong><br>'+results.map((r,i)=>`Câu ${i+1} [${r.subject}]: ${r.correct?'✓':'✗'} | ${r.time}s | AI:${r.usedAI?'có':'không'} | Info:${r.viewedInfo?'có':'không'}`).join('<br>');try{const all=JSON.parse(localStorage.getItem('ai_survey_logs')||'[]');all.push({topic:'kiem-tra-ai',name:studentName,class:studentClass,time:new Date().toISOString(),score:scorePct,results,logs});localStorage.setItem('ai_survey_logs',JSON.stringify(all.slice(-50)));}catch(e){}}
+function getWeakSubjects(){const w=results.filter(r=>!r.correct).map(r=>r.subject);return w.length?[...new Set(w)].join(', '):'không có';}
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+function showCertificate(scorePct) {
+  if (scorePct < 60) return;
+  const wrap = document.getElementById('certWrap');
+  if (!wrap) return;
+  wrap.style.display = 'block';
+  document.getElementById('certName').textContent = studentName;
+  document.getElementById('certClass').textContent = studentClass;
+  document.getElementById('certDate').textContent = new Date().toLocaleDateString('vi-VN');
+  document.getElementById('certScore').textContent = scorePct + '%';
+}
+async function downloadCertPDF() {
+  const box = document.getElementById('certBox');
+  if (!box || typeof html2canvas === 'undefined') { window.print(); return; }
+  try {
+    const canvas = await html2canvas(box, {scale:2, useCORS:true, backgroundColor:'#fffbeb'});
+    const img = canvas.toDataURL('image/png');
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({orientation:'landscape', unit:'mm', format:'a5'});
+    const pw = pdf.internal.pageSize.getWidth();
+    const ph = pdf.internal.pageSize.getHeight();
+    const ratio = Math.min(pw / canvas.width, ph / canvas.height) * 0.92;
+    const w = canvas.width * ratio;
+    const h = canvas.height * ratio;
+    pdf.addImage(img, 'PNG', (pw-w)/2, (ph-h)/2, w, h);
+    pdf.save('ChungNhan_' + (studentName||'HocSinh').replace(/\s+/g,'_') + '.pdf');
+  } catch(e) {
+    console.error(e);
+    window.print();
+  }
+}
+
+</script>
+</body>
+</html>

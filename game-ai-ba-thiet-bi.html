@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ba thiết bị AI trong cuộc sống</title>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--coral:#e15a45;--teal:#1b7f6e;--paper:#fff6ee;--ink:#2a211c;--line:#f0d8c8;--muted:#7a655c}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Be Vietnam Pro',system-ui,sans-serif;background:var(--paper);color:var(--ink)}
+.top{background:#fff;padding:12px 16px;display:flex;gap:12px;align-items:center;box-shadow:0 2px 10px rgba(0,0,0,.05)}
+.top a{color:var(--teal);font-weight:700;text-decoration:none;font-size:14px}
+.wrap{max-width:720px;margin:0 auto;padding:16px 14px 40px}
+.hint{font-size:14px;color:var(--muted);margin-bottom:12px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media(max-width:560px){.grid{grid-template-columns:1fr}}
+.card{background:#fff;border:3px solid var(--line);border-radius:16px;overflow:hidden;cursor:pointer;text-align:center;font-family:inherit}
+.card.on{border-color:var(--coral)}
+.card img{width:100%;height:150px;object-fit:contain;object-position:center;display:block;background:#fff;padding:8px}
+@media(max-width:560px){.card img{height:180px}}
+.card span{display:block;padding:10px;font-weight:800;font-size:13px}
+.panel{margin-top:14px;background:#fff;border:2px solid var(--line);border-radius:18px;padding:14px}
+.panel img{display:block;width:100%;height:clamp(180px,34vw,250px);object-fit:contain;object-position:center;background:#fff;border-radius:12px;margin:0 auto 12px;padding:6px}
+.step{display:block;width:100%;text-align:left;margin-bottom:8px;padding:12px;border-radius:12px;border:2px solid var(--line);background:var(--paper);font-weight:700;font-size:13px;font-family:inherit;cursor:pointer}
+.step.done{background:#e5f5f1;border-color:var(--teal);color:var(--teal)}
+.exp{margin-top:10px;background:var(--paper);border-radius:12px;padding:12px;font-size:14px;line-height:1.5;min-height:56px}
+</style>
+</head>
+<body>
+<div class="top"><a href="lam-quen-voi-ai.html">← Trang AI</a><strong>Ba thiết bị AI</strong></div>
+<div class="wrap">
+  <p class="hint">Bấm từng thiết bị. Làm từng bước để xem AI giúp gì và giới hạn ở đâu.</p>
+  <div class="grid" id="grid"></div>
+  <div class="panel" id="panel"><p style="text-align:center;color:var(--muted);padding:20px">Chọn một thiết bị để bắt đầu</p></div>
+</div>
+<script>
+const devices={
+  hut:{title:'Robot hút bụi',img:'images/ai_daily_robot_vacuum.jpg',card:'images/ai_daily_robot_vacuum.jpg',steps:[
+    {a:'1. Robot chạy hút bụi nhỏ',e:'AI giúp robot tránh ghế và hút bụi trên sàn.'},
+    {a:'2. Gặp thùng carton to',e:'Robot không nhấc được đồ lớn hơn nó.'},
+    {a:'3. Em giúp nhấc đồ',e:'Con người vẫn cần nhấc đồ lớn. AI không làm hết mọi việc.'}
+  ]},
+  loa:{title:'Loa thông minh',img:'images/ai_daily_smart_speaker.jpg',card:'images/ai_daily_smart_speaker.jpg',steps:[
+    {a:'1. Em nói: kể chuyện',e:'Loa nghe lời nói và tìm câu chuyện phù hợp.'},
+    {a:'2. Loa kể chuyện',e:'AI đọc câu chuyện đã có trong dữ liệu.'},
+    {a:'3. Em vẫn tự đọc sách',e:'Loa hỗ trợ, nhưng em vẫn cần học đọc và suy nghĩ.'}
+  ]},
+  xe:{title:'Xe tự lái',img:'images/ai_daily_self_driving_car.jpg',card:'images/ai_daily_self_driving_car.jpg',steps:[
+    {a:'1. Xe đi theo bản đồ',e:'AI đọc bản đồ và camera để giữ làn đường.'},
+    {a:'2. Mất kết nối bản đồ',e:'Xe không tự tìm đường nhanh nhất khi mất dữ liệu.'},
+    {a:'3. Người trên xe quyết định',e:'Con người phải quan sát và xử lý tình huống lạ.'}
+  ]}
+};
+let cur=null,step=0;
+const grid=document.getElementById('grid');
+Object.keys(devices).forEach(k=>{
+  const d=devices[k];
+  const b=document.createElement('button');b.className='card';
+  b.innerHTML=`<img src="${d.card}" alt="${d.title}"><span>${d.title}</span>`;
+  b.onclick=()=>{cur=k;step=0;document.querySelectorAll('.card').forEach(x=>x.classList.remove('on'));b.classList.add('on');render();};
+  grid.appendChild(b);
+});
+function render(){
+  if(!cur)return;
+  const d=devices[cur];
+  let h=`<img src="${d.img}" alt="${d.title}"><h3 style="margin-bottom:8px">${d.title}</h3>`;
+  d.steps.forEach((s,i)=>{
+    h+=`<button class="step ${i<step?'done':''}" ${i>step?'disabled style="opacity:.45"':''} onclick="doStep(${i})">${s.a}${i<step?' ✓':''}</button>`;
+  });
+  h+=`<div class="exp">${step===0?'Bấm bước 1 để xem AI hỗ trợ thiết bị này thế nào.':d.steps[step-1].e}</div>`;
+  document.getElementById('panel').innerHTML=h;
+}
+function doStep(i){if(i>step)return;step=i+1;render();}
+</script>
+</body>
+</html>

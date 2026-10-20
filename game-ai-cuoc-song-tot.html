@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI vì cuộc sống tốt đẹp hơn</title>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--coral:#e15a45;--teal:#1b7f6e;--paper:#fff6ee;--ink:#2a211c;--line:#f0d8c8;--muted:#7a655c}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Be Vietnam Pro',system-ui,sans-serif;background:var(--paper);color:var(--ink)}
+.top{background:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 10px rgba(0,0,0,.05)}
+.top a{color:var(--teal);font-weight:700;text-decoration:none;font-size:14px}
+.wrap{max-width:820px;margin:0 auto;padding:14px 12px 40px}
+.pool{display:flex;flex-wrap:wrap;gap:8px;background:#fff;border:2px dashed var(--line);border-radius:14px;padding:10px;min-height:100px;margin-bottom:12px}
+.item{width:84px;cursor:grab;border:0;background:transparent;padding:0}
+.item img{width:84px;height:94px;object-fit:cover;border-radius:12px;border:2px solid #2a211c;display:block}
+.zones{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media(max-width:560px){.zones{grid-template-columns:1fr}}
+.zone{background:#fff;border:3px solid var(--line);border-radius:16px;padding:10px;min-height:160px}
+.zone.over{border-color:var(--teal);background:#e5f5f1}
+.zone h3{text-align:center;font-size:13px;margin-bottom:8px}
+.zone .drop{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;min-height:70px}
+.drop img{width:52px;height:58px;object-fit:cover;border-radius:8px;border:2px solid #2a211c}
+.exp{margin-top:12px;background:#e5f5f1;border-radius:14px;padding:12px;font-size:14px;line-height:1.5;min-height:56px}
+.score{font-weight:800;color:var(--teal)}
+</style>
+</head>
+<body>
+<div class="top">
+  <a href="lam-quen-voi-ai.html">← Trang AI</a>
+  <strong>Dọn rác & chăm cây</strong>
+  <span class="score" id="score">0 điểm</span>
+</div>
+<div class="wrap">
+  <p style="font-size:13px;color:var(--muted);margin-bottom:10px">Kéo đồ vào đúng nhóm: Rác hữu cơ · Tái chế · Chăm cây (nước / cây). AI gợi ý – em quyết định.</p>
+  <div class="pool" id="pool"></div>
+  <div class="zones" id="zones"></div>
+  <div class="exp" id="exp">Kéo một món vào nhóm phù hợp.</div>
+</div>
+<script>
+const items=[
+  {id:'chuoi',src:'images/the_vo_chuoi.png',name:'Vỏ chuối',zone:'huuco',tip:'Vỏ chuối → hữu cơ. Phân hủy thành phân bón.'},
+  {id:'la',src:'images/the_la.png',name:'Lá',zone:'huuco',tip:'Lá cây → hữu cơ.'},
+  {id:'chai',src:'images/the_chai_nhua.png',name:'Chai nhựa',zone:'taiche',tip:'Chai nhựa → tái chế.'},
+  {id:'giay',src:'images/the_giay.png',name:'Giấy',zone:'taiche',tip:'Giấy → tái chế.'},
+  {id:'lon',src:'images/the_lon.png',name:'Lon',zone:'taiche',tip:'Lon kim loại → tái chế.'},
+  {id:'nuoc',src:'images/the_nuoc.png',name:'Nước tưới',zone:'cay',tip:'Nước tưới giúp cây lớn – chăm sóc môi trường.'},
+  {id:'cay',src:'images/the_cay.png',name:'Cây xanh',zone:'cay',tip:'Trồng và chăm cây làm cuộc sống xanh hơn.'}
+];
+const zones=[
+  {id:'huuco',title:'🌿 Hữu cơ'},
+  {id:'taiche',title:'♻️ Tái chế'},
+  {id:'cay',title:'🌱 Chăm cây'}
+];
+let score=0, placed={}, dragId=null;
+function render(){
+  const pool=document.getElementById('pool');pool.innerHTML='';
+  items.filter(it=>!placed[it.id]).forEach(it=>{
+    const b=document.createElement('button');b.className='item';b.draggable=true;b.dataset.id=it.id;
+    b.innerHTML=`<img src="${it.src}" alt="${it.name}">`;
+    b.ondragstart=e=>{dragId=it.id;e.dataTransfer.setData('text/plain',it.id)};
+    b.onclick=()=>{dragId=it.id;document.getElementById('exp').textContent='Đã chọn: '+it.name+'. Bấm vào nhóm phù hợp.';};
+    pool.appendChild(b);
+  });
+  const zel=document.getElementById('zones');zel.innerHTML='';
+  zones.forEach(zn=>{
+    const kids=items.filter(it=>placed[it.id]===zn.id);
+    const div=document.createElement('div');div.className='zone';div.dataset.z=zn.id;
+    div.innerHTML=`<h3>${zn.title}</h3><div class="drop">${kids.map(it=>`<img src="${it.src}" alt="">`).join('')}</div>`;
+    div.ondragover=e=>{e.preventDefault();div.classList.add('over')};
+    div.ondragleave=()=>div.classList.remove('over');
+    div.ondrop=e=>{e.preventDefault();div.classList.remove('over');put(e.dataTransfer.getData('text/plain')||dragId,zn.id)};
+    div.onclick=()=>{if(dragId)put(dragId,zn.id)};
+    zel.appendChild(div);
+  });
+}
+function put(id,z){
+  const it=items.find(x=>x.id===id);if(!it||placed[it.id])return;
+  if(it.zone===z){placed[it.id]=z;score++;document.getElementById('score').textContent=score+' điểm';
+    document.getElementById('exp').innerHTML='<strong style="color:#1b7f6e">Đúng!</strong> '+it.tip;}
+  else{document.getElementById('exp').innerHTML='<strong style="color:#c2412e">Chưa đúng.</strong> Thử nhóm khác nhé.';}
+  dragId=null;render();
+  if(Object.keys(placed).length===items.length)
+    document.getElementById('exp').innerHTML='<strong>Tuyệt vời!</strong> Phân loại rác và chăm cây giúp cuộc sống sạch – xanh hơn. AI có thể gợi ý, em là người thực hiện.';
+}
+render();
+</script>
+</body>
+</html>

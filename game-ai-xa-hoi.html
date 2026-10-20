@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI trong xã hội & nghề nghiệp | Tin học Tiểu học</title>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --coral:#e15a45; --teal:#1b7f6e; --paper:#fff6ee; --ink:#2a211c; --muted:#7a655c; --line:#f0d8c8; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Be Vietnam Pro',system-ui,sans-serif; background:var(--paper); color:var(--ink); }
+    .top { background:#fff; padding:12px 16px; display:flex; gap:12px; align-items:center; box-shadow:0 2px 10px rgba(0,0,0,.05); position:sticky; top:0; }
+    .top a { color:var(--teal); font-weight:700; text-decoration:none; font-size:14px; }
+    .top h1 { font-size:15px; font-weight:800; }
+    .wrap { max-width:760px; margin:0 auto; padding:14px 12px 40px; }
+    .hint { font-size:14px; color:var(--muted); margin-bottom:12px; line-height:1.45; }
+    .jobs { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
+    @media(max-width:520px){ .jobs { grid-template-columns:1fr; } }
+    .job { background:#fff; border:3px solid var(--line); border-radius:16px; overflow:hidden; cursor:pointer; text-align:left; font-family:inherit; }
+    .job.on { border-color:var(--coral); }
+    .job img { width:100%; height:140px; object-fit:cover; display:block; }
+    .job span { display:block; padding:10px; font-weight:800; font-size:14px; }
+    .panel { margin-top:14px; background:#fff; border:2px solid var(--line); border-radius:18px; padding:14px; }
+    .panel img { width:100%; max-height:180px; object-fit:cover; border-radius:12px; margin-bottom:10px; }
+    .steps button { display:block; width:100%; text-align:left; margin-bottom:8px; padding:12px; border-radius:12px; border:2px solid var(--line); background:var(--paper); font-weight:700; font-size:13px; font-family:inherit; cursor:pointer; }
+    .steps button.done { background:#e5f5f1; border-color:var(--teal); color:var(--teal); }
+    .exp { margin-top:10px; background:var(--paper); border-radius:12px; padding:12px; font-size:14px; line-height:1.5; min-height:60px; }
+  </style>
+</head>
+<body>
+  <div class="top">
+    <a href="lam-quen-voi-ai.html">← Trang AI</a>
+    <h1>AI trong xã hội & nghề nghiệp</h1>
+  </div>
+  <div class="wrap">
+    <p class="hint">Bấm chọn một nghề. Làm từng bước để xem AI hỗ trợ thế nào — và ai là người quyết định cuối cùng.</p>
+    <div class="jobs" id="jobs"></div>
+    <div class="panel" id="panel"><p style="text-align:center;color:var(--muted);padding:24px">Chọn một nghề ở trên để bắt đầu</p></div>
+  </div>
+  <script>
+    const jobs = {
+      bs: {
+        title:'Bác sĩ', img:'images/bac-si.jpg', card:'images/nghe_bac_si.png',
+        steps:[
+          {a:'1. Bệnh nhân kể triệu chứng', e:'Con người cung cấp dữ liệu: sốt, đau đầu… AI chưa thay bác sĩ.'},
+          {a:'2. AI gợi ý trên máy', e:'AI so sánh với dữ liệu đã học và đưa gợi ý. Đây chỉ là gợi ý.'},
+          {a:'3. Bác sĩ quyết định', e:'Bác sĩ khám thêm, hỏi thêm rồi mới kê đơn. Trách nhiệm thuộc về bác sĩ.'}
+
+        ]
+      },
+      tx: {
+        title:'Tài xế', img:'images/giao-thong.jpg', card:'images/nghe_tai_xe.png',
+        steps:[
+          {a:'1. AI đọc dữ liệu đường', e:'Camera và bản đồ gửi thông tin ùn tắc cho AI.'},
+          {a:'2. AI gợi ý đường khác', e:'AI đề xuất đường vắng hơn. Gợi ý có thể đổi khi đường đổi.'},
+          {a:'3. Tài xế chọn đường', e:'Người lái quyết định đi hay không. Khi mất bản đồ, người lái phải tự xử lý.'}
+
+        ]
+      },
+      mt: {
+        title:'Nhân viên môi trường', img:'images/rac.jpg', card:'images/nghe_moi_truong.png',
+        steps:[
+          {a:'1. Camera nhìn rác', e:'AI nhận dạng chai nhựa, vỏ chuối… từ hình ảnh.'},
+          {a:'2. AI gợi ý thùng', e:'AI chỉ ra thùng hữu cơ hoặc tái chế. Có thể đúng hoặc sai.'},
+          {a:'3. Người kiểm tra rồi bỏ rác', e:'Nhân viên (hoặc em) kiểm tra lại rồi mới bỏ. Con người chịu trách nhiệm.'}
+
+        ]
+      },
+      gv: {
+        title:'Giáo viên', img:'images/cam-xuc.jpg', card:'images/nghe_giao_vien.png',
+        steps:[
+          {a:'1. AI gợi ý bài tập / ý tưởng', e:'AI có thể gợi ý câu hỏi hoặc ví dụ. Đó chỉ là gợi ý.'},
+          {a:'2. Giáo viên chọn lọc', e:'Cô thầy xem lại, sửa cho phù hợp lớp mình.'},
+          {a:'3. Học sinh vẫn phải học', e:'AI không học hộ em. Em làm bài, cô thầy chấm và hướng dẫn.'}
+
+        ]
+      }
+    };
+    let cur=null, step=0;
+    const jobsEl=document.getElementById('jobs');
+    Object.keys(jobs).forEach(k=>{
+      const j=jobs[k];
+      const b=document.createElement('button');
+      b.className='job';
+      b.innerHTML=`<img src="${j.card}" alt="${j.title}"><span>${j.title}</span>`;
+      b.onclick=()=>{cur=k;step=0;document.querySelectorAll('.job').forEach(x=>x.classList.remove('on'));b.classList.add('on');render();};
+      jobsEl.appendChild(b);
+    });
+    function render(){
+      if(!cur)return;
+      const j=jobs[cur];
+      let h=`<img src="${j.img}" alt="${j.title}"><h3 style="margin-bottom:8px">${j.title}</h3><div class="steps">`;
+      j.steps.forEach((s,i)=>{
+        h+=`<button ${i>step?'disabled style="opacity:.45"':''} class="${i<step?'done':''}" onclick="doStep(${i})">${s.a}${i<step?' ✓':''}</button>`;
+      });
+      h+=`</div><div class="exp">${step===0?'Bấm bước 1. Nhớ: AI hỗ trợ nghề nghiệp, không thay người.':j.steps[step-1].e}</div>`;
+      document.getElementById('panel').innerHTML=h;
+    }
+    function doStep(i){if(i>step)return;step=i+1;render();}
+  </script>
+</body>
+</html>

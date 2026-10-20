@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tương tác: Nên & không nên dùng AI | Tin học Tiểu học</title>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --coral:#e15a45; --teal:#1b7f6e; --paper:#fff6ee; --ink:#2a211c; --muted:#7a655c; --line:#f0d8c8; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Be Vietnam Pro',system-ui,sans-serif; background:var(--paper); color:var(--ink); }
+    .top { background:#fff; padding:12px 16px; display:flex; align-items:center; gap:12px; box-shadow:0 2px 10px rgba(0,0,0,.05); position:sticky; top:0; }
+    .top a { color:var(--teal); font-weight:700; text-decoration:none; font-size:14px; }
+    .top h1 { font-size:16px; font-weight:800; }
+    .wrap { max-width:720px; margin:0 auto; padding:16px 14px 48px; }
+    .card { background:#fff; border:2px solid var(--line); border-radius:18px; padding:14px; margin-bottom:12px; }
+    .row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    @media(max-width:520px){ .row { grid-template-columns:1fr; } }
+    .choice { border:3px solid var(--line); border-radius:14px; overflow:hidden; cursor:pointer; background:var(--paper); font-family:inherit; text-align:center; }
+    .choice img { width:100%; height:clamp(170px,28vw,230px); object-fit:contain; object-position:center; background:#fff9f2; display:block; padding:6px; }
+    @media(max-width:520px){ .choice img { height:clamp(175px,54vw,240px); } }
+    .choice p { padding:10px; font-size:13px; font-weight:800; }
+    .choice.bad { border-color:var(--coral); background:#fde8e4; }
+    .choice.good { border-color:var(--teal); background:#e5f5f1; }
+    .exp { margin-top:12px; border-radius:12px; padding:12px; font-size:14px; line-height:1.5; background:var(--paper); min-height:72px; }
+    .exp.bad { background:#fde8e4; }
+    .exp.good { background:#e5f5f1; }
+  </style>
+</head>
+<body>
+  <div class="top">
+    <a href="lam-quen-voi-ai.html">← Trang AI</a>
+    <h1>Nên & không nên dùng AI</h1>
+  </div>
+  <div class="wrap">
+    <div class="card">
+      <h2 style="font-size:15px;margin-bottom:10px">Tình huống: Làm bài tập về nhà — bấm vào tranh</h2>
+      <div class="row">
+        <button class="choice" id="bad" onclick="pick('bad')">
+          <img src="images/minh-hoa-ro-net/khong_nen_dung_ai.jpg" alt="Copy bài AI">
+          <p>Copy nguyên bài AI nộp</p>
+        </button>
+        <button class="choice" id="good" onclick="pick('good')">
+          <img src="images/minh-hoa-ro-net/nen_dung_ai.jpg" alt="Tự kiểm tra">
+          <p>AI gợi ý → em tự kiểm tra & viết lại</p>
+        </button>
+      </div>
+      <div class="exp" id="exp">👆 Bấm một trong hai tranh để xem giải thích.</div>
+    </div>
+  </div>
+  <script>
+    function pick(t){
+      document.getElementById('bad').className = 'choice' + (t==='bad'?' bad':'');
+      document.getElementById('good').className = 'choice' + (t==='good'?' good':'');
+      const exp = document.getElementById('exp');
+      if (t==='bad'){
+        exp.className = 'exp bad';
+        exp.innerHTML = '<strong>Không nên.</strong> Copy nguyên văn bài AI → dễ sai, em không học được, và em chịu trách nhiệm về bài nộp.';
+      } else {
+        exp.className = 'exp good';
+        exp.innerHTML = '<strong>Nên làm.</strong> Dùng AI tham khảo ý tưởng, rồi tự đọc, suy nghĩ và viết bằng lời của mình. Em vẫn là người làm chủ kiến thức.';
+      }
+    }
+  </script>
+</body>
+</html>

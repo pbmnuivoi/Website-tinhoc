@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
@@ -138,10 +138,10 @@
       padding: 0 16px;
     }
     .grade-tab {
-      padding: 12px 22px; border-radius: 999px; border: 2px solid transparent;
+      padding: 10px 14px; border-radius: 999px; border: 2px solid transparent;
       background: var(--card); box-shadow: var(--shadow);
-      font-weight: 700; font-size: 14px; cursor: pointer; transition: 0.2s;
-      display: flex; align-items: center; gap: 8px;
+      font-weight: 700; font-size: 12px; cursor: pointer; transition: 0.2s;
+      display: flex; align-items: center; gap: 6px;
     }
     .grade-tab:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
     .grade-tab.active {
@@ -177,6 +177,7 @@
     }
 
     /* Lesson cards */
+    .lesson-card:hover .lesson-icon-pro > div { transform: translateY(-4px) rotate(-2deg); box-shadow: 0 13px 28px rgba(37,99,235,.22), inset 0 1px 0 rgba(255,255,255,.4); }
     .lessons-grid {
       display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
       gap: 16px;
@@ -409,121 +410,105 @@
   <!-- Hero -->
   <section class="hero-ai">
     <div class="wrap">
-      <div class="badge"><i class="fas fa-sparkles"></i>Mạch logic · Lớp 1 → 5</div>
+      <div class="badge"><i class="fas fa-sparkles"></i> 5 chủ đề · Phiếu khảo sát cuối mỗi chủ đề</div>
       <h1>Làm quen với AI</h1>
-      <p> 
-        Mục tiêu : 
-      - Nhận biết AI là công cụ do con người tạo ra, không phải con người.
-      - Biết suy nghĩ độc lập, đặt câu hỏi và kiểm chứng thông tin từ AI.
-      - Hình thành thói quen sử dụng công nghệ đúng mục đích, có đạo đức và an toàn.
-      </p>
+      <p>Từ nhận biết cảm xúc, AI hỗ trợ con người, học tập, ứng dụng thực tế đến trách nhiệm của con người khi dùng AI.</p>
       <div class="hero-stats">
-        <div class="hero-stat"><strong>5</strong><span>Chuyên đề</span></div>
-        <div class="hero-stat"><strong>6–8</strong><span>Bài / lớp</span></div>
-        <div class="hero-stat"><strong>15+</strong><span>Trò chơi AI</span></div>
+        <div class="hero-stat"><strong>5</strong><span>Chủ đề</span></div>
+        <div class="hero-stat"><strong>4</strong><span>Phiếu khảo sát</span></div>
+        <div class="hero-stat"><strong>15+</strong><span>Trò chơi tương tác</span></div>
       </div>
     </div>
   </section>
 
-  <!-- Grade tabs -->
+  <!-- Topic tabs -->
   <div class="grade-tabs" id="gradeTabs">
-    <button class="grade-tab active" data-grade="1"><span class="num">1</span> Lớp 1</button>
-    <button class="grade-tab" data-grade="2"><span class="num">2</span> Lớp 2</button>
-    <button class="grade-tab" data-grade="3"><span class="num">3</span> Lớp 3</button>
-    <button class="grade-tab" data-grade="4"><span class="num">4</span> Lớp 4</button>
-    <button class="grade-tab" data-grade="5"><span class="num">5</span> Lớp 5</button>
+    <button class="grade-tab active" data-grade="1"><span class="num" style="font-size:18px">🤖</span> Làm quen với AI</button>
+    <button class="grade-tab" data-grade="2"><span class="num" style="font-size:18px">🤝</span> AI hỗ trợ con người</button>
+    <button class="grade-tab" data-grade="3"><span class="num" style="font-size:18px">📚</span> Sử dụng AI trong học tập</button>
+    <button class="grade-tab" data-grade="4"><span class="num" style="font-size:18px">🏠</span> Ứng dụng AI trong cuộc sống</button>
+    <button class="grade-tab" data-grade="5"><span class="num" style="font-size:18px">⚖️</span> AI và trách nhiệm</button>
   </div>
 
   <main class="main">
     <div class="wrap">
 
-      <!-- ========== LỚP 1 ========== -->
+      <!-- ========== CHỦ ĐỀ 1: Làm quen với AI ========== -->
       <div class="grade-panel active" id="grade-1">
         <div class="grade-intro">
-          <h2><i class="fas fa-seedling" style="color:var(--green)"></i> Lớp 1 — AI quanh em</h2>
-          <p><strong>Mục tiêu:</strong> Nhận biết AI, quan sát, chạm và chọn. Ít chữ, không cần gõ dài. Phù hợp học sinh mới vào lớp 1.</p>
+          <h2><i class="fas fa-robot" style="color:var(--blue)"></i> Làm quen với AI</h2>
+          <p><strong>Mục tiêu:</strong> Hiểu con người có cảm xúc thật, AI chỉ thể hiện cảm xúc do lập trình. Nhận diện AI quanh em và làm quen máy thông minh.</p>
           <div class="modules-row">
-            <span class="mod-chip">Cảm xúc</span>
-            <span class="mod-chip">Đúng / Sai</span>
-            <span class="mod-chip">Âm thanh</span>
-            <span class="mod-chip">Kéo thả</span>
-            <span class="mod-chip">Học từ ví dụ</span>
-            <span class="mod-chip">Camera đoán</span>
+            <span class="mod-chip">Cảm xúc thật vs AI</span>
+            <span class="mod-chip">AI lập trình cảm xúc</span>
+            <span class="mod-chip">Nhận diện AI</span>
+            <span class="mod-chip">Phiếu khảo sát</span>
           </div>
         </div>
         <div class="lessons-grid" id="lessons-1"></div>
       </div>
 
-      <!-- ========== LỚP 2 ========== -->
+      <!-- ========== CHỦ ĐỀ 2: AI hỗ trợ con người ========== -->
       <div class="grade-panel" id="grade-2">
         <div class="grade-intro">
-          <h2><i class="fas fa-compass" style="color:var(--orange)"></i> Lớp 2 — AI và cuộc sống</h2>
-          <p><strong>Mục tiêu:</strong> Biết AI giúp được gì, cũng có lúc sai. Làm quen dữ liệu (ảnh mẫu), rủi ro khi chia sẻ, và ý tưởng đơn giản.</p>
+          <h2><i class="fas fa-hands-helping" style="color:var(--green)"></i> AI hỗ trợ con người</h2>
+          <p><strong>Mục tiêu:</strong> Biết khi nào nên / không nên dùng AI. AI làm việc – con người kiểm soát. AI trong gia đình và cách con người dạy AI.</p>
           <div class="modules-row">
-            <span class="mod-chip">Phân loại</span>
-            <span class="mod-chip">Ảnh thật / giả</span>
-            <span class="mod-chip">Dữ liệu</span>
-            <span class="mod-chip">An toàn</span>
-            <span class="mod-chip">Màu thật</span>
-            <span class="mod-chip">Kể chuyện</span>
+            <span class="mod-chip">Nên & không nên</span>
+            <span class="mod-chip">Con người kiểm soát</span>
+            <span class="mod-chip">AI trong gia đình</span>
+            <span class="mod-chip">Phiếu khảo sát</span>
           </div>
         </div>
         <div class="lessons-grid" id="lessons-2"></div>
       </div>
 
-      <!-- ========== LỚP 3 ========== -->
+      <!-- ========== CHỦ ĐỀ 3: Sử dụng AI trong học tập ========== -->
       <div class="grade-panel" id="grade-3">
         <div class="grade-intro">
-          <h2><i class="fas fa-tasks" style="color:var(--blue)"></i> Lớp 3 — Học cùng AI</h2>
-          <p><strong>Mục tiêu:</strong> Em chủ động nhờ AI, rồi tự kiểm tra. Làm theo bước, ghép câu lệnh đơn giản, nhận ra AI có thể sai.</p>
+          <h2><i class="fas fa-book-open" style="color:var(--orange)"></i> Sử dụng AI trong học tập</h2>
+          <p><strong>Mục tiêu:</strong> Cách dùng AI học tập đúng cách, không phụ thuộc hoàn toàn, suy nghĩ kỹ, kiểm tra và phản biện kết quả của AI.</p>
           <div class="modules-row">
-            <span class="mod-chip">Đếm ngón tay</span>
-            <span class="mod-chip">Hỏi – Đáp</span>
-            <span class="mod-chip">Bắt lỗi</span>
-            <span class="mod-chip">Thứ tự bước</span>
-            <span class="mod-chip">Câu lệnh</span>
-            <span class="mod-chip">Học từ ví dụ</span>
+            <span class="mod-chip">Cách dùng AI học</span>
+            <span class="mod-chip">Không phụ thuộc</span>
+            <span class="mod-chip">Kiểm tra & phản biện</span>
+            <span class="mod-chip">Phiếu khảo sát</span>
           </div>
         </div>
         <div class="lessons-grid" id="lessons-3"></div>
       </div>
 
-      <!-- ========== LỚP 4 ========== -->
+      <!-- ========== CHỦ ĐỀ 4: Ứng dụng AI trong cuộc sống ========== -->
       <div class="grade-panel" id="grade-4">
         <div class="grade-intro">
-          <h2><i class="fas fa-lightbulb" style="color:var(--purple)"></i> Lớp 4 — AI giúp giải quyết vấn đề</h2>
-          <p><strong>Mục tiêu:</strong> Từ việc cần làm → chọn cách nhờ AI → tạo sản phẩm nhỏ → đánh giá và sửa. Bảo vệ thông tin cá nhân.</p>
+          <h2><i class="fas fa-home" style="color:var(--purple)"></i> Ứng dụng AI trong cuộc sống</h2>
+          <p><strong>Mục tiêu:</strong> AI trong công việc hằng ngày, hỗ trợ suy nghĩ, vì cuộc sống tốt đẹp hơn, AI trong xã hội. Con người quyết định khi dùng AI.</p>
           <div class="modules-row">
-            <span class="mod-chip">Câu lệnh</span>
-            <span class="mod-chip">Tạo tranh</span>
-            <span class="mod-chip">An toàn dữ liệu</span>
-            <span class="mod-chip">Màu thật</span>
-            <span class="mod-chip">Hỏi – kiểm tra</span>
-            <span class="mod-chip">Cải tiến</span>
+            <span class="mod-chip">Công việc hằng ngày</span>
+            <span class="mod-chip">AI vì cuộc sống</span>
+            <span class="mod-chip">AI trong xã hội</span>
+            <span class="mod-chip">Phiếu khảo sát</span>
           </div>
         </div>
         <div class="lessons-grid" id="lessons-4"></div>
       </div>
 
-      <!-- ========== LỚP 5 ========== -->
+      <!-- ========== CHỦ ĐỀ 5: AI và trách nhiệm của con người ========== -->
       <div class="grade-panel" id="grade-5">
         <div class="grade-intro">
-          <h2><i class="fas fa-crown" style="color:var(--pink)"></i> Lớp 5 — AI công bằng và có trách nhiệm</h2>
-          <p><strong>Mục tiêu:</strong> Dùng AI có trách nhiệm, phát hiện thiên vị, cải thiện dữ liệu, đọc % chắc chắn và tự huấn luyện lại mô hình.</p>
+          <h2><i class="fas fa-balance-scale" style="color:var(--pink)"></i> AI và trách nhiệm của con người</h2>
+          <p><strong>Mục tiêu:</strong> Con người chịu trách nhiệm. AI không thay thế con người. AI phục vụ lợi ích chung. Vai trò con người trong kỷ nguyên AI.</p>
           <div class="modules-row">
-            <span class="mod-chip">Vai trò AI</span>
-            <span class="mod-chip">Trách nhiệm</span>
-            <span class="mod-chip">Cộng đồng</span>
-            <span class="mod-chip">Thiên vị</span>
-            <span class="mod-chip">% chắc chắn</span>
-            <span class="mod-chip">Huấn luyện</span>
+            <span class="mod-chip">Chịu trách nhiệm</span>
+            <span class="mod-chip">Không thay thế</span>
+            <span class="mod-chip">Lợi ích chung</span>
+            <span class="mod-chip">Phiếu khảo sát</span>
           </div>
         </div>
         <div class="lessons-grid" id="lessons-5"></div>
       </div>
 
-      <!-- Featured interactive games -->
-      <div class="demo-section" style="margin-top:28px">
+            <div class="demo-section" style="margin-top:28px">
         <h2><i class="fas fa-rocket" style="color:var(--orange)"></i> Trò chơi AI đầy đủ tương tác</h2>
         <p>Nhận diện hình ảnh, âm thanh thật, máy học Bút & Sách, cảm xúc, bàn tay — chơi ngay.</p>
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-top:8px">
@@ -548,17 +533,11 @@
           <a href="game-ai-ke-chuyen.html" style="display:block;padding:16px;border-radius:14px;background:linear-gradient(135deg,#ec4899,#8b5cf6);color:#fff;text-align:center;font-weight:700;text-decoration:none">
             <div style="font-size:28px;margin-bottom:6px">📖</div>Cùng AI kể chuyện<br><span style="font-size:11px;opacity:.85;font-weight:500">Chọn → AI kể</span>
           </a>
-          <a href="game-ai-hoi-dap.html" style="display:block;padding:16px;border-radius:14px;background:linear-gradient(135deg,#0b5fff,#6366f1);color:#fff;text-align:center;font-weight:700;text-decoration:none">
-            <div style="font-size:28px;margin-bottom:6px">💬</div>AI Hỏi – Đáp<br><span style="font-size:11px;opacity:.85;font-weight:500">Gợi ý → Kiểm tra</span>
-          </a>
           <a href="game-ai-bat-loi.html" style="display:block;padding:16px;border-radius:14px;background:linear-gradient(135deg,#ef4444,#f97316);color:#fff;text-align:center;font-weight:700;text-decoration:none">
             <div style="font-size:28px;margin-bottom:6px">🕵️</div>Bắt lỗi AI<br><span style="font-size:11px;opacity:.85;font-weight:500">AI có thể sai!</span>
           </a>
           <a href="game-ai-an-toan.html" style="display:block;padding:16px;border-radius:14px;background:linear-gradient(135deg,#00a86b,#0b5fff);color:#fff;text-align:center;font-weight:700;text-decoration:none">
             <div style="font-size:28px;margin-bottom:6px">🛡️</div>AI An toàn<br><span style="font-size:11px;opacity:.85;font-weight:500">Lớp 1→5</span>
-          </a>
-          <a href="game-ai-xay-cau-lenh.html" style="display:block;padding:16px;border-radius:14px;background:linear-gradient(135deg,#6366f1,#7c3aed);color:#fff;text-align:center;font-weight:700;text-decoration:none">
-            <div style="font-size:28px;margin-bottom:6px">🧩</div>Kỹ sư câu lệnh<br><span style="font-size:11px;opacity:.85;font-weight:500">Lớp 3–5</span>
           </a>
           <a href="game-ai-tim-khac-biet.html" style="display:block;padding:16px;border-radius:14px;background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;text-align:center;font-weight:700;text-decoration:none">
             <div style="font-size:28px;margin-bottom:6px">🔍</div>Tìm điểm khác biệt<br><span style="font-size:11px;opacity:.85;font-weight:500">Ảnh thật / ảnh giả</span>
@@ -587,158 +566,121 @@
           <a href="game-ai-xep-buoc.html" style="display:block;padding:16px;border-radius:14px;background:linear-gradient(135deg,#00a86b,#0b5fff);color:#fff;text-align:center;font-weight:700;text-decoration:none">
             <div style="font-size:28px;margin-bottom:6px">📋</div>AI sắp xếp bước<br><span style="font-size:11px;opacity:.85;font-weight:500">Kéo thả thứ tự</span>
           </a>
+
+          <a href="game-ai-doi-thoai.html" style="display:block;padding:16px;border-radius:14px;background:linear-gradient(135deg,#7c3aed,#0b5fff);color:#fff;text-align:center;font-weight:700;text-decoration:none">
+            <div style="font-size:28px;margin-bottom:6px">💬</div>Đối thoại AI – Em kiểm soát<br><span style="font-size:11px;opacity:.85;font-weight:500">5 câu kiểm tra đúng/sai</span>
+          </a>
+          <a href="khao-sat-nhan-dien-ai.html" style="display:block;padding:16px;border-radius:14px;background:linear-gradient(135deg,#00a86b,#0b5fff);color:#fff;text-align:center;font-weight:700;text-decoration:none">
+            <div style="font-size:28px;margin-bottom:6px">📋</div>Khảo sát nhận diện AI<br><span style="font-size:11px;opacity:.85;font-weight:500">5 câu Đúng/Sai</span>
+          </a>
+          <a href="khao-sat-day-ai.html" style="display:block;padding:16px;border-radius:14px;background:linear-gradient(135deg,#e11d8b,#7c3aed);color:#fff;text-align:center;font-weight:700;text-decoration:none">
+            <div style="font-size:28px;margin-bottom:6px">✏️</div>Khảo sát dạy AI<br><span style="font-size:11px;opacity:.85;font-weight:500">Bút & Sách</span>
+          </a>
+          <a href="khao-sat-kiem-tra-ai.html" style="display:block;padding:16px;border-radius:14px;background:linear-gradient(135deg,#ff7a00,#e11d8b);color:#fff;text-align:center;font-weight:700;text-decoration:none">
+            <div style="font-size:28px;margin-bottom:6px">🔍</div>Khảo sát kiểm tra AI<br><span style="font-size:11px;opacity:.85;font-weight:500">Phản biện kết quả</span>
+          </a>
+          <a href="khao-sat-trach-nhiem.html" style="display:block;padding:16px;border-radius:14px;background:linear-gradient(135deg,#00a86b,#166534);color:#fff;text-align:center;font-weight:700;text-decoration:none">
+            <div style="font-size:28px;margin-bottom:6px">⚖️</div>Khảo sát trách nhiệm<br><span style="font-size:11px;opacity:.85;font-weight:500">Con người quyết định</span>
+          </a>
+          <a href="khao-sat-cuoc-song.html" style="display:block;padding:16px;border-radius:14px;background:linear-gradient(135deg,#0ea5e9,#2563eb);color:#fff;text-align:center;font-weight:700;text-decoration:none"><div style="font-size:28px;margin-bottom:6px">🏠</div>Khảo sát AI trong cuộc sống<br><span style="font-size:11px;opacity:.85;font-weight:500">Thiết bị thông minh</span></a>
         </div>
       </div>
 
     </div>
   </main>
 
-  <footer class="footer">
-    <div class="wrap footer-inner">
-      <p>© 2024 Tin học Tiểu học. Tất cả quyền được bảo lưu.</p>
-      <div class="footer-links">
-        <a href="#">Giới thiệu</a><span>|</span>
-        <a href="#">Điều khoản</a><span>|</span>
-        <a href="#">Bảo mật</a><span>|</span>
-        <a href="#">Liên hệ</a>
-      </div>
-      <div class="socials">
-        <a href="https://www.facebook.com/AITroGiangTinHocvaCongNghe" title="Facebook"><i class="fab fa-facebook-f"></i></a>
-        <a href="https://youtube.com/@tinhoc-congnghe-tieuhoc?si=U-1daItW4d_8kxpG" title="YouTube"><i class="fab fa-youtube"></i></a>
-        <a href="#" class="zalo" title="Zalo">Zalo</a>
+  <footer style="background:#0f172a;color:#94a3b8;padding:40px 0 24px;margin-top:40px">
+    <div class="wrap" style="text-align:center">
+      <p style="font-size:13px;margin-bottom:12px">© Tin học Tiểu học · Làm quen với AI</p>
+      <div class="socials" style="display:flex;gap:12px;justify-content:center">
+        <a href="https://www.facebook.com/AITroGiangTinHocvaCongNghe" title="Facebook" style="color:#94a3b8"><i class="fab fa-facebook-f"></i></a>
+        <a href="https://youtube.com/@tinhoc-congnghe-tieuhoc?si=U-1daItW4d_8kxpG" title="YouTube" style="color:#94a3b8"><i class="fab fa-youtube"></i></a>
       </div>
     </div>
   </footer>
 
   <script>
-    // ========== DATA: 12 lessons x 5 grades ==========
+    // ========== DATA theo 5 CHỦ ĐỀ (không dùng lớp) ==========
     const curriculum = {
-      1: [
-        { t: 1, noiDung: "Con người và cảm xúc", ungDung: "Nhìn mặt bạn → đoán vui hay buồn", troChoi: "AI đọc cảm xúc", goiY: "Chỉ cần bật camera và cười hoặc làm mặt buồn." },
-        { t: 2, noiDung: "AI vì con người", ungDung: "Việc này do AI hay do người làm?", troChoi: "AI hay không AI?", goiY: "Chọn Đúng / Sai — rất ít chữ." },
-        { t: 3, noiDung: "AI quanh em", ungDung: "Nghe tiếng thật rồi chọn đúng hình", troChoi: "Nghe tiếng đoán vật", goiY: "Bấm nghe → chọn hình. Không cần gõ chữ." },
-        { t: 4, noiDung: "AI nhận dạng hình học", ungDung: "Vẽ tròn, vuông, tam giác trên bảng", troChoi: "AI Nhận dạng hình", goiY: "Vẽ hình rồi bấm AI đoán — xem % từng loại hình." },
-        { t: 5, noiDung: "AI học từ ví dụ", ungDung: "Xem ảnh Bút & Sách → cho AI học", troChoi: "AI Máy học", goiY: "Bấm “Cho AI học”, rồi đưa bút/sách vào camera." },
-        { t: 6, noiDung: "AI thực hiện nhiệm vụ", ungDung: "Đưa đồ vật trước camera để AI đoán tên", troChoi: "AI đoán đồ vật", goiY: "Camera nhìn đồ thật và hiện tên đồ vật." }
+      1: [ // Làm quen với AI
+        { t: 1, noiDung: "Con người có cảm xúc, AI thì không", ungDung: "Xem tranh bạn vui thật và robot – hiểu cảm xúc chân thật", troChoi: "Cảm xúc thật & AI", goiY: "Chỉ dùng tranh cam-xuc để giải thích.", img: "images/icon_cx_that.png" },
+        { t: 2, noiDung: "AI thể hiện cảm xúc do con người lập trình", ungDung: "3 câu Đúng/Sai về cảm xúc AI kèm tranh cam-xuc", troChoi: "Đúng Sai cảm xúc AI", goiY: "Chọn Đúng hoặc Sai, đọc giải thích.", img: "images/icon_robot.png" },
+        { t: 3, noiDung: "Ý nghĩa cảm xúc mà AI thể hiện", ungDung: "Bấm biểu tượng vui/buồn/giận → robot đổi mặt", troChoi: "Biểu tượng cảm xúc AI", goiY: "Chọn icon cảm xúc, xem mặt robot tương ứng.", img: "images/icon_bieu_cam.png" },
+        { t: 4, noiDung: "Nhận diện AI trong cuộc sống", ungDung: "Xe tự lái, loa thông minh, camera, robot hút bụi", troChoi: "AI hay không AI?", goiY: "Quan sát thiết bị, chọn cái nào có AI.", img: "images/icon_nhan_dien.png" },
+        { t: 5, noiDung: "Làm quen máy thông minh & nhận biết AI", ungDung: "Phiếu khảo sát 5 câu Đúng/Sai – điền họ tên lớp, in được", troChoi: "Khảo sát nhận diện AI", goiY: "Cuối chủ đề – làm phiếu củng cố.", img: "images/icon_phieu.png" }
       ],
-      2: [
-        { t: 1, noiDung: "AI hỗ trợ con người", ungDung: "Xếp đồ vật vào đúng nhóm", troChoi: "AI Phân loại", goiY: "Kéo từng món vào nhóm phù hợp." },
-        { t: 2, noiDung: "Biết giới hạn và kiểm soát", ungDung: "Tìm ảnh có chi tiết không đúng sự thật", troChoi: "Tìm điểm khác biệt", goiY: "So sánh 2 ảnh, chọn ảnh kỳ lạ." },
-        { t: 3, noiDung: "Hiểu dữ liệu", ungDung: "Cho AI học ảnh chó, mèo, chim", troChoi: "AI Máy học con vật", goiY: "Dữ liệu = ảnh mẫu. AI học từ ảnh rồi đoán." },
-        { t: 4, noiDung: "Nhận diện rủi ro", ungDung: "Chọn việc nên / không nên làm với AI", troChoi: "AI An toàn", goiY: "Tình huống ngắn, chọn câu trả lời an toàn." },
-        { t: 5, noiDung: "Xác định vấn đề", ungDung: "Đưa vật màu vào camera, AI nói tên màu", troChoi: "AI nhận màu thật", goiY: "Giúp em nhận ra AI “nhìn” màu như thế nào." },
-        { t: 6, noiDung: "Hình thành ý tưởng AI", ungDung: "Chọn nhân vật + nơi → AI kể chuyện ngắn", troChoi: "Cùng AI kể chuyện", goiY: "Chỉ cần chọn, không cần viết dài." }
+      2: [ // AI hỗ trợ con người
+        { t: 1, noiDung: "Khi nào nên và không nên dùng AI", ungDung: "3 câu hỏi có icon – chọn Đúng/Sai", troChoi: "Nên & không nên dùng AI", goiY: "Đọc tình huống, chọn Đúng hoặc Sai.", img: "images/icon_nen.png" },
+        { t: 2, noiDung: "AI làm việc, con người kiểm soát", ungDung: "Đối thoại: AI trả lời → em kiểm tra đúng/sai", troChoi: "Đối thoại AI – Em kiểm soát", goiY: "Em là người quyết định AI đúng hay sai.", img: "images/icon_doi_thoai.png" },
+        { t: 3, noiDung: "AI trong gia đình", ungDung: "Phân loại đồ vật, robot hút bụi, loa thông minh", troChoi: "AI Phân loại", goiY: "Kéo đồ vào đúng nhóm.", img: "images/icon_gia_dinh.png" },
+        { t: 4, noiDung: "AI hỗ trợ mọi người", ungDung: "AI nhận dạng màu sắc vật quanh em", troChoi: "AI nhận màu thật", goiY: "Quan sát màu thật, xem AI nhận đúng không.", img: "images/icon_mau.png" },
+        { t: 5, noiDung: "Con người dạy AI qua tương tác", ungDung: "Phiếu khảo sát 5 câu – điền họ tên lớp, in được", troChoi: "Khảo sát dạy AI", goiY: "Cuối chủ đề – phiếu củng cố.", img: "images/icon_day_ai.png" }
       ],
-      3: [
-        { t: 1, noiDung: "AI hỗ trợ học tập", ungDung: "Kéo số A B C D + phép tính → AI tính", troChoi: "AI Học Toán", goiY: "Ghép phép tính, chọn tính đúng hoặc bắt lỗi AI." },
-        { t: 2, noiDung: "Con người chủ động", ungDung: "Chọn câu hỏi → xem gợi ý AI → em xác nhận", troChoi: "AI Hỏi – Đáp", goiY: "Em là người quyết định đúng/sai, không phải AI." },
-        { t: 3, noiDung: "Kiểm tra kết quả", ungDung: "Tìm chỗ AI trả lời sai và sửa", troChoi: "Bắt lỗi AI", goiY: "Đọc câu AI, tìm lỗi, chọn chỗ đúng." },
-        { t: 4, noiDung: "AI trong trường học", ungDung: "Xếp đúng thứ tự các bước dùng AI", troChoi: "AI sắp xếp bước", goiY: "Kéo bước 1→2→3… phù hợp giờ học." },
-        { t: 5, noiDung: "AI ra quyết định", ungDung: "Ghép đủ ý để nhờ AI làm việc rõ ràng", troChoi: "Kỹ sư câu lệnh", goiY: "Kéo thả từ khóa thành câu nhờ AI." },
-        { t: 6, noiDung: "Dữ liệu và cách AI học", ungDung: "Cho AI học cây, hoa, lá rồi thử đoán", troChoi: "AI Máy học cây cảnh", goiY: "Thấy rõ: thêm ví dụ → AI đoán tốt hơn." },
-        { t: 7, noiDung: "Nhận diện sai lệch", ungDung: "Tìm chi tiết AI “bịa” trong ảnh", troChoi: "Tìm điểm khác biệt", goiY: "Luyện mắt phát hiện thông tin sai." }
+      3: [ // Sử dụng AI trong học tập
+        { t: 1, noiDung: "Cách sử dụng AI trong học tập", ungDung: "AI nhận dạng màu, AI vẽ tranh, AI nhận dạng hình", troChoi: "AI Tạo Tranh", goiY: "Dùng AI gợi ý, em tự hoàn thiện.", img: "images/icon_hoc.png" },
+        { t: 2, noiDung: "Không phụ thuộc hoàn toàn vào AI", ungDung: "Em vẫn tự làm, AI chỉ hỗ trợ", troChoi: "AI Nhận dạng hình", goiY: "AI hỗ trợ, em quyết định và hoàn thành.", img: "images/icon_hoc.png" },
+        { t: 3, noiDung: "Suy nghĩ kỹ trước khi dùng AI", ungDung: "Quan sát thật rồi mới nhờ AI xác nhận", troChoi: "AI nhận màu thật", goiY: "Suy nghĩ trước, dùng AI sau.", img: "images/icon_mau.png" },
+        { t: 4, noiDung: "AI trong trường học", ungDung: "AI kể chuyện gợi ý – em phát triển thêm", troChoi: "Cùng AI kể chuyện", goiY: "AI gợi ý, em sáng tạo tiếp.", img: "images/icon_hoc.png" },
+        { t: 5, noiDung: "Kiểm tra và phản biện kết quả của AI", ungDung: "Phiếu khảo sát 5 câu – điền họ tên lớp, in được", troChoi: "Khảo sát kiểm tra AI", goiY: "Cuối chủ đề – luôn kiểm tra AI.", img: "images/icon_phieu.png" }
       ],
-      4: [
-        { t: 1, noiDung: "AI hỗ trợ con người", ungDung: "Nêu rõ việc cần AI giúp bằng câu lệnh", troChoi: "Kỹ sư câu lệnh", goiY: "Từ nhu cầu → thành câu AI hiểu được." },
-        { t: 2, noiDung: "Mục đích và lựa chọn", ungDung: "Chọn ý tưởng rồi để AI vẽ tranh", troChoi: "AI Tạo Tranh", goiY: "Em chọn mục đích (nhân vật, cảnh) trước khi AI vẽ." },
-        { t: 3, noiDung: "An toàn dữ liệu", ungDung: "Tình huống bảo vệ tên, ảnh, mật khẩu", troChoi: "AI An toàn", goiY: "Học gì được chia sẻ, gì phải giữ kín." },
-        { t: 4, noiDung: "AI trong đời sống", ungDung: "AI nhận màu vật thật quanh em", troChoi: "AI nhận màu thật", goiY: "Áp dụng AI vào đồ vật hàng ngày." },
-        { t: 5, noiDung: "Xác định vấn đề", ungDung: "Đặt câu hỏi rõ, kiểm tra gợi ý của AI", troChoi: "AI Hỏi – Đáp", goiY: "Em xác định vấn đề rồi mới nhờ AI." },
-        { t: 6, noiDung: "Đánh giá và cải tiến", ungDung: "Phát hiện lỗi AI và cách hỏi lại tốt hơn", troChoi: "Bắt lỗi AI", goiY: "Không dừng ở “sai”, mà nghĩ cách cải thiện." },
-        { t: 7, noiDung: "Hình thành giải pháp AI", ungDung: "Sắp xếp quy trình để AI hoàn thành việc", troChoi: "AI sắp xếp bước", goiY: "Từ ý tưởng thành các bước thực hiện." }
+      4: [ // Ứng dụng AI trong cuộc sống
+        { t: 1, noiDung: "AI trong công việc hằng ngày", ungDung: "Tương tác 3 thiết bị: hút bụi, loa, xe tự lái (không dùng camera)", troChoi: "Ba thiết bị AI", goiY: "Bấm từng thiết bị, làm từng bước.", img: "images/icon_xe.png" },
+        { t: 2, noiDung: "AI hỗ trợ, con người suy nghĩ", ungDung: "AI vẽ tranh gợi ý – em quyết định và sáng tạo", troChoi: "AI Tạo Tranh", goiY: "Lấy ý tưởng từ AI rồi tự phát triển.", img: "images/icon_hoc.png" },
+        { t: 3, noiDung: "AI vì cuộc sống tốt đẹp hơn", ungDung: "Kéo thả: dọn rác, chăm cây, tưới nước – nhận xét bên dưới", troChoi: "Dọn rác & chăm cây", goiY: "Phân loại rác và chăm cây xanh.", img: "images/icon_cay.png" },
+        { t: 4, noiDung: "AI trong xã hội", ungDung: "AI đoán đồ vật bằng camera – luôn kiểm tra vì dữ liệu học ít AI có thể sai", troChoi: "AI đoán đồ vật", goiY: "Dùng camera như trước. Ghi chú: dữ liệu học ít, AI có thể sai – luôn kiểm tra lại.", img: "images/icon_doan.png" },
+        { t: 5, noiDung: "Con người quyết định khi dùng AI", ungDung: "Phiếu khảo sát 5 câu – điền họ tên lớp, in được", troChoi: "Khảo sát trách nhiệm", goiY: "Cuối chủ đề – vai trò con người.", img: "images/icon_phieu.png" }
       ],
-      5: [
-        { t: 1, noiDung: "AI thay đổi công việc", ungDung: "Việc nào AI làm được, việc nào cần người?", troChoi: "AI hay không AI?", goiY: "Phân biệt vai trò AI và con người." },
-        { t: 2, noiDung: "AI phục vụ con người", ungDung: "Chọn cách dùng AI an toàn, tôn trọng người khác", troChoi: "AI An toàn", goiY: "Trách nhiệm khi dùng AI với bạn bè, cộng đồng." },
-        { t: 3, noiDung: "Lợi ích cộng đồng", ungDung: "Tạo câu chuyện AI giúp mọi người", troChoi: "Cùng AI kể chuyện", goiY: "Ý tưởng phục vụ lớp, trường, xóm." },
-        { t: 4, noiDung: "Lựa chọn phù hợp", ungDung: "Viết / ghép câu lệnh đủ ý, lịch sự, rõ ràng", troChoi: "Kỹ sư câu lệnh", goiY: "Chọn công cụ và cách nhờ AI phù hợp mục tiêu." },
-        { t: 5, noiDung: "Nhận diện thiên vị", ungDung: "Tìm thông tin lệch, không công bằng từ AI", troChoi: "Bắt lỗi AI", goiY: "Thiên vị = AI thiên về một phía không công bằng." },
-        { t: 6, noiDung: "Cải thiện dữ liệu", ungDung: "Thêm ví dụ tốt để AI đoán chính xác hơn", troChoi: "AI Máy học", goiY: "Dữ liệu tốt hơn → quyết định AI tốt hơn." },
-        { t: 7, noiDung: "Hiểu quyết định AI", ungDung: "Đọc % chắc chắn: AI “tin” đáp án bao nhiêu?", troChoi: "AI Máy học", goiY: "Không tin mù quáng — xem mức độ chắc chắn." },
-        { t: 8, noiDung: "Học máy – huấn luyện và cải tiến", ungDung: "Thử cả 3 nhóm: đồ dùng, con vật, cây cảnh", troChoi: "AI Máy học", goiY: "Tự huấn luyện → thử → sửa ví dụ → thử lại." }
+      5: [ // AI và trách nhiệm
+        { t: 1, noiDung: "Con người chịu trách nhiệm khi sử dụng AI", ungDung: "Kéo thả 3 tình huống vào cách xử lý phù hợp: tự làm, kiểm tra AI, và chịu trách nhiệm về bài làm", troChoi: "Con người chịu trách nhiệm", goiY: "Đọc từng tình huống, kéo đáp án phù hợp vào ô trống.", img: "images/icon_nen.png" },
+        { t: 2, noiDung: "AI không thay thế con người", ungDung: "Robot hút bụi, xe mất bản đồ, em vẫn phải học", troChoi: "AI không thay thế", goiY: "Xem giới hạn của máy.", img: "images/icon_xe.png" },
+        { t: 3, noiDung: "AI phục vụ lợi ích chung", ungDung: "Bác sĩ, phân loại rác, đường đi – AI gợi ý, người quyết định", troChoi: "AI lợi ích chung", goiY: "Chọn tình huống, làm từng bước.", img: "images/icon_xa_hoi.png" },
+        { t: 4, noiDung: "Con người trong kỷ nguyên AI", ungDung: "Đối thoại đơn giản: AI trả lời → em chọn đúng/sai → xác nhận cuối", troChoi: "Đối thoại AI – Em kiểm soát", goiY: "Nội dung gợi ý ngắn, phù hợp tiểu học.", img: "images/icon_doi_thoai.png" },
+        { t: 5, noiDung: "Kiểm tra thông tin khi dùng AI", ungDung: "Phiếu khảo sát 5 câu – điền họ tên lớp, in được", troChoi: "Khảo sát trách nhiệm", goiY: "Cuối chủ đề – luôn kiểm tra AI.", img: "images/icon_phieu.png" }
       ]
     };
 
-    const colors = ['c1','c2','c3','c4','c5','c6'];
+const colors = ['c1','c2','c3','c4','c5','c6'];
 
-    // Map game names → interactive HTML files
+    // Map game names → interactive HTML files (đã loại bỏ AI Hỏi–Đáp và Kỹ sư câu lệnh)
     const gameMap = {
-      'English với AI': 'game-ai-english.html',
-      'AI Nhận dạng hình': 'game-ai-hinh-hoc.html',
-      'AI Học Toán': 'game-ai-hoc-toan.html',
-      'AI sắp xếp bước': 'game-ai-xep-buoc.html',
-      'AI nhận màu thật': 'game-ai-mau-that.html',
-      'AI Máy học cây cảnh': 'game-ai-may-hoc.html',
-      'AI Máy học con vật': 'game-ai-may-hoc.html',
-      'Tìm điểm khác biệt': 'game-ai-tim-khac-biet.html',
-      'AI Tạo Tranh': 'game-ai-tao-tranh.html',
-      'AI Phân loại': 'game-ai-phan-loai.html',
-      'AI Hỏi – Đáp': 'game-ai-hoi-dap.html',
-      'AI An toàn': 'game-ai-an-toan.html',
-
-      'AI hay không AI?': 'game-ai-hay-khong.html',
-      'Ai nhận ra trước?': 'game-ai-cam-xuc.html',
-      'AI đoán đồ vật': 'game-ai-doan-do-vat.html',
-      'AI Máy học': 'game-ai-may-hoc.html',
+      'Cảm xúc thật & AI': 'game-ai-cam-xuc-giai-thich.html',
+      'Đúng Sai cảm xúc AI': 'game-ai-cam-xuc-dung-sai.html',
+      'Biểu tượng cảm xúc AI': 'game-ai-cam-xuc-tuong-tac.html',
       'AI đọc cảm xúc': 'game-ai-cam-xuc.html',
-      'AI đếm ngón tay': 'game-ai-ban-tay.html',
-      'Con gì đây?': 'game-ai-cam-xuc.html',
-      'Nghe tiếng đoán vật': 'game-ai-doan-am-thanh.html',
-      'Săn màu – săn hình': 'game-ai-mau-hinh.html',
+      'AI hay không AI?': 'game-ai-hay-khong.html',
+      'Con người chịu trách nhiệm': 'game-ai-trach-nhiem.html',
+      'Khảo sát nhận diện AI': 'khao-sat-nhan-dien-ai.html',
+      'Nên & không nên dùng AI': 'game-ai-nen-khong-nen.html',
+      'Đối thoại AI – Em kiểm soát': 'game-ai-doi-thoai.html',
+      'AI Phân loại': 'game-ai-phan-loai.html',
+      'AI nhận màu thật': 'game-ai-mau-that.html',
+      'Khảo sát dạy AI': 'khao-sat-day-ai.html',
+      'AI Tạo Tranh': 'game-ai-tao-tranh.html',
+      'AI Nhận dạng hình': 'game-ai-hinh-hoc.html',
       'Cùng AI kể chuyện': 'game-ai-ke-chuyen.html',
-      'Tạo bức tranh AI': 'game-ai-tao-tranh.html',
-      'Hỏi AI – chọn đáp án': 'game-ai-hoi-dap.html',
-      'AI nói đúng hay sai?': 'game-ai-bat-loi.html',
-      'An toàn hay không?': 'game-ai-an-toan.html',
-      'Đường đua AI lớp 1': 'game-ai-hay-khong.html',
-      'Ai nhớ giỏi?': 'game-ai-tim-khac-biet.html',
-      'AI phân loại': 'game-ai-phan-loai.html',
-      'Tìm cặp thông minh': 'game-ai-tim-khac-biet.html',
+      'Khảo sát kiểm tra AI': 'khao-sat-kiem-tra-ai.html',
+      'Ba thiết bị AI': 'game-ai-ba-thiet-bi.html',
+      'Dọn rác & chăm cây': 'game-ai-cuoc-song-tot.html',
+      'AI đoán đồ vật': 'game-ai-doan-do-vat.html',
+      'Khảo sát trách nhiệm': 'khao-sat-trach-nhiem.html',
+      'Khảo sát ứng dụng AI trong cuộc sống': 'khao-sat-cuoc-song.html',
+      'AI không thay thế': 'game-ai-khong-thay-the.html',
+      'AI lợi ích chung': 'game-ai-loi-ich-chung.html',
+      'AI trong xã hội': 'game-ai-doan-do-vat.html',
+      'AI đếm ngón tay': 'game-ai-ban-tay.html',
+      'AI đoán âm thanh': 'game-ai-doan-am-thanh.html',
+      'AI hỏi đáp': 'game-ai-hoi-dap.html',
+      'AI học toán': 'game-ai-hoc-toan.html',
+      'AI máy học': 'game-ai-may-hoc.html',
+      'AI xếp bước': 'game-ai-xep-buoc.html',
+      'AI xây câu lệnh': 'game-ai-xay-cau-lenh.html',
+      'AI tìm cặp': 'game-ai-tim-cap.html',
       'AI tìm khác biệt': 'game-ai-tim-khac-biet.html',
-      'Đưa về đúng nhóm': 'game-ai-phan-loai.html',
-      'Ghép câu thông minh': 'game-ai-ke-chuyen.html',
-      'Xếp chuyện cùng AI': 'game-ai-ke-chuyen.html',
-      'Bức tranh bí mật': 'game-ai-tao-tranh.html',
-      'Ai trả lời nhanh?': 'game-ai-hoi-dap.html',
-      'Thám tử AI': 'game-ai-bat-loi.html',
-      'Nên hay không nên?': 'game-ai-an-toan.html',
-      'Cuộc phiêu lưu AI lớp 2': 'game-ai-phan-loai.html',
-      'AI giúp gì cho em?': 'game-ai-hay-khong.html',
-      'Câu hỏi thông minh': 'game-ai-hoi-dap.html',
-      'Xây câu lệnh': 'game-ai-xay-cau-lenh.html',
-      'Thợ săn thông tin': 'game-ai-hoi-dap.html',
-      'Đúng hay chưa chắc?': 'game-ai-bat-loi.html',
-      'Ghép đoạn văn': 'game-ai-ke-chuyen.html',
-      'Nhà văn AI': 'game-ai-ke-chuyen.html',
-      'Họa sĩ AI': 'game-ai-tao-tranh.html',
-      'Trợ lý học tập': 'game-ai-ban-tay.html',
-      'Bắt lỗi AI': 'game-ai-bat-loi.html',
-      'Thông tin nào được chia sẻ?': 'game-ai-an-toan.html',
-      'Thử thách AI lớp 3': 'game-ai-bat-loi.html',
-      'AI ở đâu quanh ta?': 'game-ai-hay-khong.html',
-      'Thợ săn nhiệm vụ': 'game-ai-phan-loai.html',
-      'Kỹ sư câu lệnh': 'game-ai-xay-cau-lenh.html',
-      'Truy tìm thông tin': 'game-ai-hoi-dap.html',
-      'Thám tử sự thật': 'game-ai-bat-loi.html',
-      'Biên tập viên AI': 'game-ai-ke-chuyen.html',
-      'Studio AI': 'game-ai-tao-tranh.html',
-      'Nhà thuyết trình': 'game-ai-ke-chuyen.html',
-      'AI giải quyết vấn đề': 'game-ai-hoi-dap.html',
-      'Săn lỗi AI': 'game-ai-bat-loi.html',
-      'Người dùng AI có trách nhiệm': 'game-ai-an-toan.html',
-      'AI Challenge lớp 4': 'game-ai-bat-loi.html',
-      'AI quanh em': 'game-ai-hay-khong.html',
-      'Chọn đúng công cụ': 'game-ai-phan-loai.html',
-      'Master Prompt': 'game-ai-xay-cau-lenh.html',
-      'Truy tìm dữ kiện': 'game-ai-hoi-dap.html',
-      'AI nói thật không?': 'game-ai-bat-loi.html',
-      'Thám tử thông tin': 'game-ai-bat-loi.html',
-      'Biên tập viên nhí': 'game-ai-ke-chuyen.html',
-      'Nhà thiết kế AI': 'game-ai-tao-tranh.html',
-      'Studio thuyết trình': 'game-ai-ke-chuyen.html',
-      'Quyết định thông minh': 'game-ai-an-toan.html',
-      'Giám khảo AI': 'game-ai-bat-loi.html',
-      'AI Project lớp 5': 'game-ai-tao-tranh.html'
+      'AI nhanh hơn': 'game-ai-nhanh-hon.html',
+      'AI an toàn': 'game-ai-an-toan.html',
+      'AI English': 'game-ai-english.html',
+      'AI bắt lỗi': 'game-ai-bat-loi.html',
+      'AI màu hình': 'game-ai-mau-hinh.html'
     };
 
     function renderLessons(grade) {
@@ -748,45 +690,72 @@
         let href = gameMap[l.troChoi] || 'game-ai-hay-khong.html';
         if (href.includes('game-ai-an-toan')) href += (href.includes('?') ? '&' : '?') + 'lop=' + grade;
         const tip = l.goiY ? `<div class="lesson-tip"><i class="fas fa-lightbulb"></i> ${l.goiY}</div>` : '';
+        const isSurvey = l.troChoi.includes('Khảo sát');
+        const emojiMap = {1:'😊',2:'🤖',3:'💬',4:'🔍',5:'📋'};
+        const emojiMap2 = {1:'✅',2:'🗣️',3:'🏠',4:'🎨',5:'📝'};
+        const emojiMap3 = {1:'📖',2:'💪',3:'🤔',4:'🏫',5:'🔬'};
+        const emojiMap4 = {1:'🚗',2:'✏️',3:'🌱',4:'📷',5:'👤'};
+        const emojiMap5 = {1:'🛡️',2:'🚫',3:'🌍',4:'💬',5:'✔️'};
+        const emojis = {1:emojiMap,2:emojiMap2,3:emojiMap3,4:emojiMap4,5:emojiMap5};
+        const emoji = (emojis[grade] && emojis[grade][l.t]) ? emojis[grade][l.t] : '⭐';
+        const iconSets = {
+          1: ['fa-face-smile','fa-robot','fa-face-grin-stars','fa-magnifying-glass-chart','fa-clipboard-check'],
+          2: ['fa-scale-balanced','fa-user-shield','fa-house-signal','fa-handshake-angle','fa-chalkboard-user'],
+          3: ['fa-book-open-reader','fa-person-chalkboard','fa-brain','fa-school','fa-circle-check'],
+          4: ['fa-car-side','fa-lightbulb','fa-seedling','fa-earth-asia','fa-user-check'],
+          5: ['fa-user-shield','fa-people-arrows-left-right','fa-people-group','fa-comments','fa-shield-halved']
+        };
+        const iconColors = [
+          ['#2563eb','#06b6d4'], ['#059669','#34d399'], ['#ea580c','#fbbf24'],
+          ['#7c3aed','#c084fc'], ['#db2777','#fb7185']
+        ];
+        const ico = (iconSets[grade] && iconSets[grade][l.t-1]) || 'fa-sparkles';
+        const palette = iconColors[grade-1] || iconColors[0];
+        const imgHtml = `<div class="lesson-img lesson-icon-pro" style="margin:14px 0;text-align:center;">
+          <div aria-hidden="true" style="display:inline-flex;align-items:center;justify-content:center;width:88px;height:88px;border-radius:24px;background:linear-gradient(135deg,${palette[0]},${palette[1]});color:#fff;box-shadow:0 9px 22px ${palette[0]}33, inset 0 1px 0 rgba(255,255,255,.35);font-size:34px;transition:transform .22s,box-shadow .22s;">
+            <i class="fas ${ico}"></i>
+          </div>
+        </div>`;
         return `
-        <div class="lesson-card">
+        <div class="lesson-card" ${isSurvey ? 'style="border:2px solid var(--green)"' : ''}>
           <div class="lesson-head">
             <div class="lesson-num ${colors[i % 6]}">${l.t}</div>
             <h3>${l.noiDung}</h3>
           </div>
           <div class="lesson-body">
+            ${imgHtml}
             <div class="lesson-row">
-              <span class="lesson-label">Làm gì?</span>
+              <span class="lesson-label">${isSurvey ? '📋 Phiếu khảo sát' : 'Làm gì?'}</span>
               <span class="lesson-val">${l.ungDung}</span>
             </div>
             ${tip}
             <div class="lesson-game">
-              <span class="game-name"><i class="fas fa-gamepad"></i> ${l.troChoi}</span>
-              <a class="btn-play" href="${href}">Bắt đầu</a>
+              <span class="game-name"><i class="fas fa-${isSurvey ? 'clipboard-list' : 'gamepad'}"></i> ${l.troChoi}</span>
+              <a class="btn-play" href="${href}">${isSurvey ? 'Làm phiếu' : 'Bắt đầu'}</a>
             </div>
           </div>
         </div>`;
       }).join('');
     }
 
-    // Render all grades
+    // Render all topics
     [1,2,3,4,5].forEach(renderLessons);
 
-    // Grade tabs
+    // Topic tabs
     function activateGrade(g) {
       g = String(g);
       if (!['1','2','3','4','5'].includes(g)) g = '1';
       document.querySelectorAll('.grade-tab').forEach(t => t.classList.toggle('active', t.dataset.grade === g));
       document.querySelectorAll('.grade-panel').forEach(p => p.classList.toggle('active', p.id === 'grade-' + g));
       try { localStorage.setItem('ai_grade', g); } catch(e) {}
-      history.replaceState(null, '', '#lop' + g);
+      history.replaceState(null, '', '#chu-de' + g);
     }
     document.querySelectorAll('.grade-tab').forEach(tab => {
       tab.addEventListener('click', () => activateGrade(tab.dataset.grade));
     });
-    // Restore grade from hash or localStorage
+    // Restore from hash or localStorage
     (function() {
-      const fromHash = (location.hash.match(/lop([1-5])/) || [])[1];
+      const fromHash = (location.hash.match(/chu-de([1-5])/) || location.hash.match(/lop([1-5])/) || [])[1];
       let g = fromHash || localStorage.getItem('ai_grade') || '1';
       activateGrade(g);
     })();

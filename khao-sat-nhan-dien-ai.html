@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phiếu khảo sát – Làm quen với AI | Tin học Tiểu học</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --blue: #0b5fff; --blue-dark: #0842b3; --blue-soft: #eef4ff;
+  --orange: #ff7a00; --green: #00a86b; --purple: #7c3aed;
+  --pink: #e11d8b; --cyan: #06b6d4; --bg: #f0f4fa;
+  --card: #ffffff; --text: #0f172a; --muted: #64748b;
+  --line: #e2e8f0; --radius: 16px;
+  --shadow: 0 4px 20px rgba(15,23,42,.06);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Be Vietnam Pro',system-ui,sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+.topbar { background:var(--card); border-bottom:1px solid var(--line); padding:12px 16px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:50; }
+.brand { display:flex; align-items:center; gap:10px; }
+.brand-mark { width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg,var(--blue),#3b82f6); color:#fff; display:grid; place-items:center; font-size:16px; }
+.brand h1 { font-size:15px; font-weight:800; color:var(--blue); }
+.brand p { font-size:11px; color:var(--muted); }
+.btn-back { display:inline-flex; align-items:center; gap:6px; padding:8px 14px; border-radius:999px; border:1.5px solid var(--blue); color:var(--blue); font-weight:700; font-size:13px; background:#fff; cursor:pointer; text-decoration:none; }
+.btn-back:hover { background:var(--blue); color:#fff; }
+
+.wrap { max-width:1100px; margin:0 auto; padding:16px; }
+
+/* Start screen */
+.start-screen { background:var(--card); border-radius:20px; padding:28px 24px; box-shadow:var(--shadow); max-width:520px; margin:40px auto; text-align:center; }
+.start-screen .icon { font-size:48px; margin-bottom:12px; }
+.start-screen h2 { font-size:22px; margin-bottom:8px; color:var(--blue); }
+.start-screen p { color:var(--muted); font-size:14px; margin-bottom:20px; line-height:1.5; }
+.form-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px; text-align:left; }
+.form-row label { font-size:12px; font-weight:700; color:var(--muted); display:block; margin-bottom:4px; }
+.form-row input { width:100%; border:2px solid var(--line); border-radius:12px; padding:11px 14px; font:500 14px 'Be Vietnam Pro',sans-serif; }
+.form-row input:focus { outline:0; border-color:var(--blue); box-shadow:0 0 0 3px rgba(11,95,255,.12); }
+.btn-start { width:100%; padding:14px; border:0; border-radius:14px; background:linear-gradient(135deg,var(--blue),var(--purple)); color:#fff; font:800 16px 'Be Vietnam Pro',sans-serif; cursor:pointer; box-shadow:0 6px 20px rgba(11,95,255,.3); }
+.btn-start:hover { transform:translateY(-1px); }
+
+/* Quiz layout */
+.quiz-layout { display:none; grid-template-columns:1fr 320px; gap:16px; }
+@media(max-width:900px){ .quiz-layout { grid-template-columns:1fr; } .side-panel { order:-1; } }
+
+.chat-card { background:var(--card); border-radius:20px; box-shadow:var(--shadow); overflow:hidden; display:flex; flex-direction:column; min-height:560px; }
+.chat-header { background:linear-gradient(135deg,var(--blue),var(--purple)); color:#fff; padding:14px 18px; display:flex; align-items:center; justify-content:space-between; }
+.chat-header .left { display:flex; align-items:center; gap:10px; }
+.chat-header .avatar { width:40px; height:40px; border-radius:50%; background:rgba(255,255,255,.25); display:grid; place-items:center; font-size:18px; }
+.chat-header h3 { font-size:15px; font-weight:700; }
+.chat-header .sub { font-size:11px; opacity:.85; }
+.progress-pill { background:rgba(255,255,255,.2); padding:6px 12px; border-radius:999px; font-size:12px; font-weight:700; }
+
+.chat-body { flex:1; padding:16px; overflow-y:auto; background:#f8fafc; display:flex; flex-direction:column; gap:12px; max-height:420px; }
+.msg { max-width:92%; padding:12px 14px; border-radius:16px; font-size:14px; line-height:1.5; animation:fadeIn .3s ease; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+.msg.teacher { background:#fff; border:1px solid var(--line); align-self:flex-start; border-bottom-left-radius:4px; }
+.msg.teacher .name { font-size:11px; font-weight:700; color:var(--blue); margin-bottom:4px; }
+.msg.student { background:linear-gradient(135deg,var(--blue),#3b82f6); color:#fff; align-self:flex-end; border-bottom-right-radius:4px; }
+.msg.system { background:#fef3c7; border:1px solid #fbbf24; align-self:center; font-size:13px; text-align:center; max-width:100%; }
+.msg.ai-hint { background:#f3e8ff; border:1px solid #c4b5fd; align-self:flex-start; }
+.msg.ai-hint .note { font-size:11px; color:var(--purple); margin-top:6px; font-weight:600; }
+
+.options-area { padding:14px 16px; border-top:1px solid var(--line); background:#fff; }
+.opts-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
+@media(max-width:480px){ .opts-grid { grid-template-columns:1fr; } }
+.opt-btn { padding:14px 12px; border:2px solid var(--line); border-radius:14px; background:#fff; font:700 15px 'Be Vietnam Pro',sans-serif; cursor:pointer; transition:.2s; text-align:center; }
+.opt-btn:hover { border-color:var(--blue); background:var(--blue-soft); }
+.opt-btn.selected { border-color:var(--blue); background:var(--blue); color:#fff; }
+.opt-btn:disabled { opacity:.6; cursor:not-allowed; }
+
+.action-row { display:flex; gap:10px; flex-wrap:wrap; }
+.btn { display:inline-flex; align-items:center; justify-content:center; gap:6px; padding:11px 18px; border-radius:12px; font:700 13px 'Be Vietnam Pro',sans-serif; border:0; cursor:pointer; transition:.2s; }
+.btn-confirm { background:var(--green); color:#fff; flex:1; }
+.btn-confirm:hover:not(:disabled) { background:#059669; }
+.btn-confirm:disabled { background:#94a3b8; cursor:not-allowed; }
+.btn-ai { background:linear-gradient(135deg,var(--purple),var(--pink)); color:#fff; }
+.btn-ai:hover { opacity:.9; }
+.btn-ai:disabled { opacity:.5; cursor:not-allowed; }
+.btn-info { background:var(--blue-soft); color:var(--blue); border:1.5px solid var(--blue); }
+.btn-info:hover { background:var(--blue); color:#fff; }
+
+.timer-box { display:flex; align-items:center; gap:8px; font-size:13px; color:var(--muted); margin-bottom:8px; }
+.timer-box strong { color:var(--orange); font-size:16px; }
+
+/* Side panel */
+.side-panel { background:var(--card); border-radius:20px; box-shadow:var(--shadow); padding:18px; display:flex; flex-direction:column; gap:14px; }
+.side-panel h4 { font-size:14px; font-weight:800; color:var(--blue); display:flex; align-items:center; gap:8px; }
+.side-panel .info-box { background:var(--blue-soft); border-radius:12px; padding:12px; font-size:13px; line-height:1.55; color:#1e3a5f; }
+.side-panel .info-box strong { display:block; margin-bottom:4px; color:var(--blue); }
+.side-panel .tip { font-size:12px; color:var(--muted); background:#f8fafc; border-radius:10px; padding:10px; border:1px dashed var(--line); }
+.side-panel .log-mini { font-size:11px; color:var(--muted); max-height:120px; overflow-y:auto; }
+
+/* Result screen */
+.result-screen { display:none; background:var(--card); border-radius:20px; padding:28px 24px; box-shadow:var(--shadow); max-width:640px; margin:20px auto; }
+.result-screen .score-big { font-size:48px; font-weight:800; text-align:center; margin:12px 0; }
+.result-screen .grade { text-align:center; font-size:20px; font-weight:800; margin-bottom:16px; }
+.result-screen .metrics { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:16px 0; }
+.metric { background:#f8fafc; border-radius:12px; padding:12px; text-align:center; }
+.metric .val { font-size:22px; font-weight:800; color:var(--blue); }
+.metric .lbl { font-size:11px; color:var(--muted); margin-top:2px; }
+.result-comment { background:#f0fdf4; border:1px solid #86efac; border-radius:12px; padding:14px; font-size:14px; line-height:1.55; margin:12px 0; }
+.result-comment.warn { background:#fef3c7; border-color:#fbbf24; }
+.result-comment.fail { background:#fef2f2; border-color:#fca5a5; }
+.btn-group { display:flex; gap:10px; flex-wrap:wrap; margin-top:16px; }
+.btn-group .btn { flex:1; min-width:140px; }
+.btn-primary { background:var(--blue); color:#fff; }
+.btn-outline { background:#fff; border:2px solid var(--blue); color:var(--blue); }
+
+.log-detail { margin-top:16px; font-size:12px; max-height:200px; overflow-y:auto; background:#f8fafc; border-radius:10px; padding:10px; }
+.log-detail div { padding:4px 0; border-bottom:1px solid var(--line); }
+
+/* Certificate */
+.cert-wrap{display:none;margin-top:20px}
+.cert-box{background:linear-gradient(135deg,#fff9e6 0%,#fff 40%,#e8f5e9 100%);border:4px solid #f59e0b;border-radius:20px;padding:24px 20px;text-align:center;position:relative;overflow:hidden;box-shadow:0 8px 30px rgba(245,158,11,.25)}
+.cert-box::before{content:'⭐';position:absolute;top:12px;left:16px;font-size:28px;opacity:.5}
+.cert-box::after{content:'⭐';position:absolute;top:12px;right:16px;font-size:28px;opacity:.5}
+.cert-badge{font-size:48px;margin-bottom:6px}
+.cert-title{font-size:22px;font-weight:800;color:#b45309;margin:4px 0;letter-spacing:1px}
+.cert-sub{font-size:13px;color:#78716c;margin-bottom:12px}
+.cert-name{font-size:26px;font-weight:800;color:#0b5fff;margin:10px 0;padding:8px 16px;background:rgba(11,95,255,.08);border-radius:12px;display:inline-block}
+.cert-info{font-size:14px;color:#444;line-height:1.7;margin:10px 0}
+.cert-score{font-size:36px;font-weight:800;color:#16a34a;margin:8px 0}
+.cert-footer{font-size:11px;color:#a8a29e;margin-top:14px;border-top:2px dashed #fcd34d;padding-top:10px}
+.btn-cert{background:linear-gradient(135deg,#f59e0b,#ea580c);color:#fff;border:0;padding:14px 22px;border-radius:14px;font:800 15px 'Be Vietnam Pro',sans-serif;cursor:pointer;box-shadow:0 6px 20px rgba(245,158,11,.35);display:inline-flex;align-items:center;gap:8px;margin-top:12px}
+.btn-cert:hover{transform:translateY(-2px)}
+@media print{.topbar,.btn-group,.log-detail,.result-comment,.metrics,.score-big,.grade,.start-screen,.quiz-layout{display:none!important}.cert-wrap{display:block!important}.cert-box{border:3px solid #f59e0b;box-shadow:none}}
+
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark"><i class="fas fa-robot"></i></div>
+      <div>
+        <h1>Phiếu khảo sát</h1>
+        <p>Chủ đề 1 · Làm quen với AI</p>
+      </div>
+    </div>
+    <a href="lam-quen-voi-ai.html" class="btn-back"><i class="fas fa-arrow-left"></i> Quay lại</a>
+  </div>
+
+  <div class="wrap">
+    <!-- START -->
+    <div class="start-screen" id="startScreen">
+      <div class="icon">📋</div>
+      <h2>Phiếu đánh giá – Làm quen với AI</h2>
+      <p>Hệ thống sẽ chọn ngẫu nhiên <strong>5 câu hỏi</strong> Đúng / Sai dành cho học sinh tiểu học. Em hãy đọc kỹ, suy nghĩ và chọn đáp án. Có thể xem gợi ý của AI nhưng nhớ kiểm chứng nhé!</p>
+      <div class="form-row">
+        <div><label>Họ và tên</label><input id="inpName" placeholder="VD: Nguyễn Văn An"></div>
+        <div><label>Lớp</label><input id="inpClass" placeholder="VD: 3A"></div>
+      </div>
+      <button class="btn-start" onclick="startQuiz()"><i class="fas fa-play"></i> Bắt đầu làm phiếu</button>
+    </div>
+
+    <!-- QUIZ -->
+    <div class="quiz-layout" id="quizLayout">
+      <div class="chat-card">
+        <div class="chat-header">
+          <div class="left">
+            <div class="avatar"><i class="fas fa-chalkboard-teacher"></i></div>
+            <div>
+              <h3>Cô giáo AI</h3>
+              <div class="sub">Đang hỏi em nè…</div>
+            </div>
+          </div>
+          <div class="progress-pill" id="progressPill">Câu 1 / 5</div>
+        </div>
+        <div class="chat-body" id="chatBody"></div>
+        <div class="options-area" id="optionsArea">
+          <div class="timer-box"><i class="fas fa-clock"></i> Thời gian chọn: <strong id="timerDisplay">0s</strong></div>
+          <div class="opts-grid" id="optsGrid"></div>
+          <div class="action-row">
+            <button class="btn btn-confirm" id="btnConfirm" disabled onclick="confirmAnswer()"><i class="fas fa-check"></i> Xác nhận đáp án</button>
+            <button class="btn btn-ai" id="btnAI" onclick="showAISuggestion()"><i class="fas fa-magic"></i> AI gợi ý</button>
+            <button class="btn btn-info" id="btnInfo" onclick="toggleInfo()"><i class="fas fa-info-circle"></i> Thông tin</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="side-panel" id="sidePanel">
+        <h4><i class="fas fa-lightbulb"></i> Mục đích & Phân tích</h4>
+        <div class="info-box" id="infoBox">
+          <strong>Chọn câu hỏi để xem</strong>
+          Nhấn nút «Thông tin» để xem mục đích của câu hỏi hiện tại. Hệ thống không tiết lộ đáp án đúng.
+        </div>
+        <div class="tip">💡 Mẹo: Đọc kỹ câu hỏi, suy nghĩ trước khi xem gợi ý AI. Gợi ý AI có thể đúng hoặc sai – em cần kiểm chứng!</div>
+        <h4 style="margin-top:8px"><i class="fas fa-history"></i> Nhật ký hành vi</h4>
+        <div class="log-mini" id="logMini">Chưa có hành động.</div>
+      </div>
+    </div>
+
+    <!-- RESULT -->
+    <div class="result-screen" id="resultScreen">
+      <div style="text-align:center;font-size:40px">🎉</div>
+      <h2 style="text-align:center;color:var(--blue);margin:8px 0">Kết quả phiếu khảo sát</h2>
+      <div class="score-big" id="scoreBig">0%</div>
+      <div class="grade" id="gradeLabel">—</div>
+      <div class="metrics">
+        <div class="metric"><div class="val" id="mCorrect">0/5</div><div class="lbl">Câu đúng</div></div>
+        <div class="metric"><div class="val" id="mVerify">0%</div><div class="lbl">Kiểm chứng</div></div>
+        <div class="metric"><div class="val" id="mIndep">0%</div><div class="lbl">Độc lập (không phụ thuộc AI)</div></div>
+        <div class="metric"><div class="val" id="mSpeed">0s</div><div class="lbl">TB thời gian/câu</div></div>
+      </div>
+      <div class="result-comment" id="resultComment"></div>
+      <div class="log-detail" id="logDetail"></div>
+      
+      <div class="cert-wrap" id="certWrap">
+        <div class="cert-box" id="certBox">
+          <div class="cert-badge">🏆</div>
+          <div class="cert-title">CHỨNG NHẬN HOÀN THÀNH</div>
+          <div class="cert-sub">Phiếu khảo sát Tin học Tiểu học · Chủ đề AI</div>
+          <div class="cert-name" id="certName">—</div>
+          <div class="cert-info">
+            Lớp: <strong id="certClass">—</strong><br>
+            Chủ đề: <strong id="certTopic">Làm quen với AI</strong> 🤖<br>
+            Ngày: <strong id="certDate">—</strong>
+          </div>
+          <div class="cert-score" id="certScore">0%</div>
+          <div style="font-size:14px;color:#16a34a;font-weight:700">ĐÃ ĐẠT YÊU CẦU</div>
+          <div class="cert-footer">Trò chơi Tin học Tiểu học · Làm quen với AI<br>Học sinh đã hoàn thành phiếu khảo sát với kết quả đạt</div>
+        </div>
+        <div style="text-align:center">
+          <button class="btn-cert" onclick="downloadCertPDF()"><i class="fas fa-file-pdf"></i> Tải PDF chứng nhận</button>
+          <button class="btn-cert" style="background:linear-gradient(135deg,#0b5fff,#7c3aed);margin-left:8px" onclick="window.print()"><i class="fas fa-print"></i> In chứng nhận</button>
+        </div>
+      </div>
+
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="location.reload()"><i class="fas fa-redo"></i> Làm lại phiếu</button>
+        <a class="btn btn-outline" href="lam-quen-voi-ai.html"><i class="fas fa-home"></i> Về chủ đề</a>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* ========== QUESTION BANK – Chủ đề 1: Làm quen với AI (Đúng/Sai) ========== */
+const QUESTION_BANK = [
+  // AI nhận biết
+  { id:1, q:"Con người có cảm xúc thật, còn AI chỉ hiện biểu cảm theo chương trình.", ans:true, subject:"AI", purpose:"Giúp em phân biệt cảm xúc thật của người và biểu cảm giả lập của máy.", analysis:"Câu hỏi kiểm tra hiểu biết cơ bản: AI không có cảm xúc thật như con người." },
+  { id:2, q:"Robot vui khi được chơi vì nó có cảm xúc giống bạn.", ans:false, subject:"AI", purpose:"Nhận biết AI không có cảm xúc thật.", analysis:"Robot chỉ đổi mặt cười/khóc khi được lập trình, không cảm nhận được niềm vui." },
+  { id:3, q:"Xe tự lái, loa thông minh, robot hút bụi là ví dụ thiết bị có AI.", ans:true, subject:"Công nghệ", purpose:"Nhận diện các thiết bị dùng AI trong đời sống.", analysis:"Những thiết bị này dùng AI để tự quyết định hành động." },
+  { id:4, q:"Mọi thứ hiện ra trên màn hình máy tính đều do AI tạo ra.", ans:false, subject:"Tin học", purpose:"Phân biệt nội dung do người tạo và do AI tạo.", analysis:"Nhiều nội dung do con người vẽ, gõ, chụp; AI chỉ là một công cụ." },
+  { id:5, q:"AI có thể học từ dữ liệu mà con người cung cấp.", ans:true, subject:"AI", purpose:"Hiểu cách AI được 'dạy'.", analysis:"AI học bằng cách xem rất nhiều ví dụ do con người chuẩn bị." },
+  // Toán đơn giản
+  { id:6, q:"5 + 3 = 8. Đây là phép tính đúng.", ans:true, subject:"Toán", purpose:"Kiểm tra phép cộng cơ bản.", analysis:"Phép cộng đơn giản giúp em luyện tính nhanh." },
+  { id:7, q:"10 - 4 = 5. Đây là phép tính đúng.", ans:false, subject:"Toán", purpose:"Kiểm tra phép trừ.", analysis:"10 trừ 4 bằng 6, không phải 5." },
+  { id:8, q:"2 × 4 = 8. Đây là phép tính đúng.", ans:true, subject:"Toán", purpose:"Kiểm tra phép nhân.", analysis:"Hai nhân bốn bằng tám." },
+  { id:9, q:"12 ÷ 3 = 3. Đây là phép tính đúng.", ans:false, subject:"Toán", purpose:"Kiểm tra phép chia.", analysis:"12 chia 3 bằng 4." },
+  // Tin học
+  { id:10, q:"Chuột máy tính dùng để di chuyển con trỏ trên màn hình.", ans:true, subject:"Tin học", purpose:"Nhận biết thiết bị nhập liệu cơ bản.", analysis:"Chuột giúp ta chỉ và chọn trên màn hình." },
+  { id:11, q:"Bàn phím chỉ dùng để chơi game, không gõ chữ được.", ans:false, subject:"Tin học", purpose:"Hiểu chức năng bàn phím.", analysis:"Bàn phím dùng để gõ chữ, số và lệnh." },
+  // Tiếng Anh
+  { id:12, q:"Trong tiếng Anh, 'Hello' nghĩa là Xin chào.", ans:true, subject:"Tiếng Anh", purpose:"Từ vựng tiếng Anh cơ bản.", analysis:"Hello là lời chào phổ biến." },
+  { id:13, q:"'Cat' trong tiếng Anh nghĩa là con chó.", ans:false, subject:"Tiếng Anh", purpose:"Từ vựng động vật.", analysis:"Cat là con mèo, dog là con chó." },
+  // Công nghệ
+  { id:14, q:"Điện thoại thông minh có thể nhận diện khuôn mặt nhờ AI.", ans:true, subject:"Công nghệ", purpose:"Ứng dụng AI trong thiết bị hàng ngày.", analysis:"Nhiều điện thoại dùng AI để mở khóa bằng khuôn mặt." },
+  { id:15, q:"Máy tính không cần điện vẫn chạy được mãi mãi.", ans:false, subject:"Công nghệ", purpose:"Hiểu thiết bị cần nguồn năng lượng.", analysis:"Mọi thiết bị điện tử đều cần điện để hoạt động." },
+  { id:16, q:"AI có thể thay thế hoàn toàn giáo viên dạy học.", ans:false, subject:"AI", purpose:"Nhận thức giới hạn của AI.", analysis:"AI hỗ trợ, nhưng giáo viên vẫn cần thiết vì có cảm xúc và hiểu học sinh." },
+  { id:17, q:"Khi dùng AI, em nên kiểm tra lại thông tin trước khi tin.", ans:true, subject:"AI", purpose:"Thói quen kiểm chứng.", analysis:"AI đôi khi đưa ra thông tin sai, em cần kiểm tra." },
+  { id:18, q:"4 + 6 = 10 là phép tính đúng.", ans:true, subject:"Toán", purpose:"Phép cộng.", analysis:"Bốn cộng sáu bằng mười." },
+  { id:19, q:"Máy in dùng để in chữ và hình ra giấy.", ans:true, subject:"Tin học", purpose:"Thiết bị ngoại vi.", analysis:"Máy in giúp đưa nội dung từ máy tính ra giấy." },
+  { id:20, q:"'Thank you' nghĩa là Cảm ơn.", ans:true, subject:"Tiếng Anh", purpose:"Lời cảm ơn tiếng Anh.", analysis:"Thank you rất hay dùng khi cảm ơn người khác." }
+];
+
+let studentName = '', studentClass = '';
+let selectedQuestions = [];
+let currentIdx = 0;
+let selectedAnswer = null;
+let questionStartTime = 0;
+let timerInterval = null;
+let usedAIThisQ = false;
+let viewedInfoThisQ = false;
+let logs = [];
+let results = [];
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startQuiz() {
+  studentName = document.getElementById('inpName').value.trim() || 'Học sinh';
+  studentClass = document.getElementById('inpClass').value.trim() || '—';
+  selectedQuestions = shuffle(QUESTION_BANK).slice(0, 5);
+  currentIdx = 0;
+  logs = [];
+  results = [];
+  document.getElementById('startScreen').style.display = 'none';
+  document.getElementById('quizLayout').style.display = 'grid';
+  showQuestion();
+}
+
+function showQuestion() {
+  const q = selectedQuestions[currentIdx];
+  selectedAnswer = null;
+  usedAIThisQ = false;
+  viewedInfoThisQ = false;
+  questionStartTime = Date.now();
+  clearInterval(timerInterval);
+  timerInterval = setInterval(updateTimer, 200);
+
+  document.getElementById('progressPill').textContent = `Câu ${currentIdx + 1} / 5`;
+  const chat = document.getElementById('chatBody');
+  chat.innerHTML = '';
+  addMsg('teacher', `Câu ${currentIdx + 1}: ${q.q}`, 'Cô giáo');
+  addMsg('system', 'Em hãy chọn Đúng hoặc Sai, rồi nhấn Xác nhận.');
+
+  const grid = document.getElementById('optsGrid');
+  grid.innerHTML = `
+    <button class="opt-btn" data-val="true" onclick="selectOpt(this, true)">✅ Đúng</button>
+    <button class="opt-btn" data-val="false" onclick="selectOpt(this, false)">❌ Sai</button>
+  `;
+  document.getElementById('btnConfirm').disabled = true;
+  document.getElementById('btnAI').disabled = false;
+  document.getElementById('infoBox').innerHTML = `<strong>Chưa xem thông tin</strong>Nhấn nút «Thông tin» để xem mục đích câu hỏi (không có đáp án).`;
+  updateTimer();
+  logAction('hiện_câu', `Câu ${currentIdx+1}: ${q.subject}`);
+}
+
+function updateTimer() {
+  const sec = Math.floor((Date.now() - questionStartTime) / 1000);
+  document.getElementById('timerDisplay').textContent = sec + 's';
+}
+
+function selectOpt(btn, val) {
+  document.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedAnswer = val;
+  document.getElementById('btnConfirm').disabled = false;
+  logAction('chọn_đáp_án', val ? 'Đúng' : 'Sai');
+}
+
+function confirmAnswer() {
+  if (selectedAnswer === null) return;
+  clearInterval(timerInterval);
+  const q = selectedQuestions[currentIdx];
+  const timeSpent = Math.floor((Date.now() - questionStartTime) / 1000);
+  const isCorrect = selectedAnswer === q.ans;
+
+  results.push({
+    qid: q.id,
+    subject: q.subject,
+    correct: isCorrect,
+    time: timeSpent,
+    usedAI: usedAIThisQ,
+    viewedInfo: viewedInfoThisQ,
+    answer: selectedAnswer
+  });
+
+  logAction('xác_nhận', `Đáp án: ${selectedAnswer ? 'Đúng' : 'Sai'} | ${isCorrect ? '✓ Đúng' : '✗ Sai'} | ${timeSpent}s | AI:${usedAIThisQ} | Info:${viewedInfoThisQ}`);
+
+  // feedback in chat
+  if (isCorrect) {
+    addMsg('system', '🎉 Em chọn đúng rồi! Giỏi quá!');
+  } else {
+    addMsg('system', '🤔 Chưa đúng lần này. Không sao, mình cùng học tiếp nhé!');
+  }
+
+  document.getElementById('btnConfirm').disabled = true;
+  document.getElementById('btnAI').disabled = true;
+  document.querySelectorAll('.opt-btn').forEach(b => b.disabled = true);
+
+  setTimeout(() => {
+    currentIdx++;
+    if (currentIdx >= 5) {
+      showResult();
+    } else {
+      showQuestion();
+    }
+  }, 1200);
+}
+
+function showAISuggestion() {
+  if (usedAIThisQ) return;
+  usedAIThisQ = true;
+  const q = selectedQuestions[currentIdx];
+  // Randomly give correct or incorrect suggestion (about 60% correct)
+  const giveCorrect = Math.random() < 0.6;
+  let suggestion;
+  if (giveCorrect) {
+    suggestion = q.ans ? 'Đúng' : 'Sai';
+  } else {
+    suggestion = q.ans ? 'Sai' : 'Đúng';
+  }
+  // Sometimes give 2 options
+  let text;
+  if (Math.random() < 0.4) {
+    text = `AI nghĩ có thể là «${suggestion}». Cũng có thể là đáp án kia. Em hãy suy nghĩ kỹ!`;
+  } else {
+    text = `AI gợi ý: đáp án có thể là «${suggestion}».`;
+  }
+  addMsg('ai-hint', text + '<div class="note">⚠️ Đây là gợi ý của AI – em cần xác minh và tự chọn đáp án phù hợp, hoặc có thể nhấn chọn theo gợi ý AI.</div>', 'AI Gợi ý');
+  logAction('xem_AI_gợi_ý', suggestion);
+  document.getElementById('btnAI').disabled = true;
+}
+
+function toggleInfo() {
+  viewedInfoThisQ = true;
+  const q = selectedQuestions[currentIdx];
+  document.getElementById('infoBox').innerHTML = `
+    <strong>Mục đích:</strong> ${q.purpose}<br><br>
+    <strong>Phân tích nội dung:</strong> ${q.analysis}<br><br>
+    <em style="color:#64748b">Hệ thống không đưa ra đáp án đúng để em tự suy nghĩ.</em>
+  `;
+  logAction('xem_thông_tin', q.subject);
+}
+
+function addMsg(type, html, name) {
+  const chat = document.getElementById('chatBody');
+  const div = document.createElement('div');
+  div.className = 'msg ' + type;
+  if (name && type === 'teacher') div.innerHTML = `<div class="name">${name}</div>${html}`;
+  else if (name && type === 'ai-hint') div.innerHTML = `<div class="name" style="color:#7c3aed">${name}</div>${html}`;
+  else div.innerHTML = html;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function logAction(action, detail) {
+  const t = new Date().toLocaleTimeString('vi-VN');
+  logs.push({ t, action, detail });
+  const mini = document.getElementById('logMini');
+  mini.innerHTML = logs.slice(-6).map(l => `<div>[${l.t}] ${l.action}: ${l.detail}</div>`).join('') || 'Chưa có';
+}
+
+function showResult() {
+  document.getElementById('quizLayout').style.display = 'none';
+  document.getElementById('resultScreen').style.display = 'block';
+
+  const correctCount = results.filter(r => r.correct).length;
+  const scorePct = Math.round((correctCount / 5) * 100);
+  const verifyPct = Math.round((results.filter(r => r.viewedInfo).length / 5) * 100);
+  const indepPct = Math.round((results.filter(r => !r.usedAI).length / 5) * 100);
+  const avgTime = Math.round(results.reduce((s, r) => s + r.time, 0) / 5);
+
+  document.getElementById('scoreBig').textContent = scorePct + '%';
+  document.getElementById('mCorrect').textContent = correctCount + '/5';
+  document.getElementById('mVerify').textContent = verifyPct + '%';
+  document.getElementById('mIndep').textContent = indepPct + '%';
+  document.getElementById('mSpeed').textContent = avgTime + 's';
+
+  let grade, commentClass, comment;
+  if (scorePct >= 80) {
+    grade = '🌟 Tốt';
+    commentClass = '';
+    comment = `Tuyệt vời ${studentName} (${studentClass})! Em đã nắm rất tốt chủ đề Làm quen với AI. Tiếp tục phát huy thói quen suy nghĩ độc lập và kiểm chứng thông tin nhé!`;
+  } else if (scorePct >= 60) {
+    grade = '👍 Khá';
+    commentClass = 'warn';
+    comment = `Khá lắm ${studentName}! Em đã hiểu khá nhiều. Hãy ôn lại các câu còn sai, đặc biệt phần ${getWeakSubjects()}. Nếu muốn đạt Tốt, em nên làm lại phiếu này.`;
+  } else {
+    grade = '📝 Cần cố gắng hơn';
+    commentClass = 'fail';
+    comment = `${studentName} ơi, em chưa đạt yêu cầu lần này. Đừng buồn nhé! Hãy xem lại chủ đề Làm quen với AI, chú ý phần ${getWeakSubjects()}, rồi làm lại phiếu. Cô tin em sẽ làm tốt hơn!`;
+  }
+  document.getElementById('gradeLabel').textContent = grade;
+  const rc = document.getElementById('resultComment');
+  rc.className = 'result-comment ' + commentClass;
+  rc.innerHTML = comment;
+
+  // behavior summary
+  let behaviorNote = '';
+  if (indepPct >= 80) behaviorNote += ' Em chọn đáp án khá độc lập, ít phụ thuộc AI. ';
+  else behaviorNote += ' Em hay xem gợi ý AI – nhớ luôn kiểm chứng trước khi chọn nhé! ';
+  if (verifyPct >= 60) behaviorNote += ' Tốt: em có thói quen xem thông tin phân tích. ';
+  else behaviorNote += ' Nên xem mục «Thông tin» nhiều hơn để hiểu mục đích câu hỏi. ';
+  if (avgTime < 8 && scorePct >= 60) behaviorNote += ' Em trả lời nhanh và khá chính xác – rất tốt với câu dễ! ';
+  rc.innerHTML += '<br><br><strong>Nhận xét hành vi:</strong>' + behaviorNote;
+
+  // detailed log
+  document.getElementById('logDetail').innerHTML = '<strong>Chi tiết từng câu:</strong><br>' +
+    results.map((r, i) => `Câu ${i+1} [${r.subject}]: ${r.correct ? '✓' : '✗'} | ${r.time}s | AI:${r.usedAI ? 'có' : 'không'} | Xem info:${r.viewedInfo ? 'có' : 'không'}`).join('<br>');
+
+  // save to localStorage
+  try {
+    const allLogs = JSON.parse(localStorage.getItem('ai_survey_logs') || '[]');
+    allLogs.push({
+      topic: 'nhan-dien-ai',
+      name: studentName,
+      class: studentClass,
+      time: new Date().toISOString(),
+      score: scorePct,
+      results,
+      logs
+    });
+    localStorage.setItem('ai_survey_logs', JSON.stringify(allLogs.slice(-50)));
+  } catch(e) {}
+}
+
+function getWeakSubjects() {
+  const wrong = results.filter(r => !r.correct).map(r => r.subject);
+  if (!wrong.length) return 'không có';
+  const uniq = [...new Set(wrong)];
+  return uniq.join(', ');
+}
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+function showCertificate(scorePct) {
+  if (scorePct < 60) return;
+  const wrap = document.getElementById('certWrap');
+  if (!wrap) return;
+  wrap.style.display = 'block';
+  document.getElementById('certName').textContent = studentName;
+  document.getElementById('certClass').textContent = studentClass;
+  document.getElementById('certDate').textContent = new Date().toLocaleDateString('vi-VN');
+  document.getElementById('certScore').textContent = scorePct + '%';
+}
+async function downloadCertPDF() {
+  const box = document.getElementById('certBox');
+  if (!box || typeof html2canvas === 'undefined') { window.print(); return; }
+  try {
+    const canvas = await html2canvas(box, {scale:2, useCORS:true, backgroundColor:'#fffbeb'});
+    const img = canvas.toDataURL('image/png');
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({orientation:'landscape', unit:'mm', format:'a5'});
+    const pw = pdf.internal.pageSize.getWidth();
+    const ph = pdf.internal.pageSize.getHeight();
+    const ratio = Math.min(pw / canvas.width, ph / canvas.height) * 0.92;
+    const w = canvas.width * ratio;
+    const h = canvas.height * ratio;
+    pdf.addImage(img, 'PNG', (pw-w)/2, (ph-h)/2, w, h);
+    pdf.save('ChungNhan_' + (studentName||'HocSinh').replace(/\s+/g,'_') + '.pdf');
+  } catch(e) {
+    console.error(e);
+    window.print();
+  }
+}
+
+</script>
+</body>
+</html>
